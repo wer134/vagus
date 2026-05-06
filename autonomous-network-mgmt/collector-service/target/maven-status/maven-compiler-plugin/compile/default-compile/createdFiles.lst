@@ -1,0 +1,7 @@
+com\anm\collector\CollectorApplication.class
+com\anm\collector\service\MetricNormalizer.class
+com\anm\collector\service\NetworkMetricCollector.class
+com\anm\collector\client\SnmpClient.class
+com\anm\collector\kafka\MetricPublisher.class
+com\anm\collector\dto\NetworkMetricDto.class
+com\anm\collector\client\SnmpClient$1.class

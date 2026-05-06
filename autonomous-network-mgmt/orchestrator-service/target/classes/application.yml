@@ -1,0 +1,39 @@
+spring:
+  application:
+    name: orchestrator-service
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/anm_db
+    username: anm
+    password: anm_pass
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: orchestrator-group
+      auto-offset-reset: latest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "com.anm.*"
+        spring.json.value.default.type: com.anm.orchestrator.dto.NetworkMetricDto
+
+server:
+  port: 8082
+
+anm:
+  ai-engine:
+    base-url: http://localhost:8000
+  mininet:
+    base-url: http://localhost:5001   # Mock: SNMP Agent의 OSPF PUT 엔드포인트 재사용
+  kafka:
+    topic: network.metrics
+  orchestrator:
+    anomaly-check-enabled: true
+    use-few-shot: false               # true로 변경하면 MAML 에이전트 사용

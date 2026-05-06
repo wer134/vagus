@@ -1,0 +1,60 @@
+{
+  "ppo": [
+    {
+      "samples": 0,
+      "avg_ttr": 100.7
+    },
+    {
+      "samples": 2000,
+      "avg_ttr": 200.0
+    },
+    {
+      "samples": 5000,
+      "avg_ttr": 100.9
+    },
+    {
+      "samples": 10000,
+      "avg_ttr": 200.0
+    },
+    {
+      "samples": 20000,
+      "avg_ttr": 123.7
+    },
+    {
+      "samples": 30000,
+      "avg_ttr": 200.0
+    }
+  ],
+  "maml": [
+    {
+      "samples": 0,
+      "iterations": 0,
+      "avg_ttr": 200.0
+    },
+    {
+      "samples": 9600,
+      "iterations": 20,
+      "avg_ttr": 200.0
+    },
+    {
+      "samples": 24000,
+      "iterations": 50,
+      "avg_ttr": 200.0
+    },
+    {
+      "samples": 48000,
+      "iterations": 100,
+      "avg_ttr": 200.0
+    },
+    {
+      "samples": 72000,
+      "iterations": 150,
+      "avg_ttr": 200.0
+    },
+    {
+      "samples": 96000,
+      "iterations": 200,
+      "avg_ttr": 111.4
+    }
+  ]
+}
