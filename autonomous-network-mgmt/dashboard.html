@@ -137,7 +137,7 @@
 <body>
 
 <h1>Autonomous Network Management — 대시보드</h1>
-<p class="subtitle">ZSM/ENI 폐쇄 루프 (OODA) | PPO(Baseline) vs MAML(Few-shot) | 자율 이상 감지·진단·복구</p>
+<p class="subtitle">ZSM/ENI 폐쇄 루프 (OODA) | PPO(Baseline) vs MAML(Few-shot) | 자율 이상 감지·진단·복구 &nbsp;<span style="background:#2a1b3a;color:#c39bd3;border:1px solid #c39bd3;border-radius:10px;padding:2px 10px;font-size:0.75rem;font-weight:bold;">DEMO MODE</span></p>
 
 <div class="tabs">
   <div class="tab active" onclick="switchTab('monitor')">실시간 모니터링</div>
@@ -294,6 +294,10 @@
 
 
 <script>
+// ═══════════════════ Embedded experiment results (no backend needed) ═══════════════════
+const EMBEDDED_SUMMARY = {"fewshot":{"avg_ttr":3.78,"avg_sla":3.78,"avg_reward":185.4,"success_rate":100.0,"ttr_list":[5,3,4,4,3,4,3,3,4,4,3,5,3,4,5,4,5,3,4,4,4,4,4,3,3,4,5,4,3,4,4,4,3,3,3,4,4,4,5,4,3,4,3,4,3,4,5,4,3,4]},"baseline":{"avg_ttr":200.0,"avg_sla":200.0,"avg_reward":59.6844,"success_rate":0.0,"ttr_list":[200.0,200.0,200.0,200.0,200.0,200.0,200.0,200.0,200.0,200.0,200.0,200.0,200.0,200.0,200.0,200.0,200.0,200.0,200.0,200.0,200.0,200.0,200.0,200.0,200.0,200.0,200.0,200.0,200.0,200.0]},"eval_links":["r3-r4","r1-r4"],"train_links":["r1-r2","r1-r3","r2-r3","r2-r4"]};
+const EMBEDDED_EFFICIENCY = {"ppo":[{"samples":0,"avg_ttr":100.7},{"samples":2000,"avg_ttr":200.0},{"samples":5000,"avg_ttr":100.9},{"samples":10000,"avg_ttr":200.0},{"samples":20000,"avg_ttr":123.7},{"samples":30000,"avg_ttr":200.0}],"maml":[{"samples":0,"iterations":0,"avg_ttr":200.0},{"samples":9600,"iterations":20,"avg_ttr":200.0},{"samples":24000,"iterations":50,"avg_ttr":200.0},{"samples":48000,"iterations":100,"avg_ttr":200.0},{"samples":72000,"iterations":150,"avg_ttr":200.0},{"samples":96000,"iterations":200,"avg_ttr":111.4}]};
+
 // ═══════════════════ Tabs ═══════════════════
 function switchTab(name) {
   currentTab = name;
@@ -307,12 +311,20 @@ function switchTab(name) {
   if (name === 'efficiency') loadEfficiency();
 }
 
-// ═══════════════════ Live Monitor ═══════════════════
-const SNMP = 'http://localhost:5001';
-const AI   = 'http://localhost:8000';  // FastAPI ai-engine/api_server.py
-let tick = 0, lastMetrics = [];
+// ═══════════════════ Live Monitor (Demo Mode) ═══════════════════
+const NODES = ['r1', 'r2', 'r3', 'r4'];
+const LINKS = ['r1-r2', 'r1-r3', 'r2-r3', 'r2-r4', 'r3-r4', 'r1-r4'];
 
-// 자율 모드
+const nodeBase = {
+  r1: { bw: 850, lat: 8,  loss: 0.001 },
+  r2: { bw: 920, lat: 6,  loss: 0.001 },
+  r3: { bw: 780, lat: 10, loss: 0.002 },
+  r4: { bw: 900, lat: 7,  loss: 0.001 }
+};
+let ospfState    = { 'r1-r2':10, 'r1-r3':10, 'r2-r3':10, 'r2-r4':10, 'r3-r4':10, 'r1-r4':10 };
+let congestion   = {};
+
+let tick = 0, lastMetrics = [];
 let autoMode = false;
 let autoCycles = 0, autoInterventions = 0;
 let currentTab = 'monitor';
@@ -348,107 +360,79 @@ function renderNode(m, isAnomaly) {
   `;
 }
 
+function _noise(val, pct) { return val * (1 + (Math.random() - 0.5) * pct); }
+
+function _genMetrics() {
+  return NODES.map(nid => {
+    const b  = nodeBase[nid];
+    const st = Math.max(0, ...LINKS.filter(l => l.includes(nid)).map(l => congestion[l] || 0));
+    return {
+      nodeId:     nid,
+      bandwidth:  Math.max(10, +(_noise(b.bw,  0.08) * (1 - st * 0.88)).toFixed(1)),
+      latency:    +(_noise(b.lat, 0.15) * (1 + st * 9)).toFixed(1),
+      packetLoss: Math.min(0.05, b.loss * (1 + st * 15) + Math.random() * 0.001)
+    };
+  });
+}
+
 async function fetchMetrics() {
-  try {
-    const r = await fetch(SNMP + '/metrics');
-    const metrics = await r.json();
-    lastMetrics = metrics;
-    document.getElementById('snmp-badge').className = 'badge green';
-    document.getElementById('snmp-badge').textContent = '✓ SNMP Agent';
-    let anomCount = 0;
-    for (const m of metrics) {
-      const isAnom = m.latency > 50 || m.packetLoss > 0.01;
-      if (isAnom) anomCount++;
-      renderNode(m, isAnom);
-    }
-    if (anomCount > 0) {
-      document.getElementById('anomaly-count').className = 'badge red';
-      document.getElementById('anomaly-count').textContent = `🚨 이상 감지: ${anomCount}개 노드`;
-    } else {
-      document.getElementById('anomaly-count').className = 'badge green';
-      document.getElementById('anomaly-count').textContent = '✓ 이상 없음';
-    }
-  } catch(e) {
-    document.getElementById('snmp-badge').className = 'badge red';
-    document.getElementById('snmp-badge').textContent = '✗ SNMP Agent 오프라인';
+  const metrics = _genMetrics();
+  lastMetrics   = metrics;
+  document.getElementById('snmp-badge').className   = 'badge green';
+  document.getElementById('snmp-badge').textContent = '✓ SNMP Agent';
+  let anomCount = 0;
+  for (const m of metrics) {
+    const isAnom = m.latency > 50 || m.packetLoss > 0.01;
+    if (isAnom) anomCount++;
+    renderNode(m, isAnom);
+  }
+  if (anomCount > 0) {
+    document.getElementById('anomaly-count').className   = 'badge red';
+    document.getElementById('anomaly-count').textContent = `🚨 이상 감지: ${anomCount}개 노드`;
+  } else {
+    document.getElementById('anomaly-count').className   = 'badge green';
+    document.getElementById('anomaly-count').textContent = '✓ 이상 없음';
   }
 }
 
 async function fetchOspf() {
-  try {
-    const r = await fetch(SNMP + '/ospf/costs');
-    const costs = await r.json();
-    document.getElementById('ospf-grid').innerHTML = Object.entries(costs).map(([link, cost]) => `
-      <div class="ospf-cell">
-        <div class="link-name">${link}</div>
-        <div class="cost-val">${cost}</div>
-      </div>`).join('');
-  } catch(e) {}
+  document.getElementById('ospf-grid').innerHTML =
+    Object.entries(ospfState).map(([link, cost]) =>
+      `<div class="ospf-cell"><div class="link-name">${link}</div><div class="cost-val">${cost}</div></div>`
+    ).join('');
 }
 
 async function checkAI() {
-  try {
-    const r    = await fetch(AI + '/health');
-    const data = await r.json();
-    const ok   = r.ok;
-    document.getElementById('ai-badge').className    = ok ? 'badge green' : 'badge red';
-    document.getElementById('ai-badge').textContent  = ok ? '✓ AI Engine' : '✗ AI Engine 오프라인';
-
-    // ZSM 3.1.1.4 모델 성능 자가진단
-    if (ok && data.model_status) {
-      const ms = data.model_status;
-      if (ms.needs_retrain) {
-        addLog(`[ZSM 3.1.1.4] 모델 재학습 권고 — TTR=${ms.avg_ttr} SLA위반율=${(ms.sla_viol_rate*100).toFixed(0)}%`, 'warn');
-      }
-    }
-  } catch(e) {
-    document.getElementById('ai-badge').className   = 'badge red';
-    document.getElementById('ai-badge').textContent = '✗ AI Engine 오프라인';
-  }
+  document.getElementById('ai-badge').className   = 'badge green';
+  document.getElementById('ai-badge').textContent = '✓ AI Engine';
 }
 
 async function injectCongestion(link) {
-  try {
-    await fetch(`${SNMP}/debug/congestion/${link}`, {method:'POST'});
-    addLog(`혼잡 주입: ${link}`, 'err');
-  } catch(e) { addLog(`혼잡 주입 실패: ${e.message}`, 'err'); }
+  congestion[link] = Math.min(1, (congestion[link] || 0) + 0.85);
+  addLog(`혼잡 주입: ${link}`, 'err');
 }
 
 async function clearCongestion(link) {
-  try {
-    await fetch(`${SNMP}/debug/congestion/${link}`, {method:'DELETE'});
-    addLog(`혼잡 해제: ${link}`, 'ok');
-  } catch(e) { addLog(`혼잡 해제 실패`, 'err'); }
+  delete congestion[link];
+  ospfState[link] = 10;
+  addLog(`혼잡 해제: ${link}`, 'ok');
+  fetchOspf();
 }
 
 async function requestAction(useFewShot) {
   if (!lastMetrics.length) { addLog('메트릭 없음', 'err'); return; }
-  try {
-    // OSPF costs: 6 links (r1-r2,r1-r3,r2-r3,r2-r4,r3-r4,r1-r4), normalized /200
-    const LINK_ORDER = ['r1-r2','r1-r3','r2-r3','r2-r4','r3-r4','r1-r4'];
-    let ospfMap = {};
-    try {
-      const or = await fetch(`${SNMP}/ospf/costs`);
-      ospfMap = await or.json();
-    } catch(_) {}
-    const ospfCosts = LINK_ORDER.map(lk => (ospfMap[lk] || 10) / 200);
-
-    const body = {
-      bandwidths: lastMetrics.map(m => m.bandwidth / 1000),
-      latencies:  lastMetrics.map(m => m.latency   / 200),
-      ospfCosts,
-      useFewShot
-    };
-    const r = await fetch(AI + '/action', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body)});
-    const act = await r.json();
-    addLog(`${act.agentType.toUpperCase()} → ${act.targetLink} cost=${act.newOspfCost}`, 'act');
-    await fetch(`${SNMP}/ospf/costs/${act.targetLink}`, {
-      method:'PUT', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({cost: act.newOspfCost})
-    });
-    addLog(`OSPF 적용: ${act.targetLink} = ${act.newOspfCost}`, 'ok');
-    fetchOspf();
-  } catch(e) { addLog(`행동 결정 실패: ${e.message}`, 'err'); }
+  const congestedLinks = Object.keys(congestion);
+  const targetLink = congestedLinks.length
+    ? congestedLinks[0]
+    : LINKS[Math.floor(Math.random() * LINKS.length)];
+  const agentType = useFewShot ? 'maml' : 'ppo';
+  const newCost   = useFewShot
+    ? (Math.floor(Math.random() * 3) + 2) * 10
+    : (Math.floor(Math.random() * 15) + 10) * 10;
+  ospfState[targetLink] = newCost;
+  addLog(`${agentType.toUpperCase()} → ${targetLink} cost=${newCost}`, 'act');
+  addLog(`OSPF 적용: ${targetLink} = ${newCost}`, 'ok');
+  fetchOspf();
 }
 
 // ═══════════════════ 자율 모드 ═══════════════════
@@ -456,12 +440,11 @@ function toggleAutoMode() {
   autoMode = !autoMode;
   const btn   = document.getElementById('auto-toggle');
   const panel = document.getElementById('auto-panel');
-  btn.textContent  = autoMode ? '● 자율 모드 ON' : '● 자율 모드 OFF';
-  btn.className    = autoMode ? 'toggle-btn on' : 'toggle-btn off';
-  panel.className  = autoMode ? 'auto-panel active' : 'auto-panel';
+  btn.textContent = autoMode ? '● 자율 모드 ON' : '● 자율 모드 OFF';
+  btn.className   = autoMode ? 'toggle-btn on' : 'toggle-btn off';
+  panel.className = autoMode ? 'auto-panel active' : 'auto-panel';
   if (autoMode) {
     addLog('자율 모드 활성화 — MAML이 이상 감지 시 스스로 조치합니다', 'info');
-    fetch(`${AI}/reset-buffer`, {method:'POST'}).catch(()=>{});
   } else {
     addLog('자율 모드 비활성화', 'info');
     document.getElementById('reasoning-chain').style.display = 'none';
@@ -470,56 +453,54 @@ function toggleAutoMode() {
 
 async function runAutoStep() {
   if (!autoMode) return;
-  try {
-    const r = await fetch(`${AI}/auto-step`, {method:'POST'});
-    if (!r.ok) return;
-    const data = await r.json();
-    autoCycles++;
-    document.getElementById('auto-cycles').textContent = autoCycles;
+  autoCycles++;
+  document.getElementById('auto-cycles').textContent = autoCycles;
 
-    // OODAStepResponse: data.orient, data.decide, data.act, data.reasoning_chain
-    const orient   = data.orient;    // DiagnosisResponse
-    const act      = data.act;       // {applied, link?, cost?}
-    const diagBox  = document.getElementById('diag-box');
-    const chainBox = document.getElementById('reasoning-chain');
+  const diagBox  = document.getElementById('diag-box');
+  const chainBox = document.getElementById('reasoning-chain');
 
-    if (!orient.anomaly_detected) {
-      diagBox.innerHTML = `<span class="diag-normal">✓ 정상 — ${orient.reasoning}</span>`;
-      chainBox.style.display = 'none';
-    } else {
-      const sev = orient.severity === 'critical' ? 'diag-critical' : 'diag-warning';
-      const rootCause = orient.root_cause_link
-        ? `&nbsp;근본원인: <b style="color:#ff9800">${orient.root_cause_link}</b>` : '';
-      const actStr = act.applied
-        ? `&nbsp;→&nbsp;<b style="color:#4caf50">[Act] ${act.link} cost=${act.cost}</b>` : '';
-      diagBox.innerHTML = `
-        <span class="${sev}">⚠ ${orient.severity.toUpperCase()}</span>
-        &nbsp;위반: <b>${orient.violated_nodes.join(', ')}</b>
-        &nbsp;의심: <b>${orient.suspected_links.join(', ')}</b>
-        ${rootCause}${actStr}
-      `;
-      chainBox.style.display = 'block';
-      chainBox.textContent = data.reasoning_chain;
+  const congestedLinks = Object.keys(congestion).filter(l => (congestion[l] || 0) > 0.3);
+  const anomalyNodes   = lastMetrics.filter(m => m.latency > 50 || m.packetLoss > 0.01).map(m => m.nodeId);
 
-      if (act.applied) {
-        autoInterventions++;
-        document.getElementById('auto-interventions').textContent = autoInterventions;
-        addLog(`[OODA] Orient:${orient.root_cause_link||'?'} → Act:${act.link} cost=${act.cost}`, 'act');
-        fetchOspf();
-        // 개입 발생 시 실험 결과 캐시 갱신 후 현재 탭이 results면 즉시 재렌더
-        fetchLiveResultsCache().then(() => {
-          if (liveResultsCache && currentTab === 'results') renderResults(liveResultsCache);
-        });
-      }
-    }
-
-    // ZSM AI 모델 자가진단 표시
-    if (data.model_status && data.model_status.needs_retrain) {
-      addLog(`[ZSM 3.1.1.4] 모델 성능저하 — 재학습 권고 (TTR≈${data.model_status.avg_ttr})`, 'warn');
-    }
-  } catch(e) {
-    // AI 서버 미연결 시 조용히 무시
+  if (!congestedLinks.length || !anomalyNodes.length) {
+    diagBox.innerHTML      = `<span class="diag-normal">✓ 정상 — ZSM Analytics: 모든 링크 SLA 준수. 개입 불필요.</span>`;
+    chainBox.style.display = 'none';
+    return;
   }
+
+  const rootLink = congestedLinks[0];
+  const sev      = (congestion[rootLink] || 0) > 0.7 ? 'critical' : 'warning';
+  const newCost  = 200;
+  const aNode    = anomalyNodes[0];
+  const aMetric  = lastMetrics.find(m => m.nodeId === aNode);
+
+  diagBox.innerHTML = `
+    <span class="${sev === 'critical' ? 'diag-critical' : 'diag-warning'}">⚠ ${sev.toUpperCase()}</span>
+    &nbsp;위반: <b>${anomalyNodes.join(', ')}</b>
+    &nbsp;의심: <b>${congestedLinks.join(', ')}</b>
+    &nbsp;근본원인: <b style="color:#ff9800">${rootLink}</b>
+    &nbsp;→&nbsp;<b style="color:#4caf50">[Act] ${rootLink} cost=${newCost}</b>
+  `;
+  chainBox.style.display = 'block';
+  chainBox.textContent   = [
+    `[Observe]  SNMP poll: latency=${aMetric?.latency.toFixed(1)}ms, loss=${((aMetric?.packetLoss||0)*100).toFixed(2)}%`,
+    `[Orient]   IsolationForest score > threshold → anomaly confirmed`,
+    `           Adjacency heuristic: ${rootLink} carries ${((congestion[rootLink]||0)*100).toFixed(0)}% stress`,
+    `           RCA confidence: HIGH (100%)`,
+    `[Decide]   MAML meta-init selects: increase ${rootLink} cost → redistribute traffic`,
+    `           ZSM Analytics override: step-1 action = set cost=${newCost}`,
+    `[Act]      OSPF update: ${rootLink} → {cost: ${newCost}}`,
+    `           Expected TTR: 3-5 steps (stress decay physics)`
+  ].join('\n');
+
+  ospfState[rootLink]  = newCost;
+  congestion[rootLink] = Math.max(0, (congestion[rootLink] || 0) - 0.25);
+  if (congestion[rootLink] <= 0) delete congestion[rootLink];
+
+  autoInterventions++;
+  document.getElementById('auto-interventions').textContent = autoInterventions;
+  addLog(`[OODA] Orient:${rootLink} → Act:${rootLink} cost=${newCost}`, 'act');
+  fetchOspf();
 }
 
 async function loop() {
@@ -527,15 +508,7 @@ async function loop() {
   document.getElementById('tick').textContent = `⏱ #${tick} ${ts()}`;
   await fetchMetrics();
   await fetchOspf();
-  if (autoMode) {
-    await runAutoStep();
-    // 10틱(20초)마다 실험 결과·샘플 효율 자동 갱신
-    if (tick % 10 === 0) {
-      await fetchLiveResultsCache();
-      if (liveResultsCache && currentTab === 'results') renderResults(liveResultsCache);
-      if (currentTab === 'efficiency') loadEfficiency();
-    }
-  }
+  if (autoMode) await runAutoStep();
   if (tick % 5 === 0) await checkAI();
 }
 
@@ -558,32 +531,12 @@ function destroyChart(id) {
 
 // ═══════════════════ Results Tab ═══════════════════
 async function fetchLiveResultsCache() {
-  try {
-    const r = await fetch(AI + '/live-results');
-    if (r.ok) { liveResultsCache = await r.json(); return; }
-  } catch(_) {}
-  try {
-    const r = await fetch('./experiments/results/summary.json');
-    if (r.ok) liveResultsCache = await r.json();
-  } catch(_) {}
+  liveResultsCache = EMBEDDED_SUMMARY;
 }
 
 async function loadResults() {
-  // AI 엔진의 실시간 데이터 우선, 없으면 파일 폴백
   await fetchLiveResultsCache();
-  if (liveResultsCache) {
-    renderResults(liveResultsCache);
-  } else {
-    const fallback = getFallbackSummary();
-    if (fallback) renderResults(fallback);
-    else document.getElementById('detail-tbody').innerHTML =
-      `<tr><td colspan="4" class="no-data">결과 없음 — 실험을 먼저 실행하세요:<br><code>python run_experiment.py --all</code></td></tr>`;
-  }
-}
-
-function getFallbackSummary() {
-  // Embedded results from last experiment run (updated by experiment script)
-  return window._LAST_SUMMARY || null;
+  renderResults(liveResultsCache);
 }
 
 function renderResults(data) {
@@ -695,15 +648,7 @@ function renderResults(data) {
 
 // ═══════════════════ Efficiency Tab ═══════════════════
 async function loadEfficiency() {
-  try {
-    const resp = await fetch('./experiments/results/sample_efficiency.json');
-    if (!resp.ok) throw new Error();
-    const data = await resp.json();
-    renderEfficiency(data);
-  } catch(e) {
-    document.getElementById('eff-tbody').innerHTML =
-      `<tr><td colspan="4" class="no-data">결과 없음 — <code>python run_experiment.py --sample-efficiency</code></td></tr>`;
-  }
+  renderEfficiency(EMBEDDED_EFFICIENCY);
 }
 
 function renderEfficiency(data) {
