@@ -203,4 +203,4 @@ OSPF cost 변경 후 스트레스 감소는 물리적 시정수 `τ = -1/ln(0.9)
 
 ## 실험 상세 보고서
 
-[experiments/experiment_report.md](experiments/experiment_report.md) 참조
+[experiments/experiment_report.md](autonomous-network-mgmt/experiments/experiment_report.md) 참조
