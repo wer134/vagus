@@ -266,7 +266,7 @@ def model_status():
     return perf_tracker.status()
 
 @app.post("/auto-step", response_model=OODAStepResponse)
-def auto_step():
+def auto_step(disable_analytics: bool = False, disable_maml: bool = False):
     """
     ENI 폐쇄 루프 1 사이클 — OODA 패러다임 완전 구현.
 
@@ -333,6 +333,33 @@ def auto_step():
         )
 
     # ══ Decide — MAML 행동 결정 ══════════════════════════════════════
+    if disable_maml:
+        # Analytics-only: root cause에 cost=100 직접 적용
+        if root_cause:
+            link = root_cause
+            cost = 100
+        else:
+            unhandled = diag.get("unhandled_links") or diag.get("suspected_links", [])
+            link = unhandled[0] if unhandled else LINKS[0]
+            cost = 100
+        action_idx = LINKS.index(link) * len(OSPF_COSTS) + (OSPF_COSTS.index(100) if 100 in OSPF_COSTS else 3)
+        adapt_note = "Analytics-only (MAML disabled)"
+        _prev_action = action_idx
+        _apply_ospf(link, cost)
+        chain = (
+            f"[Observe] 위반노드={diag['violated_nodes']}  →  "
+            f"[Orient] 근본원인={root_cause}  →  "
+            f"[Decide/Analytics-only] {link} cost={cost}  →  "
+            f"[Act] OSPF 적용 완료"
+        )
+        return OODAStepResponse(
+            observe=observe_out, orient=orient_out,
+            decide={"action": {"link": link, "cost": cost}, "adapt_note": adapt_note},
+            act={"applied": True, "link": link, "cost": cost},
+            model_status=perf_tracker.status(),
+            reasoning_chain=chain,
+        )
+
     if not few_shot_agent.is_ready():
         return OODAStepResponse(
             observe=observe_out, orient=orient_out,
@@ -356,17 +383,11 @@ def auto_step():
     # ZSM Analytics → Intelligence 가이드:
     # root cause가 고신뢰(위반 노드 양쪽 인접)이고 MAML 결정이 다른 링크이면 보정.
     alignment = ""
-    if root_cause and root_cause != link and root_cause in LINKS:
+    if not disable_analytics and root_cause and root_cause != link and root_cause in LINKS:
         violated_set = set(diag.get("violated_nodes", []))
         from anomaly_detector import _NODE_LINKS
-        # root cause 양쪽 노드가 모두 위반 중 → 고신뢰 근본원인
-        both_violated = all(
-            any(root_cause in _NODE_LINKS.get(n, []) for n in violated_set)
-            for _ in [1]   # dummy loop for early-exit pattern
-        )
         nodes_sharing_root = sum(1 for n in violated_set if root_cause in _NODE_LINKS.get(n, []))
         if nodes_sharing_root >= 2:
-            # Analytics가 MAML 결정을 override — root cause 링크 cost 상향
             rc_idx   = LINKS.index(root_cause)
             cost_idx = OSPF_COSTS.index(100) if 100 in OSPF_COSTS else len(OSPF_COSTS) - 2
             action_idx = rc_idx * len(OSPF_COSTS) + cost_idx

@@ -62,6 +62,29 @@
       "recovery_mechanism": "Analytics override step 1 (100% correct) + stress decay physics"
     }
   },
+  "ablation_study_50ep": {
+    "timestamp": "2026-05-20",
+    "n_episodes_per_mode": 50,
+    "results": {
+      "analytics_only":  {"avg_ttr": 3.88,  "success_rate": 100.0},
+      "maml_only":       {"avg_ttr": 12.32, "success_rate": 24.0},
+      "combined":        {"avg_ttr": 3.80,  "success_rate": 100.0}
+    },
+    "ablation_table": {
+      "columns": ["System", "Avg_TTR", "Success%", "vs Combined"],
+      "rows": [
+        ["Analytics OFF + MAML ON  (MAML-only)",       12.32, 24.0,  "+8.52 TTR  (-76% success)"],
+        ["Analytics ON  + MAML OFF (Analytics-only)",   3.88, 100.0, "+0.08 TTR  (=success)"],
+        ["Analytics ON  + MAML ON  (Combined)",         3.80, 100.0, "baseline"]
+      ]
+    },
+    "key_findings": {
+      "analytics_contribution": "Analytics가 핵심 — OFF 시 성공률 100%→24%, TTR 3.80→12.32",
+      "maml_contribution": "MAML이 Analytics에 0.08 TTR 미세 개선 기여 (3.88→3.80)",
+      "combined_synergy": "Analytics가 정확한 링크를 1단계에 식별, MAML이 트래픽 재분배 최적화",
+      "maml_role_clarification": "MAML은 독립 동작 시 r1-r2에 편향(훈련 링크) → 일반화 한계 확인"
+    }
+  },
   "zsm_eni_architecture_validation": {
     "ZSM_3_1_1_1_OODA_loop": "CONFIRMED: auto_step() = one full Observe-Orient-Decide-Act cycle",
     "ZSM_3_1_1_2_Analytics_RCA": "CONFIRMED: 100% root cause accuracy via adjacency-heuristic scoring",

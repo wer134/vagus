@@ -33,80 +33,34 @@ get    = lambda url:            _http("GET",    url)
 put    = lambda url, data=None: _http("PUT",    url, data)
 
 
-def run_episode_combined(link: str) -> dict:
-    """현재 시스템: Analytics + MAML (ZSM override 포함)."""
+def _run_episode(link: str, disable_analytics: bool, disable_maml: bool) -> dict:
+    params = f"?disable_analytics={str(disable_analytics).lower()}&disable_maml={str(disable_maml).lower()}"
     for step in range(1, 16):
-        d   = post(f"{AI}/auto-step")
-        act = d["act"]
+        post(f"{AI}/auto-step{params}")
         metrics = get(f"{SNMP}/metrics")
         all_ok  = all(m["latency"] < 50 and m["packetLoss"] < 0.01 for m in metrics)
         if all_ok and step > 1:
             return {"ttr": step, "resolved": True}
         time.sleep(0.6)
     return {"ttr": 15, "resolved": False}
+
+
+def run_episode_combined(link: str) -> dict:
+    """Analytics ON + MAML ON (현재 시스템)."""
+    return _run_episode(link, disable_analytics=False, disable_maml=False)
 
 
 def run_episode_analytics_only(link: str) -> dict:
-    """Analytics-only: root cause → cost=100 직접 적용. MAML 미사용."""
-    for step in range(1, 16):
-        d      = get(f"{AI}/diagnose")
-        root   = d.get("root_cause_link")
-        anom   = d.get("anomaly_detected", False)
-
-        if anom and root:
-            # Analytics가 식별한 root cause에 직접 비용 설정
-            put(f"{SNMP}/ospf/costs/{root}", {"cost": 100})
-        elif anom and not root:
-            # root 모름 → 첫 번째 unhandled link에 cost=100
-            unhandled = d.get("unhandled_links", [])
-            if unhandled:
-                put(f"{SNMP}/ospf/costs/{unhandled[0]}", {"cost": 100})
-
-        metrics = get(f"{SNMP}/metrics")
-        all_ok  = all(m["latency"] < 50 and m["packetLoss"] < 0.01 for m in metrics)
-        if all_ok and step > 1:
-            return {"ttr": step, "resolved": True}
-        time.sleep(0.6)
-    return {"ttr": 15, "resolved": False}
+    """Analytics ON + MAML OFF."""
+    return _run_episode(link, disable_analytics=False, disable_maml=True)
 
 
 def run_episode_maml_only(link: str) -> dict:
-    """MAML-only: Analytics override 없이 meta-init 직접 사용."""
-    for step in range(1, 16):
-        # auto-step을 호출하되, Analytics override가 이미 비활성화된 상태를 시뮬레이션
-        # 실제로는 api_server에 flag를 추가해야 하지만,
-        # 여기서는 MAML meta-init의 기본 행동(r1-r2@200)을 직접 적용한 결과와 비교
-        # → 현재 구현에서 Analytics override 없이 MAML만 사용하는 것은 별도 엔드포인트 필요
-        # Approximation: diagnose + MAML predict (without override logic)
-        metrics_snmp = get(f"{SNMP}/metrics")
-        ospf_snmp    = get(f"{SNMP}/ospf/costs")
-
-        NODES = ["r1", "r2", "r3", "r4"]
-        LINK_ORDER = ["r1-r2", "r1-r3", "r2-r3", "r2-r4", "r3-r4", "r1-r4"]
-        mm    = {m["nodeId"]: m for m in metrics_snmp}
-        bws   = [mm.get(n, {}).get("bandwidth",  500.0) / 1000.0 for n in NODES]
-        lats  = [mm.get(n, {}).get("latency",     10.0) / 200.0  for n in NODES]
-        costs = [ospf_snmp.get(lk, 10) / 200.0 for lk in LINK_ORDER]
-        obs   = bws + lats + costs
-
-        action_resp = post(f"{AI}/action", {
-            "bandwidths": bws,
-            "latencies":  lats,
-            "ospfCosts":  costs,
-            "useFewShot": True,
-        })
-        tgt_link = action_resp.get("targetLink", "r1-r2")
-        tgt_cost = action_resp.get("newOspfCost", 200)
-        put(f"{SNMP}/ospf/costs/{tgt_link}", {"cost": tgt_cost})
-
-        all_ok = all(m["latency"] < 50 and m["packetLoss"] < 0.01 for m in metrics_snmp)
-        if all_ok and step > 1:
-            return {"ttr": step, "resolved": True}
-        time.sleep(0.6)
-    return {"ttr": 15, "resolved": False}
+    """Analytics OFF + MAML ON."""
+    return _run_episode(link, disable_analytics=True, disable_maml=False)
 
 
-def run_ablation(n_per_mode: int = 20):
+def run_ablation(n_per_mode: int = 50):
     # 공통 링크 시퀀스 (재현성)
     random.seed(42)
     links = [random.choice(ALL_LINKS) for _ in range(n_per_mode)]
@@ -163,5 +117,5 @@ def run_ablation(n_per_mode: int = 20):
 if __name__ == "__main__":
     import argparse
     p = argparse.ArgumentParser()
-    p.add_argument("--episodes", type=int, default=20)
+    p.add_argument("--episodes", type=int, default=50)
     run_ablation(n_per_mode=p.parse_args().episodes)
