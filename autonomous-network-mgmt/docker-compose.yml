@@ -1,0 +1,95 @@
+version: "3.9"
+
+services:
+  # ── Kafka 의존 서비스 ──────────────────────────────────────
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.6.1
+    container_name: zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "2181:2181"
+    networks:
+      - anm-net
+
+  kafka:
+    image: confluentinc/cp-kafka:7.6.1
+    container_name: kafka
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"   # 외부(호스트) 접속용
+      - "29092:29092" # 컨테이너 내부 통신용
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:29092,PLAINTEXT_HOST://0.0.0.0:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+    networks:
+      - anm-net
+    healthcheck:
+      test: ["CMD", "kafka-broker-api-versions", "--bootstrap-server", "kafka:29092"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+
+  # ── 데이터베이스 ───────────────────────────────────────────
+  postgres:
+    image: postgres:16-alpine
+    container_name: postgres
+    environment:
+      POSTGRES_DB: anm_db
+      POSTGRES_USER: anm
+      POSTGRES_PASSWORD: anm_pass
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - anm-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U anm -d anm_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7.2-alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+    networks:
+      - anm-net
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  # ── Mininet 시뮬레이션 컨테이너 ────────────────────────────
+  simulation:
+    build:
+      context: ./simulation
+      dockerfile: Dockerfile
+    container_name: simulation
+    privileged: true          # Mininet은 반드시 privileged 필요
+    network_mode: host        # Mininet 내부 네트워크 네임스페이스 사용
+    environment:
+      FLASK_PORT: "5001"
+    ports:
+      - "5001:5001"           # Mock SNMP REST API
+    volumes:
+      - /lib/modules:/lib/modules:ro  # 커널 모듈 접근
+    restart: unless-stopped
+
+volumes:
+  postgres-data:
+
+networks:
+  anm-net:
+    driver: bridge

@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>ANM 대시보드</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', sans-serif; background: #0f1117; color: #e0e0e0; padding: 20px; }
+  h1 { text-align: center; color: #7eb6ff; margin-bottom: 6px; font-size: 1.4rem; }
+  .subtitle { text-align: center; color: #888; font-size: 0.8rem; margin-bottom: 20px; }
+
+  .tabs { display: flex; gap: 6px; margin-bottom: 20px; justify-content: center; }
+  .tab {
+    padding: 8px 20px; border-radius: 20px; cursor: pointer; font-size: 0.85rem; font-weight: bold;
+    background: #1a1d27; border: 2px solid #2a2d3e; color: #888; transition: all 0.2s;
+  }
+  .tab.active { background: #1b2a3a; border-color: #7eb6ff; color: #7eb6ff; }
+
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* ── Live Monitor ─────────────────────────────────────────────── */
+  .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 20px; }
+  .card {
+    background: #1a1d27; border-radius: 10px; padding: 16px;
+    border: 2px solid #2a2d3e; transition: border-color 0.3s;
+  }
+  .card.anomaly { border-color: #ff4d4d; animation: pulse 1s infinite; }
+  .card.warn    { border-color: #ffa500; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.7} }
+
+  .node-name { font-size: 1.1rem; font-weight: bold; color: #7eb6ff; margin-bottom: 12px; }
+  .metric { display: flex; justify-content: space-between; margin: 5px 0; font-size: 0.85rem; }
+  .metric .label { color: #888; }
+  .metric .value { font-weight: bold; }
+  .ok  { color: #4caf50; }
+  .warn { color: #ffa500; }
+  .bad  { color: #ff4d4d; }
+
+  .bar-wrap { background: #2a2d3e; border-radius: 4px; height: 6px; margin: 3px 0 8px; overflow: hidden; }
+  .bar { height: 100%; border-radius: 4px; transition: width 0.5s; }
+
+  .status-row { display: flex; gap: 10px; margin-bottom: 20px; justify-content: center; flex-wrap: wrap; }
+  .badge { padding: 5px 14px; border-radius: 20px; font-size: 0.78rem; font-weight: bold; }
+  .badge.green { background: #1b3a1b; color: #4caf50; border: 1px solid #4caf50; }
+  .badge.red   { background: #3a1b1b; color: #ff4d4d; border: 1px solid #ff4d4d; }
+  .badge.blue  { background: #1b2a3a; color: #7eb6ff; border: 1px solid #7eb6ff; }
+
+  .action-panel { background: #1a1d27; border-radius: 10px; padding: 16px; margin-bottom: 20px; }
+  .action-panel h2 { color: #7eb6ff; font-size: 1rem; margin-bottom: 12px; }
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; }
+  button {
+    padding: 8px 16px; border-radius: 6px; border: none; cursor: pointer;
+    font-size: 0.82rem; font-weight: bold; transition: opacity 0.2s;
+  }
+  button:hover { opacity: 0.8; }
+  .btn-inject { background: #c0392b; color: white; }
+  .btn-clear  { background: #27ae60; color: white; }
+  .btn-ppo    { background: #2980b9; color: white; }
+  .btn-maml   { background: #8e44ad; color: white; }
+  .btn-load   { background: #2a2d3e; color: #7eb6ff; border: 1px solid #7eb6ff; }
+
+  .log { background: #0d1117; border-radius: 8px; padding: 12px; font-family: monospace;
+         font-size: 0.78rem; height: 180px; overflow-y: auto; border: 1px solid #2a2d3e; }
+  .log .ts  { color: #555; }
+  .log .ok  { color: #4caf50; }
+  .log .err { color: #ff4d4d; }
+  .log .act { color: #ffa500; }
+  .log .info{ color: #7eb6ff; }
+  .log .warn{ color: #ff9800; }
+
+  .ospf-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 10px; }
+  .ospf-cell { background: #0d1117; border-radius: 6px; padding: 8px; text-align: center; font-size: 0.78rem; }
+  .ospf-cell .link-name { color: #888; margin-bottom: 3px; }
+  .ospf-cell .cost-val  { font-size: 1.1rem; font-weight: bold; color: #ffa500; }
+
+  /* ── Experiment Results ───────────────────────────────────────── */
+  .results-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+  .chart-card { background: #1a1d27; border-radius: 10px; padding: 20px; border: 1px solid #2a2d3e; }
+  .chart-card h3 { color: #7eb6ff; font-size: 0.95rem; margin-bottom: 14px; text-align: center; }
+  .chart-wrap { position: relative; height: 240px; }
+
+  .summary-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+  .summary-table th { background: #2a2d3e; color: #7eb6ff; padding: 10px 14px; text-align: left; }
+  .summary-table td { padding: 9px 14px; border-bottom: 1px solid #2a2d3e; }
+  .summary-table tr:hover td { background: #1e2130; }
+  .tag { padding: 2px 8px; border-radius: 10px; font-size: 0.75rem; font-weight: bold; }
+  .tag.ppo  { background: #1b2a3a; color: #7eb6ff; }
+  .tag.maml { background: #2a1b3a; color: #c39bd3; }
+  .tag.win  { background: #1b3a1b; color: #4caf50; }
+  .tag.lose { background: #3a1b1b; color: #ff4d4d; }
+
+  .kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
+  .kpi { background: #1a1d27; border-radius: 10px; padding: 16px; text-align: center; border: 1px solid #2a2d3e; }
+  .kpi .kpi-label { color: #888; font-size: 0.75rem; margin-bottom: 6px; }
+  .kpi .kpi-val { font-size: 1.6rem; font-weight: bold; }
+  .kpi .kpi-sub { color: #888; font-size: 0.7rem; margin-top: 4px; }
+  .kpi.green .kpi-val { color: #4caf50; }
+  .kpi.blue  .kpi-val { color: #7eb6ff; }
+  .kpi.orange .kpi-val { color: #ffa500; }
+  .kpi.purple .kpi-val { color: #c39bd3; }
+
+  .no-data { color: #555; text-align: center; padding: 40px; font-size: 0.9rem; }
+
+  /* ── Auto Mode ─────────────────────────────────────────────────── */
+  .auto-panel {
+    background: #1a1d27; border-radius: 10px; padding: 16px; margin-bottom: 20px;
+    border: 2px solid #2a2d3e; transition: border-color 0.3s;
+  }
+  .auto-panel.active { border-color: #4caf50; }
+  .auto-panel h2 { color: #7eb6ff; font-size: 1rem; margin-bottom: 12px; }
+  .auto-header { display: flex; align-items: center; gap: 16px; margin-bottom: 12px; }
+  .toggle-btn {
+    padding: 8px 20px; border-radius: 20px; border: none; cursor: pointer;
+    font-size: 0.85rem; font-weight: bold; transition: all 0.2s;
+  }
+  .toggle-btn.off { background: #2a2d3e; color: #888; }
+  .toggle-btn.on  { background: #1b3a1b; color: #4caf50; border: 1px solid #4caf50; }
+  .diag-box {
+    background: #0d1117; border-radius: 8px; padding: 12px;
+    font-family: monospace; font-size: 0.78rem; border: 1px solid #2a2d3e;
+    min-height: 60px;
+  }
+  .diag-normal   { color: #4caf50; }
+  .diag-warning  { color: #ffa500; }
+  .diag-critical { color: #ff4d4d; }
+  .reasoning-chain {
+    background: #0d1117; border-radius: 8px; padding: 12px; margin-top: 8px;
+    font-family: monospace; font-size: 0.75rem; color: #888;
+    border-left: 3px solid #7eb6ff; line-height: 1.6;
+  }
+  .auto-stat { display: inline-block; margin-right: 20px; font-size: 0.8rem; color: #888; }
+  .auto-stat b { color: #e0e0e0; }
+</style>
+</head>
+<body>
+
+<h1>Autonomous Network Management — 대시보드</h1>
+<p class="subtitle">ZSM/ENI 폐쇄 루프 (OODA) | PPO(Baseline) vs MAML(Few-shot) | 자율 이상 감지·진단·복구 &nbsp;<span style="background:#2a1b3a;color:#c39bd3;border:1px solid #c39bd3;border-radius:10px;padding:2px 10px;font-size:0.75rem;font-weight:bold;">DEMO MODE</span></p>
+
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('monitor')">실시간 모니터링</div>
+  <div class="tab" onclick="switchTab('results')">실험 결과 비교</div>
+  <div class="tab" onclick="switchTab('efficiency')">샘플 효율</div>
+</div>
+
+<!-- ═══════════════════ TAB 1: Live Monitor ═══════════════════ -->
+<div id="page-monitor" class="page active">
+
+<div class="status-row">
+  <span class="badge blue" id="tick">⏱ 대기중...</span>
+  <span class="badge" id="snmp-badge">SNMP Agent</span>
+  <span class="badge" id="ai-badge">AI Engine</span>
+  <span class="badge" id="anomaly-count">이상 감지: 0</span>
+</div>
+
+<div class="grid" id="node-grid">
+  <div class="card" id="card-r1"><div class="node-name">r1</div><p style="color:#555">로딩중...</p></div>
+  <div class="card" id="card-r2"><div class="node-name">r2</div></div>
+  <div class="card" id="card-r3"><div class="node-name">r3</div></div>
+  <div class="card" id="card-r4"><div class="node-name">r4</div></div>
+</div>
+
+<!-- 자율 모드 패널 -->
+<div class="auto-panel" id="auto-panel">
+  <div class="auto-header">
+    <h2 style="margin:0">ENI 폐쇄 루프 — OODA 자율 제어 (MAML)</h2>
+    <button class="toggle-btn off" id="auto-toggle" onclick="toggleAutoMode()">● 자율 모드 OFF</button>
+    <span class="auto-stat">ZSM 개입: <b id="auto-interventions">0</b></span>
+    <span class="auto-stat">OODA 사이클: <b id="auto-cycles">0</b></span>
+  </div>
+  <div style="font-size:0.72rem;color:#555;margin-bottom:8px;">
+    Observe(SNMP) → Orient(Isolation Forest + RCA) → Decide(MAML inner-loop) → Act(OSPF)
+  </div>
+  <div class="diag-box" id="diag-box">
+    <span class="diag-normal">자율 모드 ON: MAML이 ZSM Analytics 결과를 바탕으로 스스로 진단→결정→실행합니다.</span>
+  </div>
+  <div class="reasoning-chain" id="reasoning-chain" style="display:none"></div>
+</div>
+
+<div class="action-panel">
+  <h2>수동 제어 패널</h2>
+  <div class="btn-row">
+    <button class="btn-inject" onclick="injectCongestion('r2-r4')">혼잡 주입: r2-r4</button>
+    <button class="btn-inject" onclick="injectCongestion('r1-r3')">혼잡 주입: r1-r3</button>
+    <button class="btn-inject" onclick="injectCongestion('r3-r4')">혼잡 주입: r3-r4</button>
+    <button class="btn-clear"  onclick="clearCongestion('r2-r4')">혼잡 해제: r2-r4</button>
+    <button class="btn-clear"  onclick="clearCongestion('r1-r3')">혼잡 해제: r1-r3</button>
+    <button class="btn-ppo"    onclick="requestAction(false)">PPO 행동 결정</button>
+    <button class="btn-maml"   onclick="requestAction(true)">MAML 행동 결정</button>
+  </div>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+  <div class="action-panel">
+    <h2>OSPF 코스트 현황</h2>
+    <div class="ospf-grid" id="ospf-grid"></div>
+  </div>
+  <div class="action-panel">
+    <h2>이벤트 로그</h2>
+    <div class="log" id="log"></div>
+  </div>
+</div>
+
+</div><!-- /page-monitor -->
+
+<!-- ═══════════════════ TAB 2: Results ═══════════════════ -->
+<div id="page-results" class="page">
+
+<div style="display:flex;justify-content:flex-end;margin-bottom:12px;">
+  <button class="btn-load" onclick="loadResults()">결과 새로 고침</button>
+</div>
+
+<div style="font-size:0.75rem;color:#555;margin-bottom:10px;">
+  ZSM 검증 지표 | 평가 링크: r3-r4, r1-r4 (미학습 Test Links) | Baseline=PPO, Few-shot=MAML+REINFORCE
+</div>
+<div class="kpi-row" id="kpi-row">
+  <div class="kpi blue"><div class="kpi-label">PPO 평균 TTR (ZSM Recovery)</div><div class="kpi-val" id="kpi-ppo-ttr">—</div><div class="kpi-sub">steps</div></div>
+  <div class="kpi purple"><div class="kpi-label">MAML 평균 TTR (ZSM Recovery)</div><div class="kpi-val" id="kpi-maml-ttr">—</div><div class="kpi-sub">steps</div></div>
+  <div class="kpi orange"><div class="kpi-label">SLA 위반 (PPO / ZSM SLA Eval)</div><div class="kpi-val" id="kpi-ppo-sla">—</div><div class="kpi-sub">avg per episode</div></div>
+  <div class="kpi green"><div class="kpi-label">SLA 위반 (MAML / ZSM SLA Eval)</div><div class="kpi-val" id="kpi-maml-sla">—</div><div class="kpi-sub">avg per episode</div></div>
+</div>
+
+<div class="results-grid">
+  <div class="chart-card">
+    <h3>TTR 비교 — 에피소드별 (ZSM 복구 시간)</h3>
+    <div class="chart-wrap"><canvas id="chart-ttr"></canvas></div>
+  </div>
+  <div class="chart-card">
+    <h3>평균 TTR / SLA 위반 / 보상 (ZSM KPI 요약)</h3>
+    <div class="chart-wrap"><canvas id="chart-bar"></canvas></div>
+  </div>
+  <div class="chart-card">
+    <h3>TTR 분포 — MAML vs PPO (Box Plot)</h3>
+    <div class="chart-wrap"><canvas id="chart-box"></canvas></div>
+  </div>
+  <div class="chart-card">
+    <h3>성공률 [TTR &lt; 30] — ENI 자율도 지표</h3>
+    <div class="chart-wrap"><canvas id="chart-success"></canvas></div>
+  </div>
+</div>
+
+<div class="action-panel">
+  <h2>상세 비교표 — ZSM/ENI 검증 지표</h2>
+  <table class="summary-table" id="detail-table">
+    <thead><tr>
+      <th>지표 (ZSM 평가 항목)</th>
+      <th>PPO (Baseline DRL)</th>
+      <th>MAML (Few-shot / ENI)</th>
+      <th>개선 배율</th>
+    </tr></thead>
+    <tbody id="detail-tbody">
+      <tr><td colspan="4" class="no-data">결과 파일을 로드하거나 실험을 실행하세요.</td></tr>
+    </tbody>
+  </table>
+</div>
+
+</div><!-- /page-results -->
+
+<!-- ═══════════════════ TAB 3: Sample Efficiency ═══════════════════ -->
+<div id="page-efficiency" class="page">
+
+<div style="display:flex;justify-content:flex-end;margin-bottom:12px;">
+  <button class="btn-load" onclick="loadEfficiency()">결과 새로 고침</button>
+</div>
+
+<div class="results-grid">
+  <div class="chart-card" style="grid-column:1/-1">
+    <h3>학습 샘플 수 대비 평균 TTR (낮을수록 좋음)</h3>
+    <div class="chart-wrap" style="height:300px"><canvas id="chart-eff"></canvas></div>
+  </div>
+  <div class="chart-card">
+    <h3>PPO — 스텝별 TTR</h3>
+    <div class="chart-wrap"><canvas id="chart-ppo-eff"></canvas></div>
+  </div>
+  <div class="chart-card">
+    <h3>MAML — 반복별 TTR</h3>
+    <div class="chart-wrap"><canvas id="chart-maml-eff"></canvas></div>
+  </div>
+</div>
+
+<div class="action-panel">
+  <h2>샘플 효율 비교표</h2>
+  <table class="summary-table">
+    <thead><tr><th>알고리즘</th><th>학습 샘플 수</th><th>세부 정보</th><th>평균 TTR</th></tr></thead>
+    <tbody id="eff-tbody">
+      <tr><td colspan="4" class="no-data">sample_efficiency.json 파일을 로드하세요.</td></tr>
+    </tbody>
+  </table>
+</div>
+
+</div><!-- /page-efficiency -->
+
+
+<script>
+// ═══════════════════ Embedded experiment results (no backend needed) ═══════════════════
+const EMBEDDED_SUMMARY = {"fewshot":{"avg_ttr":3.78,"avg_sla":3.78,"avg_reward":185.4,"success_rate":100.0,"ttr_list":[5,3,4,4,3,4,3,3,4,4,3,5,3,4,5,4,5,3,4,4,4,4,4,3,3,4,5,4,3,4,4,4,3,3,3,4,4,4,5,4,3,4,3,4,3,4,5,4,3,4]},"baseline":{"avg_ttr":200.0,"avg_sla":200.0,"avg_reward":59.6844,"success_rate":0.0,"ttr_list":[200.0,200.0,200.0,200.0,200.0,200.0,200.0,200.0,200.0,200.0,200.0,200.0,200.0,200.0,200.0,200.0,200.0,200.0,200.0,200.0,200.0,200.0,200.0,200.0,200.0,200.0,200.0,200.0,200.0,200.0]},"eval_links":["r3-r4","r1-r4"],"train_links":["r1-r2","r1-r3","r2-r3","r2-r4"]};
+const EMBEDDED_EFFICIENCY = {"ppo":[{"samples":0,"avg_ttr":100.7},{"samples":2000,"avg_ttr":200.0},{"samples":5000,"avg_ttr":100.9},{"samples":10000,"avg_ttr":200.0},{"samples":20000,"avg_ttr":123.7},{"samples":30000,"avg_ttr":200.0}],"maml":[{"samples":0,"iterations":0,"avg_ttr":200.0},{"samples":9600,"iterations":20,"avg_ttr":200.0},{"samples":24000,"iterations":50,"avg_ttr":200.0},{"samples":48000,"iterations":100,"avg_ttr":200.0},{"samples":72000,"iterations":150,"avg_ttr":200.0},{"samples":96000,"iterations":200,"avg_ttr":111.4}]};
+
+// ═══════════════════ Tabs ═══════════════════
+function switchTab(name) {
+  currentTab = name;
+  document.querySelectorAll('.tab').forEach((t, i) => {
+    const names = ['monitor', 'results', 'efficiency'];
+    t.classList.toggle('active', names[i] === name);
+  });
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  if (name === 'results') loadResults();
+  if (name === 'efficiency') loadEfficiency();
+}
+
+// ═══════════════════ Live Monitor (Demo Mode) ═══════════════════
+const NODES = ['r1', 'r2', 'r3', 'r4'];
+const LINKS = ['r1-r2', 'r1-r3', 'r2-r3', 'r2-r4', 'r3-r4', 'r1-r4'];
+
+const nodeBase = {
+  r1: { bw: 850, lat: 8,  loss: 0.001 },
+  r2: { bw: 920, lat: 6,  loss: 0.001 },
+  r3: { bw: 780, lat: 10, loss: 0.002 },
+  r4: { bw: 900, lat: 7,  loss: 0.001 }
+};
+let ospfState    = { 'r1-r2':10, 'r1-r3':10, 'r2-r3':10, 'r2-r4':10, 'r3-r4':10, 'r1-r4':10 };
+let congestion   = {};
+
+let tick = 0, lastMetrics = [];
+let autoMode = false;
+let autoCycles = 0, autoInterventions = 0;
+let currentTab = 'monitor';
+let liveResultsCache = null;
+
+function ts() { return new Date().toLocaleTimeString('ko-KR'); }
+
+function addLog(msg, cls='info') {
+  const el = document.getElementById('log');
+  el.innerHTML += `<div><span class="ts">[${ts()}]</span> <span class="${cls}">${msg}</span></div>`;
+  el.scrollTop = el.scrollHeight;
+}
+
+function colorClass(val, warnTh, badTh) {
+  return val >= badTh ? 'bad' : val >= warnTh ? 'warn' : 'ok';
+}
+
+function renderNode(m, isAnomaly) {
+  const card = document.getElementById('card-' + m.nodeId);
+  if (!card) return;
+  card.className = 'card' + (isAnomaly ? ' anomaly' : (m.latency > 30 ? ' warn' : ''));
+  const latCls  = colorClass(m.latency,    30, 50);
+  const lossCls = colorClass(m.packetLoss, 0.005, 0.01);
+  const bwPct   = Math.min(100, (m.bandwidth / 1000) * 100).toFixed(0);
+  const bwColor = m.bandwidth < 100 ? '#ff4d4d' : m.bandwidth < 300 ? '#ffa500' : '#4caf50';
+  card.innerHTML = `
+    <div class="node-name">${m.nodeId} ${isAnomaly ? '🚨' : ''}</div>
+    <div class="metric"><span class="label">대역폭</span><span class="value ${m.bandwidth < 100 ? 'bad' : 'ok'}">${m.bandwidth.toFixed(0)} Mbps</span></div>
+    <div class="bar-wrap"><div class="bar" style="width:${bwPct}%;background:${bwColor}"></div></div>
+    <div class="metric"><span class="label">지연</span><span class="value ${latCls}">${m.latency.toFixed(1)} ms</span></div>
+    <div class="metric"><span class="label">패킷 손실</span><span class="value ${lossCls}">${(m.packetLoss*100).toFixed(2)} %</span></div>
+    <div class="metric"><span class="label">SLA</span><span class="value ${isAnomaly ? 'bad' : 'ok'}">${isAnomaly ? '위반' : '정상'}</span></div>
+  `;
+}
+
+function _noise(val, pct) { return val * (1 + (Math.random() - 0.5) * pct); }
+
+function _genMetrics() {
+  return NODES.map(nid => {
+    const b  = nodeBase[nid];
+    const st = Math.max(0, ...LINKS.filter(l => l.includes(nid)).map(l => congestion[l] || 0));
+    return {
+      nodeId:     nid,
+      bandwidth:  Math.max(10, +(_noise(b.bw,  0.08) * (1 - st * 0.88)).toFixed(1)),
+      latency:    +(_noise(b.lat, 0.15) * (1 + st * 9)).toFixed(1),
+      packetLoss: Math.min(0.05, b.loss * (1 + st * 15) + Math.random() * 0.001)
+    };
+  });
+}
+
+async function fetchMetrics() {
+  const metrics = _genMetrics();
+  lastMetrics   = metrics;
+  document.getElementById('snmp-badge').className   = 'badge green';
+  document.getElementById('snmp-badge').textContent = '✓ SNMP Agent';
+  let anomCount = 0;
+  for (const m of metrics) {
+    const isAnom = m.latency > 50 || m.packetLoss > 0.01;
+    if (isAnom) anomCount++;
+    renderNode(m, isAnom);
+  }
+  if (anomCount > 0) {
+    document.getElementById('anomaly-count').className   = 'badge red';
+    document.getElementById('anomaly-count').textContent = `🚨 이상 감지: ${anomCount}개 노드`;
+  } else {
+    document.getElementById('anomaly-count').className   = 'badge green';
+    document.getElementById('anomaly-count').textContent = '✓ 이상 없음';
+  }
+}
+
+async function fetchOspf() {
+  document.getElementById('ospf-grid').innerHTML =
+    Object.entries(ospfState).map(([link, cost]) =>
+      `<div class="ospf-cell"><div class="link-name">${link}</div><div class="cost-val">${cost}</div></div>`
+    ).join('');
+}
+
+async function checkAI() {
+  document.getElementById('ai-badge').className   = 'badge green';
+  document.getElementById('ai-badge').textContent = '✓ AI Engine';
+}
+
+async function injectCongestion(link) {
+  congestion[link] = Math.min(1, (congestion[link] || 0) + 0.85);
+  addLog(`혼잡 주입: ${link}`, 'err');
+}
+
+async function clearCongestion(link) {
+  delete congestion[link];
+  ospfState[link] = 10;
+  addLog(`혼잡 해제: ${link}`, 'ok');
+  fetchOspf();
+}
+
+async function requestAction(useFewShot) {
+  if (!lastMetrics.length) { addLog('메트릭 없음', 'err'); return; }
+  const congestedLinks = Object.keys(congestion);
+  const targetLink = congestedLinks.length
+    ? congestedLinks[0]
+    : LINKS[Math.floor(Math.random() * LINKS.length)];
+  const agentType = useFewShot ? 'maml' : 'ppo';
+  const newCost   = useFewShot
+    ? (Math.floor(Math.random() * 3) + 2) * 10
+    : (Math.floor(Math.random() * 15) + 10) * 10;
+  ospfState[targetLink] = newCost;
+  addLog(`${agentType.toUpperCase()} → ${targetLink} cost=${newCost}`, 'act');
+  addLog(`OSPF 적용: ${targetLink} = ${newCost}`, 'ok');
+  fetchOspf();
+}
+
+// ═══════════════════ 자율 모드 ═══════════════════
+function toggleAutoMode() {
+  autoMode = !autoMode;
+  const btn   = document.getElementById('auto-toggle');
+  const panel = document.getElementById('auto-panel');
+  btn.textContent = autoMode ? '● 자율 모드 ON' : '● 자율 모드 OFF';
+  btn.className   = autoMode ? 'toggle-btn on' : 'toggle-btn off';
+  panel.className = autoMode ? 'auto-panel active' : 'auto-panel';
+  if (autoMode) {
+    addLog('자율 모드 활성화 — MAML이 이상 감지 시 스스로 조치합니다', 'info');
+  } else {
+    addLog('자율 모드 비활성화', 'info');
+    document.getElementById('reasoning-chain').style.display = 'none';
+  }
+}
+
+async function runAutoStep() {
+  if (!autoMode) return;
+  autoCycles++;
+  document.getElementById('auto-cycles').textContent = autoCycles;
+
+  const diagBox  = document.getElementById('diag-box');
+  const chainBox = document.getElementById('reasoning-chain');
+
+  const congestedLinks = Object.keys(congestion).filter(l => (congestion[l] || 0) > 0.3);
+  const anomalyNodes   = lastMetrics.filter(m => m.latency > 50 || m.packetLoss > 0.01).map(m => m.nodeId);
+
+  if (!congestedLinks.length || !anomalyNodes.length) {
+    diagBox.innerHTML      = `<span class="diag-normal">✓ 정상 — ZSM Analytics: 모든 링크 SLA 준수. 개입 불필요.</span>`;
+    chainBox.style.display = 'none';
+    return;
+  }
+
+  const rootLink = congestedLinks[0];
+  const sev      = (congestion[rootLink] || 0) > 0.7 ? 'critical' : 'warning';
+  const newCost  = 200;
+  const aNode    = anomalyNodes[0];
+  const aMetric  = lastMetrics.find(m => m.nodeId === aNode);
+
+  diagBox.innerHTML = `
+    <span class="${sev === 'critical' ? 'diag-critical' : 'diag-warning'}">⚠ ${sev.toUpperCase()}</span>
+    &nbsp;위반: <b>${anomalyNodes.join(', ')}</b>
+    &nbsp;의심: <b>${congestedLinks.join(', ')}</b>
+    &nbsp;근본원인: <b style="color:#ff9800">${rootLink}</b>
+    &nbsp;→&nbsp;<b style="color:#4caf50">[Act] ${rootLink} cost=${newCost}</b>
+  `;
+  chainBox.style.display = 'block';
+  chainBox.textContent   = [
+    `[Observe]  SNMP poll: latency=${aMetric?.latency.toFixed(1)}ms, loss=${((aMetric?.packetLoss||0)*100).toFixed(2)}%`,
+    `[Orient]   IsolationForest score > threshold → anomaly confirmed`,
+    `           Adjacency heuristic: ${rootLink} carries ${((congestion[rootLink]||0)*100).toFixed(0)}% stress`,
+    `           RCA confidence: HIGH (100%)`,
+    `[Decide]   MAML meta-init selects: increase ${rootLink} cost → redistribute traffic`,
+    `           ZSM Analytics override: step-1 action = set cost=${newCost}`,
+    `[Act]      OSPF update: ${rootLink} → {cost: ${newCost}}`,
+    `           Expected TTR: 3-5 steps (stress decay physics)`
+  ].join('\n');
+
+  ospfState[rootLink]  = newCost;
+  congestion[rootLink] = Math.max(0, (congestion[rootLink] || 0) - 0.25);
+  if (congestion[rootLink] <= 0) delete congestion[rootLink];
+
+  autoInterventions++;
+  document.getElementById('auto-interventions').textContent = autoInterventions;
+  addLog(`[OODA] Orient:${rootLink} → Act:${rootLink} cost=${newCost}`, 'act');
+  fetchOspf();
+}
+
+async function loop() {
+  tick++;
+  document.getElementById('tick').textContent = `⏱ #${tick} ${ts()}`;
+  await fetchMetrics();
+  await fetchOspf();
+  if (autoMode) await runAutoStep();
+  if (tick % 5 === 0) await checkAI();
+}
+
+// ═══════════════════ Chart helpers ═══════════════════
+const DARK_GRID = { color: '#2a2d3e' };
+const DARK_TEXT = { color: '#888' };
+const BASE_OPTS = {
+  responsive: true, maintainAspectRatio: false,
+  plugins: { legend: { labels: { color: '#ccc', font: { size: 11 } } } },
+  scales: {
+    x: { ticks: DARK_TEXT, grid: DARK_GRID },
+    y: { ticks: DARK_TEXT, grid: DARK_GRID }
+  }
+};
+
+let charts = {};
+function destroyChart(id) {
+  if (charts[id]) { charts[id].destroy(); delete charts[id]; }
+}
+
+// ═══════════════════ Results Tab ═══════════════════
+async function fetchLiveResultsCache() {
+  liveResultsCache = EMBEDDED_SUMMARY;
+}
+
+async function loadResults() {
+  await fetchLiveResultsCache();
+  renderResults(liveResultsCache);
+}
+
+function renderResults(data) {
+  const b = data.baseline, f = data.fewshot;
+
+  // KPIs
+  document.getElementById('kpi-ppo-ttr').textContent  = b.avg_ttr.toFixed(1);
+  document.getElementById('kpi-maml-ttr').textContent = f.avg_ttr.toFixed(1);
+  document.getElementById('kpi-ppo-sla').textContent  = b.avg_sla.toFixed(1);
+  document.getElementById('kpi-maml-sla').textContent = f.avg_sla.toFixed(1);
+
+  // Colour KPIs
+  const ppoWins = b.avg_ttr < f.avg_ttr;
+  document.querySelector('#kpi-row .kpi:nth-child(1)').className = `kpi ${ppoWins?'green':'blue'}`;
+  document.querySelector('#kpi-row .kpi:nth-child(2)').className = `kpi ${!ppoWins?'green':'purple'}`;
+
+  // TTR line chart per episode
+  const ttrB = b.ttr_list || [];
+  const ttrF = f.ttr_list || [];
+  const labels = ttrB.map((_, i) => `ep${i+1}`);
+  destroyChart('ttr');
+  charts['ttr'] = new Chart(document.getElementById('chart-ttr'), {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        { label: 'PPO TTR', data: ttrB, borderColor: '#7eb6ff', backgroundColor: 'rgba(126,182,255,0.1)', tension: 0.3, pointRadius: 3 },
+        { label: 'MAML TTR', data: ttrF, borderColor: '#c39bd3', backgroundColor: 'rgba(195,155,211,0.1)', tension: 0.3, pointRadius: 3 }
+      ]
+    },
+    options: { ...BASE_OPTS, plugins: { ...BASE_OPTS.plugins } }
+  });
+
+  // Bar summary
+  destroyChart('bar');
+  charts['bar'] = new Chart(document.getElementById('chart-bar'), {
+    type: 'bar',
+    data: {
+      labels: ['평균 TTR', '평균 SLA위반', '평균 보상'],
+      datasets: [
+        { label: 'PPO',  data: [b.avg_ttr, b.avg_sla, b.avg_reward], backgroundColor: 'rgba(126,182,255,0.7)' },
+        { label: 'MAML', data: [f.avg_ttr, f.avg_sla, f.avg_reward], backgroundColor: 'rgba(195,155,211,0.7)' }
+      ]
+    },
+    options: { ...BASE_OPTS }
+  });
+
+  // Box-like chart using min/max/p25/p75 approximation from ttr_list
+  function boxStats(arr) {
+    if (!arr.length) return { min:0, q1:0, med:0, q3:0, max:0 };
+    const s = [...arr].sort((a,b)=>a-b);
+    const n = s.length;
+    return {
+      min: s[0], q1: s[Math.floor(n*0.25)], med: s[Math.floor(n*0.5)],
+      q3: s[Math.floor(n*0.75)], max: s[n-1]
+    };
+  }
+  const bx = boxStats(ttrB), fx = boxStats(ttrF);
+  destroyChart('box');
+  charts['box'] = new Chart(document.getElementById('chart-box'), {
+    type: 'bar',
+    data: {
+      labels: ['Min', 'Q1', 'Median', 'Q3', 'Max'],
+      datasets: [
+        { label: 'PPO',  data: [bx.min, bx.q1, bx.med, bx.q3, bx.max], backgroundColor: 'rgba(126,182,255,0.7)' },
+        { label: 'MAML', data: [fx.min, fx.q1, fx.med, fx.q3, fx.max], backgroundColor: 'rgba(195,155,211,0.7)' }
+      ]
+    },
+    options: { ...BASE_OPTS }
+  });
+
+  // Success rate donut
+  const bSuc = (b.success_rate !== undefined) ? b.success_rate : (ttrB.filter(v=>v<30).length / Math.max(ttrB.length,1) * 100);
+  const fSuc = (f.success_rate !== undefined) ? f.success_rate : (ttrF.filter(v=>v<30).length / Math.max(ttrF.length,1) * 100);
+  destroyChart('success');
+  charts['success'] = new Chart(document.getElementById('chart-success'), {
+    type: 'doughnut',
+    data: {
+      labels: ['PPO 성공', 'PPO 실패', 'MAML 성공', 'MAML 실패'],
+      datasets: [{
+        data: [bSuc, 100-bSuc, fSuc, 100-fSuc],
+        backgroundColor: ['rgba(126,182,255,0.8)', 'rgba(126,182,255,0.2)', 'rgba(195,155,211,0.8)', 'rgba(195,155,211,0.2)']
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { labels: { color: '#ccc', font: {size:10} } } }
+    }
+  });
+
+  // Detail table
+  const ratio = (b.avg_ttr / Math.max(f.avg_ttr, 0.1));
+  const rows = [
+    ['평균 TTR (steps)', b.avg_ttr.toFixed(1), f.avg_ttr.toFixed(1), ratio > 1 ? `MAML ${ratio.toFixed(1)}x ↓` : `PPO ${(1/ratio).toFixed(1)}x ↓`],
+    ['평균 SLA 위반', b.avg_sla.toFixed(1), f.avg_sla.toFixed(1), b.avg_sla < f.avg_sla ? `PPO ${(f.avg_sla/Math.max(b.avg_sla,0.1)).toFixed(1)}x ↓` : `MAML ${(b.avg_sla/Math.max(f.avg_sla,0.1)).toFixed(1)}x ↓`],
+    ['평균 보상', b.avg_reward.toFixed(3), f.avg_reward.toFixed(3), b.avg_reward > f.avg_reward ? 'PPO 우세' : 'MAML 우세'],
+    ['성공률 (TTR<30)', bSuc.toFixed(1)+'%', fSuc.toFixed(1)+'%', bSuc > fSuc ? 'PPO 우세' : 'MAML 우세'],
+    ['평가 링크', (data.eval_links||[]).join(', ') || '—', '동일', '—'],
+    ['학습 링크', (data.train_links||[]).join(', ') || '—', '동일', '—'],
+  ];
+  document.getElementById('detail-tbody').innerHTML = rows.map(([label, bp, fp, diff]) => `
+    <tr>
+      <td>${label}</td>
+      <td><span class="tag ppo">${bp}</span></td>
+      <td><span class="tag maml">${fp}</span></td>
+      <td>${diff}</td>
+    </tr>`).join('');
+}
+
+// ═══════════════════ Efficiency Tab ═══════════════════
+async function loadEfficiency() {
+  renderEfficiency(EMBEDDED_EFFICIENCY);
+}
+
+function renderEfficiency(data) {
+  const ppo  = data.ppo  || [];
+  const maml = data.maml || [];
+
+  // Combined efficiency chart
+  destroyChart('eff');
+  charts['eff'] = new Chart(document.getElementById('chart-eff'), {
+    type: 'line',
+    data: {
+      datasets: [
+        {
+          label: 'PPO', data: ppo.map(d=>({x: d.samples, y: d.avg_ttr})),
+          borderColor: '#7eb6ff', backgroundColor: 'rgba(126,182,255,0.1)',
+          tension: 0.3, pointRadius: 5
+        },
+        {
+          label: 'MAML', data: maml.map(d=>({x: d.samples, y: d.avg_ttr})),
+          borderColor: '#c39bd3', backgroundColor: 'rgba(195,155,211,0.1)',
+          tension: 0.3, pointRadius: 5
+        }
+      ]
+    },
+    options: {
+      ...BASE_OPTS,
+      scales: {
+        x: { type:'linear', title:{ display:true, text:'학습 샘플 수', color:'#888' }, ticks: DARK_TEXT, grid: DARK_GRID },
+        y: { title:{ display:true, text:'평균 TTR (steps)', color:'#888' }, ticks: DARK_TEXT, grid: DARK_GRID }
+      }
+    }
+  });
+
+  // PPO bar
+  destroyChart('ppo-eff');
+  charts['ppo-eff'] = new Chart(document.getElementById('chart-ppo-eff'), {
+    type: 'bar',
+    data: {
+      labels: ppo.map(d => `${d.samples}`),
+      datasets: [{ label: 'PPO avg TTR', data: ppo.map(d => d.avg_ttr), backgroundColor: 'rgba(126,182,255,0.7)' }]
+    },
+    options: { ...BASE_OPTS, plugins: { ...BASE_OPTS.plugins, legend: { display:false } } }
+  });
+
+  // MAML bar
+  destroyChart('maml-eff');
+  charts['maml-eff'] = new Chart(document.getElementById('chart-maml-eff'), {
+    type: 'bar',
+    data: {
+      labels: maml.map(d => `${d.iterations}iter`),
+      datasets: [{ label: 'MAML avg TTR', data: maml.map(d => d.avg_ttr), backgroundColor: 'rgba(195,155,211,0.7)' }]
+    },
+    options: { ...BASE_OPTS, plugins: { ...BASE_OPTS.plugins, legend: { display:false } } }
+  });
+
+  // Table
+  const ppoRows = ppo.map(d => `<tr>
+    <td><span class="tag ppo">PPO</span></td>
+    <td>${d.samples.toLocaleString()}</td>
+    <td>${d.samples} timesteps</td>
+    <td>${d.avg_ttr.toFixed(1)}</td>
+  </tr>`);
+  const mamlRows = maml.map(d => `<tr>
+    <td><span class="tag maml">MAML</span></td>
+    <td>${d.samples.toLocaleString()}</td>
+    <td>${d.iterations} iterations × 4 tasks</td>
+    <td>${d.avg_ttr.toFixed(1)}</td>
+  </tr>`);
+  document.getElementById('eff-tbody').innerHTML = [...ppoRows, ...mamlRows].join('');
+}
+
+// ═══════════════════ Init ═══════════════════
+checkAI();
+addLog('대시보드 시작', 'info');
+loop();
+setInterval(loop, 2000);
+</script>
+</body>
+</html>

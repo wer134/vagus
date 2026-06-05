@@ -1,0 +1,33 @@
+spring:
+  application:
+    name: collector-service
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/anm_db
+    username: anm
+    password: anm_pass
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        spring.json.add.type.headers: false
+
+server:
+  port: 8081
+
+anm:
+  snmp:
+    base-url: http://localhost:5001
+  collector:
+    interval-ms: 5000   # 5초마다 메트릭 수집
+  kafka:
+    topic: network.metrics
