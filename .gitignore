@@ -1,2 +1,5 @@
 *.pdf
 .cursor/
+__pycache__/
+*.pyc
+*.pyo
