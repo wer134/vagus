@@ -8,9 +8,13 @@ from metric_generator import (
     get_node_metrics,
     get_ospf_costs,
     get_node_stress,
+    get_security_metrics,
+    get_attack_state,
     set_ospf_cost,
     inject_congestion,
     clear_congestion,
+    inject_attack,
+    clear_attack,
     reset_state,
     NODES,
 )
@@ -93,6 +97,42 @@ def reset():
     """에피소드 리셋: 스트레스·혼잡·OSPF cost 초기화."""
     reset_state()
     return jsonify({"result": "reset"})
+
+
+# ── 공격 주입 (보안 테스트용) ──────────────────────────────────
+
+@app.route("/debug/attack/<attack_type>", methods=["POST"])
+def start_attack(attack_type: str):
+    """보안 공격 시뮬레이션 시작 (attack_type: 'ddos' | 'portscan')."""
+    if not inject_attack(attack_type):
+        abort(400, description="attack_type must be 'ddos' or 'portscan'")
+    return jsonify({"attack": attack_type, "active": True})
+
+
+@app.route("/debug/attack", methods=["DELETE"])
+def stop_attack():
+    """공격 시뮬레이션 중지."""
+    clear_attack()
+    return jsonify({"attack": None, "active": False})
+
+
+@app.route("/metrics/security")
+def security_metrics_all():
+    """보안 피처 포함 전체 노드 메트릭 반환."""
+    return jsonify([get_security_metrics(n) for n in NODES])
+
+
+@app.route("/metrics/security/<node_id>")
+def security_metrics_node(node_id: str):
+    if node_id not in NODES:
+        abort(404, description=f"Unknown node: {node_id}")
+    return jsonify(get_security_metrics(node_id))
+
+
+@app.route("/debug/attack-state")
+def attack_state():
+    state = get_attack_state()
+    return jsonify({"attack": state, "active": state is not None})
 
 
 @app.route("/debug/stress")

@@ -26,7 +26,8 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
-from anomaly_detector import detector, diagnose
+from anomaly_detector import detector, diagnose, security_detector
+from ospf_security import ospf_monitor
 from agents.baseline_drl import BaselineAgent
 from agents.few_shot_agent import FewShotAgent
 from environment.network_env import LINKS, OSPF_COSTS, MAX_BW, MAX_LAT, MAX_COST
@@ -134,6 +135,19 @@ class DiagnosisResponse(BaseModel):
     root_cause_link:  str | None   # ZSM: Root Cause Analysis
     severity:         str
     reasoning:        str
+
+class LsaCheckPayload(BaseModel):
+    router_id: str
+    seq_no:    int
+
+class SecurityMetricPayload(BaseModel):
+    nodeId:           str
+    bandwidth:        float
+    latency:          float
+    packetLoss:       float
+    syn_ratio:        float = 0.0
+    unique_src_count: float = 0.0
+    pkt_rate:         float = 0.0
 
 class OODAStepResponse(BaseModel):
     """ENI 폐쇄 루프 1 사이클 전체 응답 (OODA 라벨 포함)."""
@@ -421,6 +435,68 @@ def auto_step(disable_analytics: bool = False, disable_maml: bool = False):
         model_status=model_st,
         reasoning_chain=chain,
     )
+
+# ── OSPF 보안 ──────────────────────────────────────────────────────────────────
+
+@app.post("/ospf/lsa-check")
+def lsa_check(payload: LsaCheckPayload):
+    """
+    LSA 수신 시 위조 여부 검사.
+
+    탐지 규칙: 미등록 라우터 ID / 시퀀스 번호 점프 / LSA flooding
+    """
+    return ospf_monitor.check_lsa(payload.router_id, payload.seq_no)
+
+
+@app.get("/ospf/security-status")
+def ospf_security_status():
+    """최근 OSPF 보안 알림 목록 반환."""
+    return {"recent_alerts": ospf_monitor.recent_alerts(20)}
+
+
+@app.post("/debug/fake-lsa")
+def inject_fake_lsa(router_id: str = "r99", seq_no: int = 99999):
+    """데모용: 위조 LSA 주입 시뮬레이션."""
+    return ospf_monitor.inject_fake_lsa(router_id, seq_no)
+
+
+# ── 트래픽 기반 보안 탐지 ───────────────────────────────────────────────────────
+
+@app.post("/security/detect")
+def security_detect(metric: SecurityMetricPayload):
+    """
+    보안 피처 기반 공격 탐지.
+
+    IsolationForest + 임계치 규칙으로 DDoS / 포트스캔을 탐지하고
+    공격 확인 시 시뮬레이션 OpenFlow 차단 룰을 반환한다.
+    """
+    security_detector.update(
+        metric.bandwidth, metric.latency, metric.packetLoss,
+        metric.syn_ratio, metric.unique_src_count, metric.pkt_rate,
+    )
+    result = security_detector.detect(
+        metric.bandwidth, metric.latency, metric.packetLoss,
+        metric.syn_ratio, metric.unique_src_count, metric.pkt_rate,
+    )
+    response_action = None
+    if result["is_threat"]:
+        response_action = {
+            "type":   "openflow_block",
+            "match":  {"node": metric.nodeId, "attack_type": result["attack_type"]},
+            "action": "DROP",
+            "note":   "시뮬레이션 OpenFlow 차단 룰 (데모)",
+        }
+    return {**result, "nodeId": metric.nodeId, "response_action": response_action}
+
+
+@app.get("/security/status")
+def security_status():
+    """통합 보안 상태: OSPF 알림 + 트래픽 탐지 모델 상태."""
+    return {
+        "ospf_alerts":      ospf_monitor.recent_alerts(10),
+        "traffic_trained":  security_detector._trained,
+    }
+
 
 @app.post("/reset-buffer")
 def reset_buffer():

@@ -38,6 +38,9 @@ _ospf_costs: dict[str, int] = {lk: 10 for lk in LINKS_LIST}
 # 혼잡 주입 상태
 _congested_links: set[str] = set()
 
+# 공격 주입 상태
+_attack_state: str | None = None   # None | "ddos" | "portscan"
+
 # 링크별 스트레스 [0,1]  (0=정상, 1=완전혼잡)
 _link_stress: dict[str, float] = {lk: 0.02 for lk in LINKS_LIST}
 
@@ -174,10 +177,52 @@ def clear_congestion(link: str) -> bool:
     return True
 
 
+def inject_attack(attack_type: str) -> bool:
+    """보안 공격 시뮬레이션 주입 ('ddos' | 'portscan')."""
+    global _attack_state
+    if attack_type not in ("ddos", "portscan"):
+        return False
+    _attack_state = attack_type
+    return True
+
+
+def clear_attack() -> None:
+    global _attack_state
+    _attack_state = None
+
+
+def get_security_metrics(node_id: str) -> dict:
+    """현재 공격 상태에 따라 보안 피처를 포함한 메트릭을 반환한다."""
+    base = get_node_metrics(node_id)
+    if _attack_state == "ddos":
+        syn_ratio        = round(random.uniform(0.45, 0.85), 3)
+        unique_src_count = int(random.uniform(50,  300))
+        pkt_rate         = int(random.uniform(15000, 50000))
+    elif _attack_state == "portscan":
+        syn_ratio        = round(random.uniform(0.20, 0.40), 3)
+        unique_src_count = int(random.uniform(800, 2000))
+        pkt_rate         = int(random.uniform(500,  3000))
+    else:
+        syn_ratio        = round(random.uniform(0.02, 0.10), 3)
+        unique_src_count = int(random.uniform(10,   80))
+        pkt_rate         = int(random.uniform(100, 1000))
+    base.update({
+        "syn_ratio":        syn_ratio,
+        "unique_src_count": unique_src_count,
+        "pkt_rate":         pkt_rate,
+    })
+    return base
+
+
+def get_attack_state() -> str | None:
+    return _attack_state
+
+
 def reset_state() -> None:
     """전체 상태 초기화 (에피소드 리셋용)."""
-    global _congested_links
+    global _congested_links, _attack_state
     _congested_links = set()
+    _attack_state    = None
     for lk in LINKS_LIST:
         _link_stress[lk] = 0.02
         _ospf_costs[lk] = 10
