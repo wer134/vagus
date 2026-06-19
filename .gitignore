@@ -4,3 +4,4 @@ __pycache__/
 *.pyc
 *.pyo
 .claude/
+autonomous-network-mgmt/data/

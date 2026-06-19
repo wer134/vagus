@@ -3,6 +3,7 @@ stable-baselines3==2.3.2
 torch==2.3.1
 learn2learn==0.2.0
 numpy==1.26.4
+pandas==2.2.2
 scikit-learn==1.5.0
 fastapi==0.111.0
 uvicorn[standard]==0.30.1
