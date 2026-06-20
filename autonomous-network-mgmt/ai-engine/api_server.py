@@ -27,7 +27,19 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 from anomaly_detector import detector, diagnose, security_detector
-from ospf_security import ospf_monitor
+from ospf_security import (
+    ospf_monitor,
+    OspfLsaPacket,
+    AUTH_NONE,
+    AUTH_SIMPLE,
+    AUTH_CRYPTO_MD5,
+    AUTH_CRYPTO_SHA256,
+    REQUIRED_AUTH_TYPE,
+    ACTIVE_KEY_ID,
+    simulate_replay_attack,
+    simulate_auth_downgrade,
+    simulate_key_compromise_forge,
+)
 from agents.baseline_drl import BaselineAgent
 from agents.few_shot_agent import FewShotAgent
 from environment.network_env import LINKS, OSPF_COSTS, MAX_BW, MAX_LAT, MAX_COST
@@ -139,6 +151,14 @@ class DiagnosisResponse(BaseModel):
 class LsaCheckPayload(BaseModel):
     router_id: str
     seq_no:    int
+
+class LsaCheckAuthPayload(BaseModel):
+    router_id:  str
+    seq_no:     int
+    auth_type:  int = AUTH_NONE
+    key_id:     int | None = None
+    crypto_seq: int | None = None
+    digest:     str | None = None
 
 class SecurityMetricPayload(BaseModel):
     nodeId:           str
@@ -458,6 +478,58 @@ def ospf_security_status():
 def inject_fake_lsa(router_id: str = "r99", seq_no: int = 99999):
     """데모용: 위조 LSA 주입 시뮬레이션."""
     return ospf_monitor.inject_fake_lsa(router_id, seq_no)
+
+
+@app.post("/ospf/lsa-check-auth")
+def lsa_check_auth(payload: LsaCheckAuthPayload):
+    """
+    인증(MD5/SHA256) 포함 LSA 검증 — RFC 2328 Appendix D / RFC 5709.
+
+    인증 실패(미인증/다운그레이드/다이제스트 불일치/재생/약한 알고리즘) 시 즉시 의심 처리.
+    인증을 통과한 LSA에는 기존 콘텐츠 이상 탐지(seq_jump 등)도 추가 적용한다.
+    """
+    packet = OspfLsaPacket(
+        router_id=payload.router_id,
+        seq_no=payload.seq_no,
+        auth_type=payload.auth_type,
+        key_id=payload.key_id,
+        crypto_seq=payload.crypto_seq,
+        digest=payload.digest,
+    )
+    return ospf_monitor.check_lsa_authenticated(packet)
+
+
+@app.get("/ospf/auth-config")
+def ospf_auth_config():
+    """현재 OSPF 인증 정책 조회 (요구 알고리즘, 활성 key_id)."""
+    return {
+        "required_auth_type": REQUIRED_AUTH_TYPE,
+        "active_key_id":      ACTIVE_KEY_ID,
+        "auth_types": {
+            "none":         AUTH_NONE,
+            "simple":       AUTH_SIMPLE,
+            "crypto_md5":   AUTH_CRYPTO_MD5,
+            "crypto_sha256": AUTH_CRYPTO_SHA256,
+        },
+    }
+
+
+@app.post("/debug/ospf-attack/replay")
+def ospf_attack_replay(router_id: str = "r1"):
+    """데모용: 정상 서명된 LSA를 그대로 재전송하는 재생 공격 시뮬레이션."""
+    return simulate_replay_attack(ospf_monitor, router_id)
+
+
+@app.post("/debug/ospf-attack/downgrade")
+def ospf_attack_downgrade(router_id: str = "r1"):
+    """데모용: 인증 없는 LSA로 다운그레이드를 시도하는 공격 시뮬레이션."""
+    return simulate_auth_downgrade(ospf_monitor, router_id)
+
+
+@app.post("/debug/ospf-attack/key-compromise")
+def ospf_attack_key_compromise(router_id: str = "r1"):
+    """데모용: 유출된 키로 유효 서명을 위조해 비정상 시퀀스를 주입하는 공격 시뮬레이션."""
+    return simulate_key_compromise_forge(ospf_monitor, router_id)
 
 
 # ── 트래픽 기반 보안 탐지 ───────────────────────────────────────────────────────
