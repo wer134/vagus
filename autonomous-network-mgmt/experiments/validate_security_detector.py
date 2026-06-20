@@ -60,6 +60,7 @@ def run_validation(
     max_windows: int | None,
     benign_warmup: int,
     contamination: float,
+    plot_path: str | None = None,
 ) -> dict:
     print(f"CICDDoS2019 로딩 중: {csv_path} (window_sec={window_sec})", flush=True)
     windows = load_windows(csv_path, window_sec=window_sec)
@@ -75,6 +76,7 @@ def run_validation(
     detector = SecurityAnomalyDetector(contamination=contamination)
     y_true, y_pred = [], []
     type_true, type_pred = [], []
+    trained_flags = []  # 윈도우별 IsolationForest 학습 완료 여부 (cold-start 구간 표시용)
 
     for w in eval_seq:
         detector.update(**w.features)
@@ -83,6 +85,7 @@ def run_validation(
         y_pred.append(result["is_threat"])
         type_true.append("ddos" if w.is_attack else "none")
         type_pred.append(result["attack_type"] or "none")
+        trained_flags.append(detector._trained)
 
     metrics = {
         "precision": round(precision_score(y_true, y_pred, zero_division=0), 4),
@@ -118,7 +121,86 @@ def run_validation(
     }
 
     _print_summary(csv_path, result_doc)
+
+    if plot_path is not None:
+        _plot_learning_curve(y_true, y_pred, trained_flags, plot_path)
+        print(f"Plot saved -> {plot_path}", flush=True)
+
     return result_doc
+
+
+def _plot_learning_curve(
+    y_true: list[bool], y_pred: list[bool], trained_flags: list[bool],
+    out_path: str, rolling: int = 200,
+) -> None:
+    """탐지 과정을 2단 그래프로 시각화한다.
+
+    위: 윈도우별 실제 공격 vs 탐지기 판정 (회색 음영 = IsolationForest 미학습 cold-start 구간)
+    아래: 최근 `rolling`개 윈도우 기준 F1 추이 — 데이터를 더 볼수록 탐지력이 좋아지는지 확인.
+    베이스레이트(전부 공격으로 찍었을 때의 F1)를 점선으로 함께 표시해 "진짜 학습 효과"와
+    "단순 클래스 비율 우연"을 구분한다.
+    """
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+    from collections import deque
+
+    # 한글 라벨이 깨지지 않도록 OS에 있는 한글 폰트를 사용 (Windows: 맑은 고딕)
+    for _font in ("Malgun Gothic", "AppleGothic", "NanumGothic"):
+        if _font in {f.name for f in matplotlib.font_manager.fontManager.ttflist}:
+            matplotlib.rcParams["font.family"] = _font
+            break
+    matplotlib.rcParams["axes.unicode_minus"] = False
+
+    n = len(y_true)
+    idx = list(range(n))
+    base_rate = sum(y_true) / n if n else 0.0
+    base_rate_f1 = (
+        2 * base_rate / (base_rate + 1) if base_rate else 0.0
+    )  # "전부 공격" 예측 시 precision=base_rate, recall=1.0 인 F1
+
+    buf_true: deque = deque(maxlen=rolling)
+    buf_pred: deque = deque(maxlen=rolling)
+    rolling_f1 = []
+    for yt, yp in zip(y_true, y_pred):
+        buf_true.append(yt)
+        buf_pred.append(yp)
+        tp = sum(1 for t, p in zip(buf_true, buf_pred) if t and p)
+        fp = sum(1 for t, p in zip(buf_true, buf_pred) if not t and p)
+        fn = sum(1 for t, p in zip(buf_true, buf_pred) if t and not p)
+        prec = tp / (tp + fp) if (tp + fp) else 0.0
+        rec  = tp / (tp + fn) if (tp + fn) else 0.0
+        rolling_f1.append(2 * prec * rec / (prec + rec) if (prec + rec) else 0.0)
+
+    cold_start_end = next((i for i, t in enumerate(trained_flags) if t), n)
+
+    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(12, 7), sharex=True)
+
+    if cold_start_end > 0:
+        ax1.axvspan(0, cold_start_end, color="lightgray", alpha=0.5, label="cold-start (미학습)")
+    ax1.step(idx, [1.05 if v else 0.05 for v in y_true], where="post",
+              label="실제 공격(ground truth)", color="tab:red", alpha=0.8, linewidth=1)
+    ax1.step(idx, [0.95 if v else -0.05 for v in y_pred], where="post",
+              label="탐지기 판정(is_threat)", color="tab:blue", alpha=0.6, linewidth=1)
+    ax1.set_ylabel("공격 여부")
+    ax1.set_yticks([0, 1])
+    ax1.set_ylim(-0.2, 1.2)
+    ax1.legend(loc="upper right", fontsize=8)
+    ax1.set_title("CICDDoS2019 검증 — 윈도우별 실제 공격 vs 탐지기 판정")
+
+    ax2.plot(idx, rolling_f1, color="tab:green", label=f"Rolling F1 (최근 {rolling}개 윈도우)")
+    ax2.axhline(base_rate_f1, color="gray", linestyle="--",
+                label=f"베이스레이트 F1 (항상 공격 예측, base_rate={base_rate:.2f})")
+    ax2.set_ylabel("F1")
+    ax2.set_xlabel("윈도우 인덱스 (시간순)")
+    ax2.set_ylim(0, 1)
+    ax2.legend(loc="upper right", fontsize=8)
+    ax2.set_title("탐지 성능 추이 — 데이터를 더 볼수록 좋아지는지 확인")
+
+    fig.tight_layout()
+    os.makedirs(os.path.dirname(out_path), exist_ok=True)
+    fig.savefig(out_path, dpi=120)
+    plt.close(fig)
 
 
 def _print_summary(csv_path: str, doc: dict) -> None:
@@ -155,7 +237,16 @@ def main() -> None:
     )
     parser.add_argument("--contamination", type=float, default=0.05)
     parser.add_argument("--output", default="cicddos_validation.json")
+    parser.add_argument(
+        "--no-plot", action="store_true",
+        help="탐지 과정 시각화(PNG) 생성을 생략 (기본은 생성함)",
+    )
     args = parser.parse_args()
+
+    plot_path = None
+    if not args.no_plot:
+        plot_name = os.path.splitext(args.output)[0] + "_curve.png"
+        plot_path = os.path.join(RESULT_DIR, plot_name)
 
     result_doc = run_validation(
         csv_path=args.csv_path,
@@ -163,6 +254,7 @@ def main() -> None:
         max_windows=args.max_windows,
         benign_warmup=args.benign_warmup,
         contamination=args.contamination,
+        plot_path=plot_path,
     )
 
     os.makedirs(RESULT_DIR, exist_ok=True)

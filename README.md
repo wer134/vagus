@@ -174,6 +174,37 @@ autonomous-network-mgmt/
 
 **위협 인텔리전스(Analytics) 계층이 성능의 핵심 동인**임을 정량 실증 — MAML 단독 대비 성공률 3.7배 향상
 
+### CICDDoS2019 실데이터 검증 — SecurityAnomalyDetector
+
+시뮬레이션 값이 아닌 실제 DDoS 트래픽(UNB CICDDoS2019, `Syn.csv`, 430만 행 → 8,699개 1초 윈도우,
+BENIGN 3,813 / 공격 4,886)으로 `SecurityAnomalyDetector`를 검증했다.
+
+| 지표 | 값 |
+| ---- | -- |
+| Precision | 0.65 |
+| Recall | **0.12** |
+| F1 | 0.20 |
+
+![CICDDoS2019 검증 — 시간에 따른 탐지 성능 추이](autonomous-network-mgmt/experiments/results/cicddos_validation_nowarmup_curve.png)
+
+위 그래프(rolling F1, 최근 200윈도우 기준)는 탐지 성능이 시간이 지나도 베이스레이트(점선,
+"항상 공격으로 예측"했을 때의 F1 0.72)를 회복하지 못함을 보여준다 — **cold-start(학습 부족)
+문제가 아니라 구조적 피처 불일치**라는 뜻이다.
+
+**근본 원인 (정직하게 기록):**
+1. 이 CICDDoS2019 배포본의 `SYN Flag Count` 컬럼이 공격 레이블 플로우에서도 거의 항상 0 —
+   CICFlowMeter 데이터 품질 이슈로 `syn_ratio` 피처가 사실상 무의미해짐
+2. `pkt_rate`/`unique_src_count`를 "플로우 시작 시각" 기준 1초 윈도우로 집계하는 방식이
+   시뮬레이션이 가정한 "초당 패킷 전송률"과 의미가 어긋남 — 장시간 플로우의 패킷이 시작
+   시점 한 윈도우에만 집계됨
+3. 2,500윈도우 샘플로 임계치를 그리드서치한 결과, 세 피처 모두 "최적" 임계치가 사실상
+   "전부 공격으로 예측"과 동일해 **임계치 재조정으로는 해결되지 않음**을 확인 — 진짜 해법은
+   피처 추출 방식 자체의 재설계 (raw pcap 기반 또는 플로우 듀레이션 분산 집계)
+4. 재현 방법: `experiments/CICDDOS2019_SETUP.md` 가이드 → `experiments/validate_security_detector.py`
+
+이 결과는 시뮬레이션 데모의 한계를 실데이터로 드러낸 것으로, 다음 절의 향후 연구 방향에
+반영되어 있다.
+
 ---
 
 ## 핵심 기여
@@ -192,18 +223,57 @@ autonomous-network-mgmt/
 ### 한계
 
 - Mininet 시뮬레이션 기반 — 실제 하드웨어 환경 검증 필요
-- 트래픽 보안 피처(SYN 비율, 고유 IP 수)는 시뮬레이션 값 — 실제 패킷 캡처 연동 필요
+- **CICDDoS2019 실데이터 검증 결과 recall 0.12로 낮음** — 시뮬레이션 기반 임계치(syn_ratio≥0.30 등)가
+  실제 플로우 단위 집계 데이터로는 전혀 분리력이 없음을 확인함 (위 "성능 검증" 절 참고).
+  임계치 재조정으로는 해결되지 않으며, 피처 추출 방식 자체의 재설계가 필요함
 - OSPF 보안 탐지는 규칙 기반 — ML 기반 시퀀스 패턴 학습 미적용
 - 단일 혼잡/공격 시나리오 — 다중 동시 위협 미검증
 
 ### 향후 연구 방향
 
-- 실제 패킷 캡처 데이터(pcap) 연동으로 트래픽 위협 탐지 정밀도 향상
+- **트래픽 보안 피처 추출 방식 재설계** — raw pcap에서 직접 초당 패킷수를 뽑거나, 플로우
+  듀레이션에 걸쳐 패킷을 분산 집계하는 방식으로 전환 (Phase 1 최우선 과제, 임계치 조정만으론
+  불가능함이 CICDDoS2019 검증으로 확인됨)
 - DBD/LSDB 확장과 연계한 LSA 전파 경로 이상 탐지 고도화
-- OSPF MD5/SHA 인증 우회 시나리오 추가
+- ~~OSPF MD5/SHA 인증 우회 시나리오 추가~~ — 완료 (`ospf_security.py`의 `verify_auth`/
+  `check_lsa_authenticated` + replay/downgrade/key-compromise 3종 시나리오)
 - 실제 SDN 컨트롤러(OpenDaylight/ONOS) 연동으로 OpenFlow 차단 룰 실제 적용
 - Graph Neural Network 기반 상태 표현으로 대규모 토폴로지 확장
 - 다중 도메인 위협 인텔리전스 공유 시나리오
+
+---
+
+## 개발 일지
+
+날짜순으로 정리한 진행 이력. 최신 작업이 맨 아래에 온다.
+
+### 2026-05-06 — 프로젝트 시작
+- Mininet 가상 토폴로지, SNMP 메트릭 시뮬레이션, MAML/PPO 에이전트 등 핵심 골격 구축
+- GitHub Pages용 데모 대시보드 추가
+
+### 2026-05-13 — 문서 정리
+- README 초기 정리
+
+### 2026-05-20 — Ablation Study
+- Analytics vs MAML 기여도 분석(50 에피소드) 추가 — Analytics 계층이 핵심 성능 동인임을 최초 실증
+
+### 2026-06-05 — 레포지토리 이전
+- `autonomous-network-mgmt` → `autonomous-network`로 origin 변경, 스냅샷 재초기화
+
+### 2026-06-18 — 보안 탐지 1차 도입
+- OSPF LSA 위조 탐지(`ospf_security.py`) 최초 구현 — 미등록 라우터 ID / 시퀀스 점프 / LSA flooding 3규칙
+- 트래픽 기반 보안 탐지(`SecurityAnomalyDetector`) 추가 — DDoS/포트스캔 탐지(시뮬레이션 데이터 기준)
+- README를 "위협 인텔리전스 + Zero-Touch 자동 대응" 플랫폼으로 재포지셔닝
+
+### 2026-06-20 — 인증 강화 + 실데이터 검증 착수
+- OSPF MD5/SHA256 인증(RFC 2328 Appendix D / RFC 5709) 검증 로직 + 재생·다운그레이드·키유출 우회 시나리오 3종 추가
+- CICDDoS2019 데이터셋 연동 파이프라인(`cicddos_loader.py`, `validate_security_detector.py`) 구축
+- 실데이터 첫 검증 결과: precision 0.65, recall 0.12 — 시뮬레이션 임계치가 실제 트래픽에는 안 맞는다는 것을 발견
+
+### 2026-06-21 — 검증 결과 진단 및 시각화
+- recall이 낮은 근본 원인 진단: 임계치 문제가 아니라 피처 추출 방법론 문제(`SYN Flag Count` 컬럼 손상, 플로우 시작시각 기준 윈도우링의 한계) — 임계치 재조정은 무의미함을 그리드서치로 확인
+- 탐지 과정 시각화(rolling F1 학습 곡선, cold-start 구간 표시) 추가 — 시간이 지나도 성능이 베이스레이트를 회복하지 못함을 시각적으로 증명
+- 검증 결과를 README "성능 검증"/"한계 및 향후 연구"에 정직하게 반영
 
 ---
 
