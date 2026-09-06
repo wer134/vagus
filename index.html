@@ -137,7 +137,9 @@
 <body>
 
 <h1>Autonomous Network Management — 대시보드</h1>
-<p class="subtitle">ZSM/ENI 폐쇄 루프 (OODA) | PPO(Baseline) vs MAML(Few-shot) | 자율 이상 감지·진단·복구 &nbsp;<span style="background:#2a1b3a;color:#c39bd3;border:1px solid #c39bd3;border-radius:10px;padding:2px 10px;font-size:0.75rem;font-weight:bold;">DEMO MODE</span></p>
+<p class="subtitle">ZSM/ENI 폐쇄 루프 (OODA) | PPO(Baseline) vs MAML(Few-shot) | 자율 이상 감지·진단·복구</p>
+<p class="subtitle"><span style="background:#2a1b3a;color:#c39bd3;border:1px solid #c39bd3;border-radius:10px;padding:2px 10px;font-size:0.75rem;font-weight:bold;">정적 데모</span>
+&nbsp;실행 중인 시스템의 데이터가 아닙니다 — 모니터링 지표는 브라우저에서 생성되며, 실험 결과 탭은 2026-04-22 측정치(<code>summary.json</code>)를 임베드한 것입니다.</p>
 
 <div class="tabs">
   <div class="tab active" onclick="switchTab('monitor')">실시간 모니터링</div>
@@ -295,6 +297,9 @@
 
 <script>
 // ═══════════════════ Embedded experiment results (no backend needed) ═══════════════════
+// [정적 데모 데이터] 아래 상수는 2026-04-22 측정치를 하드코딩한 것 —
+// 이 페이지는 서버를 호출하지 않으며(fetch 없음), 라이브 시스템 상태를 반영하지 않는다.
+// baseline의 avg_ttr=200은 "미학습 PPO(랜덤 정책)" 기록임에 주의 (README 성능 검증 절 참고).
 const EMBEDDED_SUMMARY = {"fewshot":{"avg_ttr":3.78,"avg_sla":3.78,"avg_reward":185.4,"success_rate":100.0,"ttr_list":[5,3,4,4,3,4,3,3,4,4,3,5,3,4,5,4,5,3,4,4,4,4,4,3,3,4,5,4,3,4,4,4,3,3,3,4,4,4,5,4,3,4,3,4,3,4,5,4,3,4]},"baseline":{"avg_ttr":200.0,"avg_sla":200.0,"avg_reward":59.6844,"success_rate":0.0,"ttr_list":[200.0,200.0,200.0,200.0,200.0,200.0,200.0,200.0,200.0,200.0,200.0,200.0,200.0,200.0,200.0,200.0,200.0,200.0,200.0,200.0,200.0,200.0,200.0,200.0,200.0,200.0,200.0,200.0,200.0,200.0]},"eval_links":["r3-r4","r1-r4"],"train_links":["r1-r2","r1-r3","r2-r3","r2-r4"]};
 const EMBEDDED_EFFICIENCY = {"ppo":[{"samples":0,"avg_ttr":100.7},{"samples":2000,"avg_ttr":200.0},{"samples":5000,"avg_ttr":100.9},{"samples":10000,"avg_ttr":200.0},{"samples":20000,"avg_ttr":123.7},{"samples":30000,"avg_ttr":200.0}],"maml":[{"samples":0,"iterations":0,"avg_ttr":200.0},{"samples":9600,"iterations":20,"avg_ttr":200.0},{"samples":24000,"iterations":50,"avg_ttr":200.0},{"samples":48000,"iterations":100,"avg_ttr":200.0},{"samples":72000,"iterations":150,"avg_ttr":200.0},{"samples":96000,"iterations":200,"avg_ttr":111.4}]};
 
