@@ -313,6 +313,10 @@ def main():
     # 평가 링크: "train"=TRAIN_LINKS, "test"=TEST_LINKS(기본), "all"=전체
     parser.add_argument("--eval-links",        default="test",
                         choices=["train", "test", "all"])
+    # 평가 결과 저장 파일명. 주의: results/summary.json에는 OODA(/auto-step) 경로의
+    # 확정 결과가 들어 있고 /live-results 엔드포인트가 이를 읽는다 —
+    # 오프라인 평가로 덮어쓰지 말고 별도 파일명을 지정할 것.
+    parser.add_argument("--summary-out",       default="summary.json")
     args = parser.parse_args()
 
     if args.all:
@@ -369,14 +373,27 @@ def main():
         summary = {"baseline": _stats(baseline_results),
                    "fewshot":  _stats(fewshot_results),
                    "eval_links": eval_links,
-                   "train_links": TRAIN_LINKS}
+                   "train_links": TRAIN_LINKS,
+                   "_condition": (
+                       "offline NetworkEnv(local_mode, inject_anomalies=False, "
+                       "max_steps=200) 평가 — Analytics override 없음. "
+                       "/auto-step 폐쇄 루프(OODA) 수치와 직접 비교 불가. "
+                       "미해결 시 TTR=200."
+                   ),
+                   "_timestamp": __import__("datetime").datetime.now().isoformat()}
         os.makedirs(RESULT_DIR, exist_ok=True)
-        with open(os.path.join(RESULT_DIR, "summary.json"), "w") as f:
+        with open(os.path.join(RESULT_DIR, args.summary_out), "w") as f:
             json.dump(summary, f, indent=2)
+        print(f"Summary saved → {os.path.join(RESULT_DIR, args.summary_out)}")
 
     if args.sample_efficiency:
         print("\n[4/4] Sample Efficiency 실험...")
         eff_data = sample_efficiency_experiment()
+        eff_data["_condition"] = (
+            "offline NetworkEnv(local_mode, inject_anomalies=False, max_steps=200) 평가 — "
+            "Analytics override 없음. /auto-step 폐쇄 루프(OODA) 수치(예: TTR 3.78)와 "
+            "직접 비교 불가. 미해결 시 TTR=200."
+        )
         os.makedirs(RESULT_DIR, exist_ok=True)
         with open(os.path.join(RESULT_DIR, "sample_efficiency.json"), "w") as f:
             json.dump(eff_data, f, indent=2)

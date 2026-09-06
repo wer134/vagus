@@ -56,5 +56,7 @@
       "iterations": 200,
       "avg_ttr": 111.4
     }
-  ]
+  ],
+  "_condition": "offline NetworkEnv(local_mode, inject_anomalies=False, max_steps=200) 평가 - Analytics override 없음. /auto-step 폐쇄 루프(OODA) 수치(예: TTR 3.78)와 직접 비교 불가. 미해결 시 TTR=200.",
+  "_condition_added": "2026-09-06 (측정값 불변, 메타데이터만 추가)"
 }
