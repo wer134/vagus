@@ -21,7 +21,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "ai-engine"))
 
 from anomaly_detector import SecurityAnomalyDetector  # noqa: E402
 
-from cicddos_loader import load_windows  # noqa: E402
+from cicddos_loader import load_windows_with_stats  # noqa: E402
 
 from sklearn.metrics import (  # noqa: E402
     classification_report,
@@ -63,9 +63,9 @@ def run_validation(
     plot_path: str | None = None,
 ) -> dict:
     print(f"CICDDoS2019 로딩 중: {csv_path} (window_sec={window_sec})", flush=True)
-    windows = load_windows(csv_path, window_sec=window_sec)
+    windows, loader_stats = load_windows_with_stats(csv_path, window_sec=window_sec)
     if max_windows is not None:
-        windows = windows[:max_windows]
+        windows = windows[:max_windows]  # 주의: loader_stats는 전체 CSV 기준
     n_benign = sum(1 for w in windows if not w.is_attack)
     n_attack = len(windows) - n_benign
     print(f"  윈도우 {len(windows)}개 (BENIGN={n_benign}, 공격={n_attack})", flush=True)
@@ -87,10 +87,17 @@ def run_validation(
         type_pred.append(result["attack_type"] or "none")
         trained_flags.append(detector._trained)
 
+    # 공격 base rate와 "전부 공격 예측" 자명한 베이스라인 F1 —
+    # 공격 비중이 극단적으로 높은 CSV에서 precision/F1이 부풀려 보이는 것을 막는 기준선.
+    base_rate = (sum(y_true) / len(y_true)) if y_true else 0.0
+    all_attack_f1 = 2 * base_rate / (base_rate + 1) if base_rate else 0.0
+
     metrics = {
         "precision": round(precision_score(y_true, y_pred, zero_division=0), 4),
         "recall":    round(recall_score(y_true, y_pred, zero_division=0), 4),
         "f1":        round(f1_score(y_true, y_pred, zero_division=0), 4),
+        "attack_base_rate":       round(base_rate, 4),
+        "all_attack_baseline_f1": round(all_attack_f1, 4),
         "confusion_matrix": confusion_matrix(y_true, y_pred).tolist(),
         "attack_type_report": classification_report(
             type_true, type_pred, zero_division=0, output_dict=True,
@@ -98,6 +105,12 @@ def run_validation(
     }
 
     portscan_predicted = sum(1 for t in type_pred if t == "portscan")
+
+    atk_flows = loader_stats.get("attack_flows", 0)
+    syn_nonzero_pct = (
+        100.0 * loader_stats.get("attack_flows_syn_nonzero", 0) / atk_flows
+        if atk_flows else float("nan")
+    )
 
     result_doc = {
         "dataset": {
@@ -110,12 +123,17 @@ def run_validation(
             "n_benign_windows": n_benign,
             "n_attack_windows": n_attack,
         },
+        "aggregation_mode": loader_stats.get("aggregation_mode"),
+        "loader_stats": loader_stats,  # 전체 CSV 기준 (max_windows 슬라이싱과 무관)
         "metrics": metrics,
         "portscan_predicted_count": portscan_predicted,
         "known_limitations": [
             "bandwidth/latency/packet_loss는 고정 placeholder — 실검증 대상은 syn_ratio/unique_src_count/pkt_rate 3개 차원뿐",
             "CICDDoS2019에는 포트스캔 공격이 없음 — attack_type='portscan' 분기는 이 데이터셋으로 검증 불가 (실패 아님)",
             "공격일 CSV는 BENIGN 비중이 낮아 cold-start 학습이 민감함 — benign_warmup 값으로 결과가 달라질 수 있음",
+            f"공격 플로우의 SYN Flag Count 비영 비율 {syn_nonzero_pct:.2f}% — "
+            "이 배포본에서 syn_ratio 피처는 탐지에 사실상 기여하지 않음 (임계치 0.30 발화 불가)",
+            "flow_rate_sum 모드의 pkt_rate는 윈도우 내 플로우 전송률의 합 — 순간 pps의 상한 근사이며 물리적 초당 패킷수와는 다름",
         ],
         "timestamp": datetime.now().isoformat(),
     }
@@ -211,9 +229,15 @@ def _print_summary(csv_path: str, doc: dict) -> None:
     print(f"  {title}", flush=True)
     print(f"{'=' * width}", flush=True)
     print(f"  BENIGN warmup        : {d['benign_warmup']}", flush=True)
+    print(f"  pkt_rate 집계 모드   : {doc.get('aggregation_mode')}", flush=True)
     print(f"  Precision (is_threat): {m['precision']}", flush=True)
     print(f"  Recall    (is_threat): {m['recall']}", flush=True)
     print(f"  F1        (is_threat): {m['f1']}", flush=True)
+    print(
+        f"  기준선: base_rate={m.get('attack_base_rate')} — "
+        f"'전부 공격 예측' F1={m.get('all_attack_baseline_f1')} (이걸 넘어야 개선)",
+        flush=True,
+    )
     print(f"  Confusion Matrix [[TN FP] [FN TP]]:", flush=True)
     for row in m["confusion_matrix"]:
         print(f"    {row}", flush=True)
