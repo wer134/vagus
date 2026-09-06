@@ -39,6 +39,8 @@ services:
       retries: 5
 
   # ── 데이터베이스 ───────────────────────────────────────────
+  # 현재 미사용 — collector/orchestrator의 application.yml이 datasource를 참조하므로
+  # 서비스 기동에는 필요하지만, 영속화 코드는 아직 없다 (향후 메트릭 이력용 예약).
   postgres:
     image: postgres:16-alpine
     container_name: postgres
@@ -58,6 +60,7 @@ services:
       timeout: 5s
       retries: 5
 
+  # 현재 미사용 — 코드에서 참조하지 않는다 (향후 캐시용 예약).
   redis:
     image: redis:7.2-alpine
     container_name: redis

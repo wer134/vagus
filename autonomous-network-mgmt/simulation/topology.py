@@ -1,5 +1,9 @@
 """Mininet 토폴로지 — 라우터 4개, 링크 6개 (풀메시에 가까운 구조).
 
+주의: 현재 실험 파이프라인은 이 파일을 사용하지 않는다 — 메트릭·혼잡·공격은 모두
+metric_generator.py(링크 스트레스 모델)가 시뮬레이션한다. 이 파일은 실장비/Mininet
+전환 시의 참조 구현으로 남겨둔 것이다 (Linux + mininet 패키지 필요).
+
 실행: sudo python3 topology.py
 """
 from mininet.net import Mininet
