@@ -100,6 +100,26 @@ TTR=5: ████████████████ (16%)
 
 **일반화 완벽**: TEST 링크(r1-r4=3.43, r3-r4=3.94)가 TRAIN 링크와 동일한 수준의 TTR 달성.
 
+### 4.4 오프라인 경로 — 에이전트 정책 단독 비교 (2026-09-06 추가)
+
+§4.1의 수치는 폐쇄 루프(`/auto-step`, Analytics override 포함) 측정이다. Analytics 없이
+**에이전트 정책만** 비교하면 결과가 뒤집힌다 (TEST 링크, `run_experiment.py`, 타임아웃 200).
+
+| 에이전트 | Avg TTR | 성공률(TTR<30) | 평균 보상 |
+|----------|---------|----------------|-----------|
+| Baseline PPO (미학습·랜덤, 30 ep) | 200.0 | 0% | 59.7 |
+| **Baseline PPO (50,000 steps 학습, 50 ep)** | **100.9** | **50%** | 91.1 |
+| MAML (Analytics 미적용, 50 ep) | 139.7 | 32% | 78.0 |
+
+**§4.1의 "Baseline PPO 200.0"은 미학습 랜덤 정책이었다** (`results/summary.json`의
+`PPO without trained model — random policy` 주석). 공정하게 학습시키면 PPO가 MAML보다 빠르다.
+
+따라서 "Baseline 대비 98.1% TTR 단축"은 ① 랜덤 정책과 비교했고 ② 측정 경로가 다른 수치를
+한 축에 놓은 것이므로 **철회한다.** §7 절제 실험과 종합하면 복구 성능의 동인은
+Analytics(RCA) 계층이며, MAML의 추가 기여는 현재 데이터로 확인되지 않는다.
+
+출처: `results/offline_eval_trained_ppo.json` (2026-09-06).
+
 ---
 
 ## 5. 핵심 발견사항
@@ -154,10 +174,12 @@ MAML이 학습한 링크별 2차 행동 패턴 (50 에피소드 분석):
 
 ### 6.3 핵심 기여
 
-1. **Analytics-Intelligence 공동 최적화**: 순수 RL보다 98.1% 빠른 복구
+1. **Analytics 계층의 기여 규명**: 폐쇄 루프 TTR 3.78의 동인이 RCA 기반 override임을
+   절제 실험으로 분리 확인 (§7)
 2. **Zero-shot 일반화**: 학습에 없던 링크(TEST) = 학습한 링크(TRAIN) 동일 TTR
 3. **100% 근본 원인 정확도**: 인접도 점수 기반 RCA의 효과성 실증
-4. **샘플 효율**: ~100 에피소드로 ~50,000 에피소드 필요한 기준선 능가
+4. ~~**샘플 효율**: ~100 에피소드로 ~50,000 에피소드 필요한 기준선 능가~~ —
+   **철회 (2026-09-06)**. 학습된 PPO와의 공정 비교에서 근거가 없음이 확인됨 (§4.4)
 
 ---
 
@@ -240,17 +262,25 @@ ETSI GS ZSM 002 Clause 3.1.1은 Analytics Service와 Intelligence Service를 독
 
 ## 9. 결론
 
-ZSM Analytics 계층(근본 원인 분석)과 ENI Intelligence 계층(MAML few-shot 적응)의 결합은:
+ZSM Analytics 계층(근본 원인 분석)과 ENI Intelligence 계층(MAML few-shot 적응)의 결합은
+폐쇄 루프(`/auto-step`)에서:
 - **100%** 복구 성공률 달성 (50 에피소드)
-- Baseline PPO 대비 **98.1% TTR 단축** (200 → 3.78 steps)
-- MAML v1(Analytics 미적용) 대비 **69.5% TTR 단축** (12.41 → 3.78 steps)
+- MAML v1(Analytics override 이전) 대비 **69.5% TTR 단축** (12.41 → 3.78 steps)
 - 학습-평가 링크 간 **제로 일반화 격차** (TEST=TRAIN=3.78)
 - 첫 번째 OODA 사이클에서 **100% 근본 원인 정확도**
 
-를 실증하며, ZSM/ENI 아키텍처 기반 자율 네트워크 관리의 실현 가능성을 검증한다.
+를 달성했다. 다만 그 성능이 **어느 계층에서 나오는가**는 별개 문제이며, §4.4와 §7이
+이를 규명한다: 동인은 Analytics(RCA)이고 MAML의 추가 기여는 확인되지 않는다.
+
+> **2026-09-06 정정**: 초판의 "Baseline PPO 대비 98.1% TTR 단축(200 → 3.78)"은 삭제했다.
+> 비교 대상이 미학습 랜덤 정책이었고 측정 경로도 서로 달랐다 (§4.4).
 
 ### 핵심 기여 요약
 
-1. **ZSM Analytics-Intelligence 공동 최적화**: Analytics의 고신뢰 근본 원인이 Intelligence를 override하여 항상 최적 1차 행동을 보장
+1. **ZSM Analytics-Intelligence 계층 분리의 정량 검증**: Analytics의 고신뢰 근본 원인이
+   Intelligence를 override하여 항상 최적 1차 행동을 보장하며, 절제 실험으로 각 계층의
+   기여를 분리 측정했다 — 성능은 Analytics에서 나온다
 2. **MAML meta-init의 이중 역할**: (1) Analytics override 없을 시 기본 트래픽 재분산 정책 제공, (2) 지속 버퍼 환경에서 "do-nothing" 최적 정책으로 수렴
 3. **Physics-limited recovery**: OSPF cost 변경 후 스트레스 감소는 물리적 시정수(τ = -1/ln(0.9) ≈ 9.5 스텝)로 결정 → ZSM 행동 후 회복 속도의 이론적 하한값
+4. **부정 결과의 기록**: 학습된 베이스라인과의 공정 비교, 실데이터 검증의 베이스라인 미달을
+   숨기지 않고 남겼다 — 후속 연구가 같은 함정을 반복하지 않도록

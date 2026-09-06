@@ -1,0 +1,79 @@
+{
+  "dataset": {
+    "name": "CICDDoS2019",
+    "file": "Syn.csv",
+    "source": "https://www.unb.ca/cic/datasets/ddos-2019.html",
+    "window_sec": 1.0,
+    "benign_warmup": 0,
+    "n_windows": 8699,
+    "n_benign_windows": 3813,
+    "n_attack_windows": 4886
+  },
+  "aggregation_mode": "flow_rate_sum",
+  "loader_stats": {
+    "aggregation_mode": "flow_rate_sum",
+    "flows_pkt_rate_recomputed": 0,
+    "flows_pkt_rate_excluded": 283076,
+    "attack_flows": 4284751,
+    "attack_flows_syn_nonzero": 834
+  },
+  "metrics": {
+    "precision": 0.5784,
+    "recall": 0.5428,
+    "f1": 0.56,
+    "attack_base_rate": 0.5617,
+    "all_attack_baseline_f1": 0.7193,
+    "confusion_matrix": [
+      [
+        1880,
+        1933
+      ],
+      [
+        2234,
+        2652
+      ]
+    ],
+    "attack_type_report": {
+      "ddos": {
+        "precision": 0.5785683107813182,
+        "recall": 0.5425706099058535,
+        "f1-score": 0.559991550485847,
+        "support": 4886.0
+      },
+      "none": {
+        "precision": 0.4569761789013126,
+        "recall": 0.4930500917912405,
+        "f1-score": 0.4743282452377949,
+        "support": 3813.0
+      },
+      "unknown": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1-score": 0.0,
+        "support": 0.0
+      },
+      "accuracy": 0.5208644671801357,
+      "macro avg": {
+        "precision": 0.3451814965608769,
+        "recall": 0.34520690056569797,
+        "f1-score": 0.34477326524121393,
+        "support": 8699.0
+      },
+      "weighted avg": {
+        "precision": 0.5252712882662635,
+        "recall": 0.5208644671801357,
+        "f1-score": 0.5224430756139281,
+        "support": 8699.0
+      }
+    }
+  },
+  "portscan_predicted_count": 0,
+  "known_limitations": [
+    "bandwidth/latency/packet_loss는 고정 placeholder — 실검증 대상은 syn_ratio/unique_src_count/pkt_rate 3개 차원뿐",
+    "CICDDoS2019에는 포트스캔 공격이 없음 — attack_type='portscan' 분기는 이 데이터셋으로 검증 불가 (실패 아님)",
+    "공격일 CSV는 BENIGN 비중이 낮아 cold-start 학습이 민감함 — benign_warmup 값으로 결과가 달라질 수 있음",
+    "공격 플로우의 SYN Flag Count 비영 비율 0.02% — 이 배포본에서 syn_ratio 피처는 탐지에 사실상 기여하지 않음 (임계치 0.30 발화 불가)",
+    "flow_rate_sum 모드의 pkt_rate는 윈도우 내 플로우 전송률의 합 — 순간 pps의 상한 근사이며 물리적 초당 패킷수와는 다름"
+  ],
+  "timestamp": "2026-09-06T15:01:29.606243"
+}
