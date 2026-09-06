@@ -1,5 +1,6 @@
 package com.anm.orchestrator.client;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,6 +12,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -36,6 +38,33 @@ public class MininetClient {
         this.http    = HttpClient.newBuilder()
                 .connectTimeout(Duration.ofSeconds(5))
                 .build();
+    }
+
+    /**
+     * 현재 링크별 OSPF cost 조회 (GET /ospf/costs).
+     * AI 엔진의 /action 관측 벡터에는 실제 cost 6개가 필요하다 — 실패 시 null을
+     * 반환하며, 호출측은 임의의 기본값으로 채우지 말고 해당 라운드를 스킵해야 한다.
+     */
+    public Map<String, Integer> fetchOspfCosts() {
+        try {
+            HttpRequest req = HttpRequest.newBuilder()
+                    .uri(URI.create(baseUrl + "/ospf/costs"))
+                    .GET()
+                    .timeout(Duration.ofSeconds(5))
+                    .build();
+            HttpResponse<String> resp = http.send(req, HttpResponse.BodyHandlers.ofString());
+            if (resp.statusCode() != 200) {
+                log.warn("fetchOspfCosts failed: status={}", resp.statusCode());
+                return null;
+            }
+            Map<String, Number> raw = mapper.readValue(resp.body(), new TypeReference<>() {});
+            Map<String, Integer> costs = new LinkedHashMap<>();
+            raw.forEach((link, cost) -> costs.put(link, cost.intValue()));
+            return costs;
+        } catch (Exception e) {
+            log.error("MininetClient.fetchOspfCosts failed: {}", e.getMessage());
+            return null;
+        }
     }
 
     /**

@@ -12,7 +12,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class OrchestrationService {
@@ -23,9 +24,9 @@ public class OrchestrationService {
     private final MininetClient  mininet;
     private final boolean        anomalyCheckEnabled;
 
-    // 최근 수집된 메트릭 버퍼 (N 노드 한 라운드 분)
-    private final List<NetworkMetricDto> metricBuffer = new CopyOnWriteArrayList<>();
-    private static final int BUFFER_SIZE = 4; // 노드 수
+    // 노드별 최신 메트릭 — Kafka 파티션 간 도착 순서가 보장되지 않고 같은 노드가
+    // 연속 도착할 수 있으므로, "개수 세기" 대신 "노드별 최신값 맵"으로 라운드를 구성한다.
+    private final Map<String, NetworkMetricDto> latestByNode = new ConcurrentHashMap<>();
 
     public OrchestrationService(
             AiEngineClient aiEngine,
@@ -44,29 +45,40 @@ public class OrchestrationService {
     public void onMetric(NetworkMetricDto metric) {
         log.debug("Received metric: {}", metric);
 
-        metricBuffer.add(metric);
+        latestByNode.put(metric.nodeId(), metric);
 
-        // 이상 감지: 단일 노드 기준
+        // 이상 감지: 단일 노드 기준 (원시값 — AI 엔진이 SLA 규칙/IsolationForest로 판정)
         if (anomalyCheckEnabled && aiEngine.isAnomaly(metric)) {
             log.warn("Anomaly detected on node {}", metric.nodeId());
         }
 
-        // 버퍼가 찼을 때(한 라운드 완성) 오케스트레이션 실행
-        if (metricBuffer.size() >= BUFFER_SIZE) {
-            List<NetworkMetricDto> snapshot = new ArrayList<>(metricBuffer);
-            metricBuffer.clear();
+        // 4개 노드가 모두 모이면(한 라운드 완성) 오케스트레이션 실행
+        if (latestByNode.keySet().containsAll(AiEngineClient.NODE_ORDER)) {
+            List<NetworkMetricDto> snapshot = new ArrayList<>();
+            for (String node : AiEngineClient.NODE_ORDER) {
+                snapshot.add(latestByNode.get(node));
+            }
+            latestByNode.clear();
             executeOrchestration(snapshot);
         }
     }
 
     /**
      * executeOrchestration():
-     * 1. AI Engine에서 action 수신
-     * 2. MininetClient.setOspfCost(link, cost) 호출
+     * 1. 현재 OSPF cost 6개 조회 (관측 벡터에 필요 — 실패 시 이번 라운드 스킵)
+     * 2. AI Engine에서 action 수신
+     * 3. MininetClient.setOspfCost(link, cost) 호출
      */
     public void executeOrchestration(List<NetworkMetricDto> metrics) {
         try {
-            ActionDto action = aiEngine.decideAction(metrics);
+            Map<String, Integer> ospfCosts = mininet.fetchOspfCosts();
+            if (ospfCosts == null) {
+                // 임의 기본값으로 채우면 틀린 관측으로 행동하게 된다 — 스킵이 안전.
+                log.warn("OSPF cost 조회 실패 — 이번 오케스트레이션 라운드 스킵");
+                return;
+            }
+
+            ActionDto action = aiEngine.decideAction(metrics, ospfCosts);
             log.info("Action decided: link={} cost={} agent={}",
                     action.targetLink(), action.newOspfCost(), action.agentType());
 

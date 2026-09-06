@@ -17,6 +17,14 @@ import java.util.Map;
 @Component
 public class AiEngineClient {
 
+    /**
+     * /action 관측 벡터의 순서 규약 — AI 엔진(api_server._metrics_to_obs / NetworkEnv)과
+     * 동일해야 한다. 순서가 어긋나면 에이전트가 다른 링크/노드의 값으로 판단하게 된다.
+     */
+    public static final List<String> NODE_ORDER = List.of("r1", "r2", "r3", "r4");
+    public static final List<String> LINK_ORDER = List.of(
+            "r1-r2", "r1-r3", "r2-r3", "r2-r4", "r3-r4", "r1-r4");
+
     private final HttpClient http;
     private final ObjectMapper mapper;
     private final String baseUrl;
@@ -59,12 +67,40 @@ public class AiEngineClient {
         }
     }
 
-    /** 행동 결정 요청 (POST /action). */
-    public ActionDto decideAction(List<NetworkMetricDto> metrics) {
+    /**
+     * 행동 결정 요청 (POST /action).
+     *
+     * @param metrics   노드 4개의 원시 메트릭 (노드 누락 시 예외)
+     * @param ospfCosts 링크 6개의 현재 OSPF cost (MininetClient.fetchOspfCosts() 결과)
+     *
+     * 관측 벡터는 [bw×4, lat×4, cost×6] = 14차원이며 NODE_ORDER/LINK_ORDER로 정렬해
+     * 보낸다. 과거에는 cost를 노드 수만큼(4개) 고정값 10.0으로 보내 12차원이 만들어져
+     * 에이전트 추론이 항상 실패했다 — 실제 cost 6개 전달로 수정됨.
+     */
+    public ActionDto decideAction(List<NetworkMetricDto> metrics, Map<String, Integer> ospfCosts) {
         try {
-            List<Double> bws      = metrics.stream().map(NetworkMetricDto::bandwidth).toList();
-            List<Double> lats     = metrics.stream().map(NetworkMetricDto::latency).toList();
-            List<Double> costs    = metrics.stream().map(m -> 10.0).toList(); // 기본값
+            Map<String, NetworkMetricDto> byNode = new java.util.HashMap<>();
+            for (NetworkMetricDto m : metrics) {
+                byNode.put(m.nodeId(), m);
+            }
+            List<Double> bws  = new java.util.ArrayList<>();
+            List<Double> lats = new java.util.ArrayList<>();
+            for (String node : NODE_ORDER) {
+                NetworkMetricDto m = byNode.get(node);
+                if (m == null) {
+                    throw new IllegalArgumentException("메트릭에 노드 누락: " + node);
+                }
+                bws.add(m.bandwidth());
+                lats.add(m.latency());
+            }
+            List<Double> costs = new java.util.ArrayList<>();
+            for (String link : LINK_ORDER) {
+                Integer c = ospfCosts.get(link);
+                if (c == null) {
+                    throw new IllegalArgumentException("OSPF cost에 링크 누락: " + link);
+                }
+                costs.add(c.doubleValue());
+            }
 
             Map<String, Object> body = Map.of(
                     "bandwidths",  bws,
