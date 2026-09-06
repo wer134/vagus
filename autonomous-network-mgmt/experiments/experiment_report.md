@@ -171,37 +171,39 @@ ZSM Analytics 계층과 ENI Intelligence 계층 각각의 기여도를 정량화
 
 | 모드 | Analytics (RCA) | MAML Intelligence | 동작 방식 |
 |------|----------------|-------------------|---------|
-| `analytics_only` | ✅ 활성 | ❌ 비활성 | `/diagnose` → 근본 원인 링크에 cost=100 직접 적용 |
-| `maml_only` | ❌ 비활성 | ✅ 활성 | `/action` → MAML meta-init 행동만 적용 |
+| `analytics_only` | ✅ 활성 | ❌ 비활성 | `/auto-step?disable_maml=true` → 근본 원인 링크에 cost=100 직접 적용 |
+| `maml_only` | ❌ 비활성 | ✅ 활성 | `/auto-step?disable_analytics=true` → MAML 행동만 적용 |
 | `combined` | ✅ 활성 | ✅ 활성 | `/auto-step` → Analytics override + MAML 2차 행동 |
 
-각 모드 15 에피소드, 최대 TTR=15 (미해결 시 timeout).
+각 모드 50 에피소드(공통 링크 시퀀스, seed=42), 최대 TTR=15 (미해결 시 timeout).
 
 ### 7.3 결과
 
+출처: `results/ablation_study.json` (2026-05-20 실행, 모드당 50 에피소드).
+
 | 모드 | Avg TTR | 성공률 | TTR 분포 |
 |------|---------|--------|---------|
-| `analytics_only` | **3.93** | **100%** | [4,3,4,4,4,5,3,3,4,4,4,5,3,5,4] |
-| `maml_only` | 13.13 | 27% | [15,7,7,15,15,15,15,15,15,7,15,15,15,11,15] |
-| `combined` | 4.20 | **100%** | [4,4,4,4,3,6,4,4,4,4,4,5,6,3,4] |
+| `analytics_only` | 3.88 | **100%** | 3~6 step (6은 1회) |
+| `maml_only` | 12.32 | 24% | 성공 12회는 3~5 step, 나머지 38회 timeout(15) |
+| `combined` | **3.80** | **100%** | 3~5 step (3×17, 4×26, 5×7) |
 
 ### 7.4 분석
 
 **Analytics 계층이 핵심 성능 동인임을 실증**:
-- `analytics_only` vs `maml_only`: TTR 3.93 vs 13.13 (→ Analytics가 3.34× 빠름)
-- `maml_only` 성공률 27%: MAML meta-init의 기본 행동(`r1-r2 cost=200`)이 일부 링크 시나리오에서 비효율적
-- `combined` ≈ `analytics_only`: MAML 2차 행동이 평균 TTR에 큰 영향 없음 (4.20 vs 3.93)
+- `analytics_only` vs `maml_only`: TTR 3.88 vs 12.32 (→ Analytics가 3.2× 빠름)
+- `maml_only` 성공률 24% (12/50): MAML meta-init의 기본 행동(`r1-r2 cost=200`)이 일부 링크 시나리오에서 비효율적
+- `combined` ≈ `analytics_only`: MAML 2차 행동이 평균 TTR에 큰 영향 없음 (3.80 vs 3.88)
 
 **MAML의 잠재적 기여**:
-- `combined`에서 TTR=3이 1회 발생(ep 5) — Analytics 단독보다 빠른 경우 존재
-- `maml_only` TTR=7 에피소드 4회: 일부 시나리오에서 MAML이 우연히 올바른 방향 행동 선택
+- `maml_only`가 성공한 12개 에피소드는 TTR 3~5로 Analytics 수준 — 링크가 meta-init 행동과 맞아떨어지면 MAML 단독으로도 빠른 복구 가능
+- `combined`(3.80)가 `analytics_only`(3.88)보다 근소하게 빠르나 유의미한 차이로 보기 어려움
 - 실배포 환경에서 Analytics 신뢰도 저하 시 MAML이 fallback 역할 수행 가능
 
 ### 7.5 ZSM 계층 분리 원칙 검증
 
 ETSI GS ZSM 002 Clause 3.1.1은 Analytics Service와 Intelligence Service를 독립적 계층으로 정의한다:
 - 본 절제 실험은 **Analytics 계층이 분리 실행 시 충분한 성능(100% 성공)을 제공**함을 실증
-- **Intelligence 계층 단독은 불충분** (27% 성공) — 충분한 학습 데이터 없이는 meta-init 한계
+- **Intelligence 계층 단독은 불충분** (24% 성공) — 충분한 학습 데이터 없이는 meta-init 한계
 - **계층 결합이 최적**: 복구 성공률 유지 + MAML의 2차 트래픽 재분산으로 네트워크 안정성 향상
 
 ---
