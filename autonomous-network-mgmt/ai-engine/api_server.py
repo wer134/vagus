@@ -42,7 +42,9 @@ from ospf_security import (
 )
 from agents.baseline_drl import BaselineAgent
 from agents.few_shot_agent import FewShotAgent
-from environment.network_env import LINKS, OSPF_COSTS, MAX_BW, MAX_LAT, MAX_COST
+from environment.network_env import (
+    LINKS, OSPF_COSTS, MAX_BW, MAX_LAT, MAX_COST, N_LINKS, N_NODES,
+)
 
 SNMP_URL = os.environ.get("SNMP_URL", "http://127.0.0.1:5001")
 
@@ -188,7 +190,18 @@ class OODAStepResponse(BaseModel):
 # ── 헬퍼 ───────────────────────────────────────────────────────────────────────
 
 def _obs_from_payload(bws, lats, costs) -> np.ndarray:
-    return np.array(bws + lats + costs, dtype=np.float32)
+    """/action 페이로드(원시값) → 14차원 정규화 관측 벡터.
+
+    _metrics_to_obs / NetworkEnv._obs_from_metrics와 동일 규약(bw/1000, lat/200,
+    cost/200, clip 0~1). 과거에는 정규화 없이 원시값을 그대로 이어붙여 에이전트가
+    학습 분포 밖 입력을 받았다.
+    """
+    arr = (
+        [b / MAX_BW   for b in bws]
+        + [l / MAX_LAT  for l in lats]
+        + [c / MAX_COST for c in costs]
+    )
+    return np.clip(np.array(arr, dtype=np.float32), 0.0, 1.0)
 
 def _metrics_to_obs(metrics: list[dict], ospf_map: dict) -> np.ndarray:
     LINK_ORDER = ["r1-r2", "r1-r3", "r2-r3", "r2-r4", "r3-r4", "r1-r4"]
@@ -268,7 +281,18 @@ def analyze_anomaly(metric: MetricPayload):
 
 @app.post("/action", response_model=ActionResponse)
 def decide_action(state: StatePayload):
-    """수동 행동 결정 (대시보드 버튼용)."""
+    """수동 행동 결정 (대시보드 버튼·orchestrator-service용)."""
+    # 차원 검증 — 잘못된 길이(예: cost를 노드 수 4개로 보내는 클라이언트)는
+    # 조용한 오작동 대신 명확한 400으로 거부한다.
+    if (len(state.bandwidths) != N_NODES
+            or len(state.latencies) != N_NODES
+            or len(state.ospfCosts) != N_LINKS):
+        raise HTTPException(
+            400,
+            f"관측 차원 불일치: bandwidths={len(state.bandwidths)} (기대 {N_NODES}), "
+            f"latencies={len(state.latencies)} (기대 {N_NODES}), "
+            f"ospfCosts={len(state.ospfCosts)} (기대 {N_LINKS}, 링크 순서 {LINKS})",
+        )
     obs = _obs_from_payload(state.bandwidths, state.latencies, state.ospfCosts)
     if state.useFewShot:
         if not few_shot_agent.is_ready():
