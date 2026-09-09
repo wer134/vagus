@@ -1,0 +1,552 @@
+{
+  "timestamp": "2026-09-09T02:55:47.325272",
+  "n_episodes": 30,
+  "overall_avg_ttr": 6.93,
+  "early_avg_ttr": 7.0,
+  "late_avg_ttr": 6.87,
+  "early_adapt_rate": 5.47,
+  "late_adapt_rate": 6.0,
+  "success_rate": 100.0,
+  "root_cause_accuracy": 100.0,
+  "wasted_actions_per_ep": 0.73,
+  "seed": 42,
+  "_condition": "폐쇄 루프 /auto-step, 사이클당 1틱(lockstep). 2026-09-09 이전 결과는 사이클당 2틱.",
+  "results": [
+    {
+      "ep": 1,
+      "link": "r1-r4",
+      "group": "test",
+      "ttr": 7,
+      "first_root": "r1-r4",
+      "root_match": true,
+      "model_steps_adapting": 3,
+      "wasted_actions": 1,
+      "actions": [
+        "r1-r4@100",
+        "r3-r4@100",
+        "r3-r4@100",
+        "r3-r4@100",
+        "r3-r4@100",
+        "r3-r4@100",
+        "r3-r4@100"
+      ]
+    },
+    {
+      "ep": 2,
+      "link": "r3-r4",
+      "group": "test",
+      "ttr": 6,
+      "first_root": "r3-r4",
+      "root_match": true,
+      "model_steps_adapting": 6,
+      "wasted_actions": 0,
+      "actions": [
+        "r3-r4@100",
+        "r3-r4@100",
+        "r3-r4@100",
+        "r3-r4@100",
+        "r3-r4@100",
+        "r3-r4@100"
+      ]
+    },
+    {
+      "ep": 3,
+      "link": "r1-r2",
+      "group": "train",
+      "ttr": 7,
+      "first_root": "r1-r2",
+      "root_match": true,
+      "model_steps_adapting": 5,
+      "wasted_actions": 1,
+      "actions": [
+        "r1-r2@100",
+        "r3-r4@100",
+        "r3-r4@100",
+        "r3-r4@100",
+        "r3-r4@100"
+      ]
+    },
+    {
+      "ep": 4,
+      "link": "r1-r4",
+      "group": "test",
+      "ttr": 9,
+      "first_root": "r1-r4",
+      "root_match": true,
+      "model_steps_adapting": 7,
+      "wasted_actions": 1,
+      "actions": [
+        "r1-r4@100",
+        "r3-r4@100",
+        "r3-r4@100",
+        "r3-r4@100",
+        "r3-r4@100",
+        "r3-r4@100",
+        "r3-r4@100"
+      ]
+    },
+    {
+      "ep": 5,
+      "link": "r1-r4",
+      "group": "test",
+      "ttr": 6,
+      "first_root": "r1-r4",
+      "root_match": true,
+      "model_steps_adapting": 5,
+      "wasted_actions": 1,
+      "actions": [
+        "r1-r4@100",
+        "r3-r4@100",
+        "r3-r4@100",
+        "r3-r4@100",
+        "r3-r4@100"
+      ]
+    },
+    {
+      "ep": 6,
+      "link": "r3-r4",
+      "group": "test",
+      "ttr": 6,
+      "first_root": "r3-r4",
+      "root_match": true,
+      "model_steps_adapting": 4,
+      "wasted_actions": 0,
+      "actions": [
+        "r3-r4@100",
+        "r3-r4@100",
+        "r3-r4@100",
+        "r3-r4@100"
+      ]
+    },
+    {
+      "ep": 7,
+      "link": "r1-r4",
+      "group": "test",
+      "ttr": 6,
+      "first_root": "r1-r4",
+      "root_match": true,
+      "model_steps_adapting": 6,
+      "wasted_actions": 1,
+      "actions": [
+        "r1-r4@100",
+        "r3-r4@100",
+        "r3-r4@100",
+        "r3-r4@100",
+        "r3-r4@100",
+        "r3-r4@100"
+      ]
+    },
+    {
+      "ep": 8,
+      "link": "r1-r4",
+      "group": "test",
+      "ttr": 6,
+      "first_root": "r1-r4",
+      "root_match": true,
+      "model_steps_adapting": 6,
+      "wasted_actions": 1,
+      "actions": [
+        "r1-r4@100",
+        "r3-r4@100",
+        "r3-r4@100",
+        "r3-r4@100",
+        "r3-r4@100",
+        "r3-r4@100"
+      ]
+    },
+    {
+      "ep": 9,
+      "link": "r2-r3",
+      "group": "train",
+      "ttr": 8,
+      "first_root": "r2-r3",
+      "root_match": true,
+      "model_steps_adapting": 6,
+      "wasted_actions": 1,
+      "actions": [
+        "r2-r3@100",
+        "r3-r4@100",
+        "r3-r4@100",
+        "r3-r4@100",
+        "r3-r4@100",
+        "r3-r4@100"
+      ]
+    },
+    {
+      "ep": 10,
+      "link": "r3-r4",
+      "group": "test",
+      "ttr": 7,
+      "first_root": "r3-r4",
+      "root_match": true,
+      "model_steps_adapting": 6,
+      "wasted_actions": 0,
+      "actions": [
+        "r3-r4@100",
+        "r3-r4@100",
+        "r3-r4@100",
+        "r3-r4@100",
+        "r3-r4@100",
+        "r3-r4@100"
+      ]
+    },
+    {
+      "ep": 11,
+      "link": "r3-r4",
+      "group": "test",
+      "ttr": 6,
+      "first_root": "r3-r4",
+      "root_match": true,
+      "model_steps_adapting": 6,
+      "wasted_actions": 0,
+      "actions": [
+        "r3-r4@100",
+        "r3-r4@100",
+        "r3-r4@100",
+        "r3-r4@100",
+        "r3-r4@100",
+        "r3-r4@100"
+      ]
+    },
+    {
+      "ep": 12,
+      "link": "r1-r4",
+      "group": "test",
+      "ttr": 7,
+      "first_root": "r1-r4",
+      "root_match": true,
+      "model_steps_adapting": 4,
+      "wasted_actions": 1,
+      "actions": [
+        "r1-r4@100",
+        "r3-r4@100",
+        "r3-r4@100",
+        "r3-r4@100"
+      ]
+    },
+    {
+      "ep": 13,
+      "link": "r1-r4",
+      "group": "test",
+      "ttr": 8,
+      "first_root": "r1-r4",
+      "root_match": true,
+      "model_steps_adapting": 6,
+      "wasted_actions": 1,
+      "actions": [
+        "r1-r4@100",
+        "r3-r4@100",
+        "r3-r4@100",
+        "r3-r4@100",
+        "r3-r4@100",
+        "r3-r4@100"
+      ]
+    },
+    {
+      "ep": 14,
+      "link": "r1-r4",
+      "group": "test",
+      "ttr": 7,
+      "first_root": "r1-r4",
+      "root_match": true,
+      "model_steps_adapting": 6,
+      "wasted_actions": 1,
+      "actions": [
+        "r1-r4@100",
+        "r3-r4@100",
+        "r3-r4@100",
+        "r3-r4@100",
+        "r3-r4@100",
+        "r3-r4@100"
+      ]
+    },
+    {
+      "ep": 15,
+      "link": "r3-r4",
+      "group": "test",
+      "ttr": 9,
+      "first_root": "r3-r4",
+      "root_match": true,
+      "model_steps_adapting": 6,
+      "wasted_actions": 0,
+      "actions": [
+        "r3-r4@100",
+        "r3-r4@100",
+        "r3-r4@100",
+        "r3-r4@100",
+        "r3-r4@100",
+        "r3-r4@100"
+      ]
+    },
+    {
+      "ep": 16,
+      "link": "r1-r4",
+      "group": "test",
+      "ttr": 6,
+      "first_root": "r1-r4",
+      "root_match": true,
+      "model_steps_adapting": 6,
+      "wasted_actions": 1,
+      "actions": [
+        "r1-r4@100",
+        "r3-r4@100",
+        "r3-r4@100",
+        "r3-r4@100",
+        "r3-r4@100",
+        "r3-r4@100"
+      ]
+    },
+    {
+      "ep": 17,
+      "link": "r2-r3",
+      "group": "train",
+      "ttr": 6,
+      "first_root": "r2-r3",
+      "root_match": true,
+      "model_steps_adapting": 6,
+      "wasted_actions": 1,
+      "actions": [
+        "r2-r3@100",
+        "r3-r4@100",
+        "r3-r4@100",
+        "r3-r4@100",
+        "r3-r4@100",
+        "r3-r4@100"
+      ]
+    },
+    {
+      "ep": 18,
+      "link": "r1-r4",
+      "group": "test",
+      "ttr": 7,
+      "first_root": "r1-r4",
+      "root_match": true,
+      "model_steps_adapting": 7,
+      "wasted_actions": 1,
+      "actions": [
+        "r1-r4@100",
+        "r3-r4@100",
+        "r3-r4@100",
+        "r3-r4@100",
+        "r3-r4@100",
+        "r3-r4@100",
+        "r3-r4@100"
+      ]
+    },
+    {
+      "ep": 19,
+      "link": "r2-r4",
+      "group": "train",
+      "ttr": 6,
+      "first_root": "r2-r4",
+      "root_match": true,
+      "model_steps_adapting": 6,
+      "wasted_actions": 1,
+      "actions": [
+        "r2-r4@100",
+        "r3-r4@100",
+        "r3-r4@100",
+        "r3-r4@100",
+        "r3-r4@100",
+        "r3-r4@100"
+      ]
+    },
+    {
+      "ep": 20,
+      "link": "r1-r2",
+      "group": "train",
+      "ttr": 8,
+      "first_root": "r1-r2",
+      "root_match": true,
+      "model_steps_adapting": 6,
+      "wasted_actions": 1,
+      "actions": [
+        "r1-r2@100",
+        "r3-r4@100",
+        "r3-r4@100",
+        "r3-r4@100",
+        "r3-r4@100",
+        "r3-r4@100"
+      ]
+    },
+    {
+      "ep": 21,
+      "link": "r3-r4",
+      "group": "test",
+      "ttr": 7,
+      "first_root": "r3-r4",
+      "root_match": true,
+      "model_steps_adapting": 6,
+      "wasted_actions": 0,
+      "actions": [
+        "r3-r4@100",
+        "r3-r4@100",
+        "r3-r4@100",
+        "r3-r4@100",
+        "r3-r4@100",
+        "r3-r4@100"
+      ]
+    },
+    {
+      "ep": 22,
+      "link": "r3-r4",
+      "group": "test",
+      "ttr": 6,
+      "first_root": "r3-r4",
+      "root_match": true,
+      "model_steps_adapting": 6,
+      "wasted_actions": 0,
+      "actions": [
+        "r3-r4@100",
+        "r3-r4@100",
+        "r3-r4@100",
+        "r3-r4@100",
+        "r3-r4@100",
+        "r3-r4@100"
+      ]
+    },
+    {
+      "ep": 23,
+      "link": "r2-r3",
+      "group": "train",
+      "ttr": 9,
+      "first_root": "r2-r3",
+      "root_match": true,
+      "model_steps_adapting": 6,
+      "wasted_actions": 1,
+      "actions": [
+        "r2-r3@100",
+        "r3-r4@100",
+        "r3-r4@100",
+        "r3-r4@100",
+        "r3-r4@100",
+        "r3-r4@100"
+      ]
+    },
+    {
+      "ep": 24,
+      "link": "r1-r3",
+      "group": "train",
+      "ttr": 10,
+      "first_root": "r1-r3",
+      "root_match": true,
+      "model_steps_adapting": 7,
+      "wasted_actions": 1,
+      "actions": [
+        "r1-r3@100",
+        "r3-r4@100",
+        "r3-r4@100",
+        "r3-r4@100",
+        "r3-r4@100",
+        "r3-r4@100",
+        "r3-r4@100"
+      ]
+    },
+    {
+      "ep": 25,
+      "link": "r1-r2",
+      "group": "train",
+      "ttr": 6,
+      "first_root": "r1-r2",
+      "root_match": true,
+      "model_steps_adapting": 4,
+      "wasted_actions": 1,
+      "actions": [
+        "r1-r2@100",
+        "r3-r4@100",
+        "r3-r4@100",
+        "r3-r4@100"
+      ]
+    },
+    {
+      "ep": 26,
+      "link": "r3-r4",
+      "group": "test",
+      "ttr": 6,
+      "first_root": "r3-r4",
+      "root_match": true,
+      "model_steps_adapting": 6,
+      "wasted_actions": 0,
+      "actions": [
+        "r3-r4@100",
+        "r3-r4@100",
+        "r3-r4@100",
+        "r3-r4@100",
+        "r3-r4@100",
+        "r3-r4@100"
+      ]
+    },
+    {
+      "ep": 27,
+      "link": "r1-r4",
+      "group": "test",
+      "ttr": 6,
+      "first_root": "r1-r4",
+      "root_match": true,
+      "model_steps_adapting": 6,
+      "wasted_actions": 1,
+      "actions": [
+        "r1-r4@100",
+        "r3-r4@100",
+        "r3-r4@100",
+        "r3-r4@100",
+        "r3-r4@100",
+        "r3-r4@100"
+      ]
+    },
+    {
+      "ep": 28,
+      "link": "r1-r3",
+      "group": "train",
+      "ttr": 7,
+      "first_root": "r1-r3",
+      "root_match": true,
+      "model_steps_adapting": 6,
+      "wasted_actions": 1,
+      "actions": [
+        "r1-r3@100",
+        "r3-r4@100",
+        "r3-r4@100",
+        "r3-r4@100",
+        "r3-r4@100",
+        "r3-r4@100"
+      ]
+    },
+    {
+      "ep": 29,
+      "link": "r1-r4",
+      "group": "test",
+      "ttr": 7,
+      "first_root": "r1-r4",
+      "root_match": true,
+      "model_steps_adapting": 6,
+      "wasted_actions": 1,
+      "actions": [
+        "r1-r4@100",
+        "r3-r4@100",
+        "r3-r4@100",
+        "r3-r4@100",
+        "r3-r4@100",
+        "r3-r4@100"
+      ]
+    },
+    {
+      "ep": 30,
+      "link": "r1-r4",
+      "group": "test",
+      "ttr": 6,
+      "first_root": "r1-r4",
+      "root_match": true,
+      "model_steps_adapting": 6,
+      "wasted_actions": 1,
+      "actions": [
+        "r1-r4@100",
+        "r3-r4@100",
+        "r3-r4@100",
+        "r3-r4@100",
+        "r3-r4@100",
+        "r3-r4@100"
+      ]
+    }
+  ]
+}

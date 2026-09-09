@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "timestamp": "2026-09-09T07:30:02.452936",
+  "git_commit": "8e547b6-dirty",
+  "seed": null,
+  "contract": {
+    "obs_version": 1,
+    "action_version": 1,
+    "reward_version": 1,
+    "sim_version": 2
+  },
+  "_condition": "학습 직후 정책 붕괴 검사 (ROADMAP A-5)",
+  "checkpoint": "ppo_network.zip",
+  "train": {
+    "algo": "ppo",
+    "total_timesteps": 50000,
+    "seed": null,
+    "trained_at": "2026-09-06",
+    "sim_version_at_train": 1,
+    "note": "감사 이전 환경(관측이 시간을 진행시키던 모델)에서 학습. 미재학습 — system_info.txt: Python 3.14.2 / SB3 2.8.0 / torch 2.11 / numpy 2.4.0"
+  },
+  "policy_check": {
+    "top_action": "r3-r4@100",
+    "top_action_share": 1.0,
+    "action_entropy_bits": 0.0,
+    "distinct_actions": 1,
+    "collapsed": true,
+    "collapse_threshold": 0.8,
+    "on_policy_counts": {
+      "r3-r4@100": 48
+    },
+    "random_obs_counts": {
+      "r2-r4@200": 113,
+      "r3-r4@100": 43,
+      "r2-r4@100": 20,
+      "r1-r3@100": 10,
+      "r2-r3@100": 8
+    },
+    "probe": {
+      "links": 6,
+      "steps_per_link": 8,
+      "n_random_obs": 200,
+      "seed": 0
+    }
+  }
+}

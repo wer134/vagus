@@ -7,6 +7,12 @@
 링크 스트레스 → 노드 메트릭:
   각 노드의 메트릭은 인접 링크 스트레스의 평균으로 계산한다.
 
+라우팅 (2026-09-09, ROADMAP B-1):
+  노드 쌍별 수요를 OSPF cost 최단경로(동일 비용이면 ECMP 균등 분배)로 실어 링크 부하를
+  계산한다. 이전의 "cost 역수 비율" 근사는 우회의 대가가 없어, cost를 올리면 그 링크만
+  한가해지고 다른 링크는 그대로였다. 이제 우회 트래픽이 실제로 다른 링크에 실린다.
+  구 모델은 set_routing_mode("cost_inverse")로 재현할 수 있다.
+
 시뮬레이션 시간 (2026-09-09 변경):
   시간은 `tick()`을 호출할 때만 1스텝 진행한다. `get_*_metrics()`는 순수 조회다.
   이전에는 메트릭 조회마다 스트레스가 갱신되어 "관측 횟수 = 시뮬레이션 시간"이 되었고,
@@ -24,7 +30,9 @@ import time
 # 시뮬레이터 동작 버전 (결과 파일의 contract 블록에 기록 — cowork/ROADMAP.md E-4)
 #   1 = 관측 호출이 시간을 진행시키던 모델 (~2026-09-08)
 #   2 = 명시적 tick() 분리 (2026-09-09, AUDIT P1)
-SIM_VERSION = 2
+#   3 = 트래픽 수요 행렬 + 최단경로(ECMP) 라우팅 (2026-09-09, ROADMAP B-1).
+#       우회에 대가가 생겼다 — cost를 올리면 그 수요가 다른 링크로 옮겨가 부하를 올린다.
+SIM_VERSION = 3
 
 NODES = ["r1", "r2", "r3", "r4"]
 
@@ -84,11 +92,102 @@ def _link_key(a: str, b: str) -> str:
     return "-".join(sorted([a, b]))
 
 
+def _all_simple_paths(src: str, dst: str) -> list[list[str]]:
+    """src→dst의 모든 단순 경로를 링크 목록으로 반환 (토폴로지가 고정이라 1회만 계산)."""
+    paths: list[list[str]] = []
+
+    def walk(node: str, visited: set[str], acc: list[str]) -> None:
+        if node == dst:
+            paths.append(list(acc))
+            return
+        for lk in NODE_LINKS[node]:
+            a, b = LINK_ENDPOINTS[lk]
+            nxt = b if a == node else a
+            if nxt in visited:
+                continue
+            acc.append(lk)
+            walk(nxt, visited | {nxt}, acc)
+            acc.pop()
+
+    walk(src, {src}, [])
+    return paths
+
+
+# (src, dst) → 모든 단순 경로. K4(4노드 완전그래프)라 쌍당 최대 5개뿐이라 전수 열거가 싸고,
+# Dijkstra 구현보다 검증하기 쉽다.
+_PATHS: dict[tuple[str, str], list[list[str]]] = {
+    (s, d): _all_simple_paths(s, d)
+    for i, s in enumerate(NODES) for d in NODES[i + 1:]
+}
+
+# 트래픽 수요 행렬 — 노드 쌍별 상대 수요 (무방향, 기본 균일).
+# set_demand()로 비균일 수요를 줄 수 있다 (ROADMAP B-3 다중 이벤트 시나리오용).
+_demand: dict[tuple[str, str], float] = {pair: 1.0 for pair in _PATHS}
+
+# 라우팅 모델 (cowork/ROADMAP.md B-1)
+#   shortest_path (기본) : OSPF cost 최단경로 + ECMP 균등 분배. cost를 올리면 그 수요가
+#                          우회 경로로 옮겨가 **다른 링크의 부하가 실제로 오른다**.
+#   cost_inverse         : cost 역수 비율 (~2026-09-09). 우회의 대가가 없던 근사 — 재현용.
+ROUTING_MODES = ("shortest_path", "cost_inverse")
+_routing_mode = "shortest_path"
+
+
+def set_routing_mode(mode: str) -> None:
+    global _routing_mode
+    if mode not in ROUTING_MODES:
+        raise ValueError(f"routing mode는 {list(ROUTING_MODES)} 중 하나여야 합니다: {mode!r}")
+    _routing_mode = mode
+
+
+def get_routing_mode() -> str:
+    return _routing_mode
+
+
+def set_demand(pair_demands: dict[tuple[str, str], float]) -> None:
+    """노드 쌍별 수요를 덮어쓴다. 키는 (src, dst) 정렬된 쌍."""
+    with _lock:
+        for pair, val in pair_demands.items():
+            key = tuple(sorted(pair))
+            if key not in _demand:
+                raise ValueError(f"알 수 없는 노드 쌍: {pair}")
+            _demand[key] = float(val)
+
+
+def get_link_loads() -> dict[str, float]:
+    """정규화 전 링크별 절대 부하 (수요 단위). 디버그·자가 테스트용."""
+    return _compute_link_loads()
+
+
+def _compute_link_loads() -> dict[str, float]:
+    """OSPF cost 최단경로(ECMP)로 수요를 실어 링크별 부하를 계산한다."""
+    load = {lk: 0.0 for lk in LINKS_LIST}
+    for pair, paths in _PATHS.items():
+        demand = _demand[pair]
+        if demand <= 0:
+            continue
+        path_costs = [sum(_ospf_costs[lk] for lk in p) for p in paths]
+        best = min(path_costs)
+        # ECMP: 동일 최소 비용 경로에 균등 분배 (OSPF의 실제 동작)
+        chosen = [p for p, c in zip(paths, path_costs) if c == best]
+        share = demand / len(chosen)
+        for p in chosen:
+            for lk in p:
+                load[lk] += share
+    return load
+
+
 def _compute_link_traffic() -> dict[str, float]:
-    """OSPF cost의 역수 기반 각 링크의 트래픽 비율 계산."""
-    inv = {lk: 1.0 / c for lk, c in _ospf_costs.items()}
-    total = sum(inv.values())
-    return {lk: w / total for lk, w in inv.items()}
+    """링크별 트래픽 비율 (합=1). 스트레스 모델의 load 항 입력."""
+    if _routing_mode == "cost_inverse":
+        inv = {lk: 1.0 / c for lk, c in _ospf_costs.items()}
+        total = sum(inv.values())
+        return {lk: w / total for lk, w in inv.items()}
+
+    load = _compute_link_loads()
+    total = sum(load.values())
+    if total <= 0:
+        return {lk: 0.0 for lk in LINKS_LIST}
+    return {lk: w / total for lk, w in load.items()}
 
 
 def _update_link_stress() -> None:
@@ -227,6 +326,16 @@ def get_congested_links() -> list[str]:
     return sorted(_congested_links)
 
 
+def get_routing_state() -> dict:
+    """디버그용 라우팅 상태 (모드, 수요, 절대 부하, 정규화 비율)."""
+    return {
+        "routing_mode": _routing_mode,
+        "demand":       {f"{a}->{b}": v for (a, b), v in _demand.items()},
+        "link_loads":   {lk: round(v, 4) for lk, v in _compute_link_loads().items()},
+        "link_traffic": {lk: round(v, 4) for lk, v in _compute_link_traffic().items()},
+    }
+
+
 def inject_attack(attack_type: str) -> bool:
     """보안 공격 시뮬레이션 주입 ('ddos' | 'portscan')."""
     global _attack_state
@@ -269,7 +378,11 @@ def get_attack_state() -> str | None:
 
 
 def reset_state(seed: int | None = None) -> None:
-    """전체 상태 초기화 (에피소드 리셋용). seed를 주면 노이즈가 재현된다."""
+    """전체 상태 초기화 (에피소드 리셋용). seed를 주면 노이즈가 재현된다.
+
+    라우팅 모드는 리셋하지 않는다 — 실험 전체에 걸친 설정이지 에피소드 상태가 아니다.
+    수요 행렬은 균일로 되돌린다.
+    """
     global _congested_links, _attack_state, _tick_count
     with _lock:
         _congested_links = set()
@@ -278,6 +391,8 @@ def reset_state(seed: int | None = None) -> None:
         for lk in LINKS_LIST:
             _link_stress[lk] = 0.02
             _ospf_costs[lk] = 10
+        for pair in _demand:
+            _demand[pair] = 1.0
         if seed is not None:
             _rng.seed(seed)
 
@@ -309,10 +424,52 @@ if __name__ == "__main__":
     assert a == b, (a, b)
     print("OK — seed 재현성")
 
-    # 4) 회복에 필요한 최소 틱 (물리 시정수): cost 100 적용 후 양 끝 노드 SLA 회복까지
+    # 4) 라우팅: K4에서 모든 cost가 같으면 각 쌍이 직결 링크만 쓴다 (균일 부하)
+    reset_state(seed=1)
+    loads = get_link_loads()
+    assert all(abs(v - 1.0) < 1e-9 for v in loads.values()), loads
+    print("OK — 균일 cost: 6개 쌍이 각자 직결 링크 사용 (부하 1.0씩)")
+
+    # 5) B-1 핵심: 링크 cost를 올리면 그 수요가 우회 경로로 옮겨가 **다른 링크 부하가 오른다**
+    before = get_link_loads()
+    set_ospf_cost("r3-r4", 100)
+    after = get_link_loads()
+    assert after["r3-r4"] == 0.0, after
+    # r3-r4 수요는 r3-r1-r4 / r3-r2-r4 두 최단경로(비용 20)로 ECMP 분배 → 각 0.5씩
+    for lk in ("r1-r3", "r1-r4", "r2-r3", "r2-r4"):
+        assert after[lk] > before[lk], (lk, before[lk], after[lk])
+        assert abs(after[lk] - 1.5) < 1e-9, (lk, after[lk])
+    assert abs(after["r1-r2"] - before["r1-r2"]) < 1e-9, after
+    print(f"OK — 우회의 대가: r3-r4 부하 {before['r3-r4']}→{after['r3-r4']}, "
+          f"인접 4개 링크 1.0→1.5 (ECMP 2경로)")
+
+    # 6) 구 모델(cost_inverse) 재현 가능성 — 우회해도 다른 링크 부하가 그대로였다
+    set_routing_mode("cost_inverse")
+    reset_state(seed=1)
+    t_before = _compute_link_traffic()
+    set_ospf_cost("r3-r4", 100)
+    t_after = _compute_link_traffic()
+    assert t_after["r1-r2"] > t_before["r1-r2"], (t_before, t_after)   # 정규화 때문에 비율만 오름
+    set_routing_mode("shortest_path")
+    print("OK — cost_inverse 모드 재현 가능 (구 결과 비교용)")
+
+    # 7) 회복에 필요한 최소 틱 (물리 시정수): cost 100 적용 후 양 끝 노드 SLA 회복까지
     reset_state(seed=0); inject_congestion("r3-r4"); set_ospf_cost("r3-r4", 100)
     n = 0
     while any(m["latency"] >= 50 for m in get_all_metrics()) and n < 50:
         tick(); n += 1
+    assert n < 50, "cost=100을 걸어도 회복하지 못한다"
     print(f"OK — cost=100 즉시 적용 시 SLA 회복까지 {n}틱 (측정 스크립트가 아닌 시뮬레이터의 시정수)")
+
+    # 8) 우회는 공짜가 아니다: 우회 경로 링크의 정상상태 스트레스가 우회 전보다 높다
+    reset_state(seed=3)
+    for _ in range(60):
+        tick()
+    base = get_link_stress()["r1-r3"]
+    set_ospf_cost("r3-r4", 100)
+    for _ in range(60):
+        tick()
+    detour = get_link_stress()["r1-r3"]
+    assert detour > base, (base, detour)
+    print(f"OK — 우회 경로 r1-r3 정상상태 스트레스 {base:.3f} → {detour:.3f} (우회 부담)")
     print("\n모든 자가 테스트 통과")
