@@ -10,7 +10,7 @@ ZSM 3.1.1 관리 서비스 구현:
 
 ENI 폐쇄 제어 루프 (OODA):
   Observe  → _fetch_snmp()
-  Orient   → diagnose() + root_cause_analysis()
+  Orient   → diagnose() + root_cause_analysis()  (SLA 규칙 + 인접도 RCA; IsolationForest는 /anomaly 전용)
   Decide   → MAML 행동 결정
   Act      → _apply_ospf()
 """
@@ -26,7 +26,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
-from anomaly_detector import detector, diagnose, security_detector
+from anomaly_detector import detector, diagnose, root_cause_analysis, security_detector
 from ospf_security import (
     ospf_monitor,
     OspfLsaPacket,
@@ -109,8 +109,8 @@ async def lifespan(app: FastAPI):
     out("=" * 55)
     out("  ANM AI Engine - ZSM/ENI Closed-Loop Server")
     out("=" * 55)
-    out(f"  Baseline PPO : {'ready' if baseline_agent.is_ready() else 'NOT trained'}")
-    out(f"  MAML Few-shot: {'ready' if few_shot_agent.is_ready() else 'NOT trained'}")
+    out(f"  Baseline PPO : {'ready' if baseline_agent.is_ready() else 'NOT READY — ' + (baseline_agent.load_error or 'checkpoint missing')}")
+    out(f"  MAML Few-shot: {'ready' if few_shot_agent.is_ready() else 'NOT READY — ' + (few_shot_agent.load_error or 'checkpoint missing')}")
     out(f"  SNMP target  : {SNMP_URL}")
     out("=" * 55)
     yield
@@ -216,6 +216,20 @@ def _decode_action(action_idx: int):
     link_idx, cost_idx = divmod(action_idx, len(OSPF_COSTS))
     return LINKS[link_idx], OSPF_COSTS[cost_idx]
 
+def _tick_snmp() -> int | None:
+    """시뮬레이션 시간을 1스텝 진행 (lockstep 시계). OODA 1사이클 = 1틱.
+
+    관측(GET /metrics)은 순수 조회이므로 시간은 여기서만 흐른다 — 외부 관측자(대시보드,
+    collector, 실험 스크립트의 검증 조회)가 시뮬레이션을 가속하지 않는다.
+    실장비 연동 시에는 no-op (시계가 물리 세계에 있음).
+    """
+    try:
+        with httpx.Client(timeout=2.0) as c:
+            r = c.post(f"{SNMP_URL}/debug/tick")
+            return r.json().get("tick") if r.status_code == 200 else None
+    except Exception:
+        return None
+
 def _fetch_snmp() -> tuple[list[dict], dict]:
     try:
         with httpx.Client(timeout=2.0) as c:
@@ -237,31 +251,6 @@ def _apply_ospf(link: str, cost: int):
     except Exception:
         pass
 
-def _root_cause_analysis(diag: dict, ospf_map: dict) -> str | None:
-    """
-    ZSM 3.1.1.2: Root Cause Analysis Service
-
-    우선순위 (높을수록 root cause 가능성 높음):
-      1. 위반 노드 수가 가장 많이 공유되는 링크 (공통 병목)
-      2. OSPF cost 낮은 링크 (트래픽 집중)
-    """
-    from anomaly_detector import _NODE_LINKS
-    candidates = diag.get("unhandled_links", []) or diag.get("suspected_links", [])
-    if not candidates:
-        return None
-
-    violated = set(diag.get("violated_nodes", []))
-
-    def score(lk: str) -> tuple:
-        # 위반 노드 양쪽이 모두 이 링크에 인접하면 점수 높음
-        shared = sum(1 for n in violated if lk in _NODE_LINKS.get(n, []))
-        cost   = ospf_map.get(lk, 10)
-        # (공유 노드 수 많을수록 ↑, cost 낮을수록 ↑)
-        return (-shared, cost)
-
-    return min(candidates, key=score)
-
-
 # ── 엔드포인트 ─────────────────────────────────────────────────────────────────
 
 @app.get("/health")
@@ -270,6 +259,8 @@ def health():
         "status":         "ok",
         "baseline_ready": baseline_agent.is_ready(),
         "maml_ready":     few_shot_agent.is_ready(),
+        "baseline_load_error": baseline_agent.load_error,
+        "maml_load_error":     few_shot_agent.load_error,
         "model_status":   perf_tracker.status(),
     }
 
@@ -315,7 +306,7 @@ def diagnose_now():
     metrics, ospf_map = _fetch_snmp()
     for m in metrics: detector.update(m["bandwidth"], m["latency"], m["packetLoss"])
     result = diagnose(metrics, ospf_map)
-    result["root_cause_link"] = _root_cause_analysis(result, ospf_map)
+    result["root_cause_link"] = root_cause_analysis(result, ospf_map)
     return DiagnosisResponse(**result)
 
 @app.get("/model-status")
@@ -338,6 +329,7 @@ def auto_step(disable_analytics: bool = False, disable_maml: bool = False):
 
     # ══ Observe ══════════════════════════════════════════════════════
     t0 = time.time()
+    sim_tick = _tick_snmp()          # 사이클당 정확히 1틱
     metrics, ospf_map = _fetch_snmp()
     obs = _metrics_to_obs(metrics, ospf_map)
     for m in metrics: detector.update(m["bandwidth"], m["latency"], m["packetLoss"])
@@ -349,12 +341,13 @@ def auto_step(disable_analytics: bool = False, disable_maml: bool = False):
             "packet_loss":  round(m["packetLoss"], 4),
         } for m in metrics},
         "ospf": ospf_map,
+        "sim_tick": sim_tick,
         "elapsed_ms": round((time.time() - t0) * 1000, 1),
     }
 
     # ══ Orient — 이상 감지 + 근본 원인 분석 ══════════════════════════
     diag = diagnose(metrics, ospf_map)
-    root_cause = _root_cause_analysis(diag, ospf_map)
+    root_cause = root_cause_analysis(diag, ospf_map)
     diag["root_cause_link"] = root_cause
     orient_out = DiagnosisResponse(**diag)
 
@@ -392,15 +385,26 @@ def auto_step(disable_analytics: bool = False, disable_maml: bool = False):
 
     # ══ Decide — MAML 행동 결정 ══════════════════════════════════════
     if disable_maml:
-        # Analytics-only: root cause에 cost=100 직접 적용
-        if root_cause:
-            link = root_cause
-            cost = 100
-        else:
-            unhandled = diag.get("unhandled_links") or diag.get("suspected_links", [])
-            link = unhandled[0] if unhandled else LINKS[0]
-            cost = 100
-        action_idx = LINKS.index(link) * len(OSPF_COSTS) + (OSPF_COSTS.index(100) if 100 in OSPF_COSTS else 3)
+        # Analytics-only: root cause에 cost=100 직접 적용.
+        # root cause가 None이면 "이미 조치됨 — 회복 대기"이므로 아무것도 하지 않는다.
+        # (개정 전에는 unhandled[0]에 cost=100을 걸어 정상 링크를 망가뜨렸다 — AUDIT P2)
+        if not root_cause:
+            chain = (
+                f"[Observe] 위반노드={diag['violated_nodes']}  →  "
+                f"[Orient] 근본원인=None (이미 대응된 링크의 잔여 스트레스)  →  "
+                f"[Decide/Analytics-only] 회복 대기  →  [Act] OSPF 유지"
+            )
+            return OODAStepResponse(
+                observe=observe_out, orient=orient_out,
+                decide={"action": None, "reason": "recovering — root cause already handled",
+                        "adapt_note": "Analytics-only (MAML disabled)"},
+                act={"applied": False},
+                model_status=perf_tracker.status(),
+                reasoning_chain=chain,
+            )
+        link = root_cause
+        cost = 100
+        action_idx = LINKS.index(link) * len(OSPF_COSTS) + OSPF_COSTS.index(100)
         adapt_note = "Analytics-only (MAML disabled)"
         _prev_action = action_idx
         _apply_ospf(link, cost)

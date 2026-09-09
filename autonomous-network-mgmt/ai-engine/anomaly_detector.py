@@ -98,6 +98,51 @@ def diagnose(
     }
 
 
+def root_cause_analysis(
+    diag: dict,
+    ospf_costs: dict[str, int],
+    bypass_cost: int = 100,
+) -> str | None:
+    """
+    ZSM 3.1.1.2: Root Cause Analysis Service — diagnose() 결과에서 근본 원인 링크를 고른다.
+
+    규칙 (2026-09-09 개정, cowork/AUDIT_2026-09-09.md P2):
+      1. 이미 대응된(cost ≥ bypass_cost) 링크가 위반 노드 **전부**에 인접하면 → None.
+         현재 위반은 그 링크의 잔여 스트레스(회복 중)로 본다 — 정상 링크를 건드리지 않는다.
+      2. 미대응 링크 중 위반 노드 전부에 인접한 것이 있으면 → 그중 cost 최소. 확정 근본 원인.
+      3. 둘 다 없으면(다중 혼잡 등 모호한 경우) 폴백: (-공유 위반노드 수, cost) 최소.
+         이 경우는 추정일 뿐이며 api_server의 override 조건(공유 노드 ≥ 2)이 별도로 걸러낸다.
+
+    개정 전에는 정답 링크가 cost 100이 되어 unhandled에서 빠진 2번째 사이클부터 남은
+    인접 링크(알파벳순 첫 링크)를 근본 원인으로 지목해 정상 링크의 cost를 올렸다.
+    """
+    violated = set(diag.get("violated_nodes", []))
+    suspected = list(diag.get("suspected_links", []))
+    if not violated or not suspected:
+        return None
+
+    def shared(lk: str) -> int:
+        return sum(1 for n in violated if lk in _NODE_LINKS.get(n, []))
+
+    def cost(lk: str) -> int:
+        return ospf_costs.get(lk, 10)
+
+    covers_all = [lk for lk in suspected if shared(lk) == len(violated)]
+    handled_all   = [lk for lk in covers_all if cost(lk) >= bypass_cost]
+    unhandled_all = [lk for lk in covers_all if cost(lk) <  bypass_cost]
+
+    if handled_all:
+        # 규칙 1: 이미 조치된 링크가 위반 노드 전부를 덮는다 → 그 링크의 잔여 스트레스로 본다.
+        # (새 혼잡이 생기면 그 링크의 양 끝이 함께 위반되어 covers_all이 달라지므로 놓치지 않는다)
+        return None
+    if unhandled_all:
+        return min(unhandled_all, key=cost)           # 규칙 2: 확정 근본 원인
+
+    unhandled = [lk for lk in suspected if cost(lk) < bypass_cost]
+    candidates = unhandled or suspected
+    return min(candidates, key=lambda lk: (-shared(lk), cost(lk)))   # 규칙 3: 폴백(추정)
+
+
 class SecurityAnomalyDetector:
     """
     DDoS/포트스캔 탐지 전용 Isolation Forest.
@@ -181,3 +226,49 @@ class SecurityAnomalyDetector:
 # 싱글턴 (api_server.py 공유)
 detector = AnomalyDetector()
 security_detector = SecurityAnomalyDetector()
+
+
+# ── 자가 테스트 ──────────────────────────────────────────────────────────────
+
+if __name__ == "__main__":
+    def _m(node, lat, loss=0.0):
+        return {"nodeId": node, "bandwidth": 500.0, "latency": lat, "packetLoss": loss}
+
+    ok = lambda n: _m(n, 10.0)
+    bad = lambda n: _m(n, 120.0)
+    costs = {lk: 10 for lk in ["r1-r2", "r1-r3", "r2-r3", "r2-r4", "r3-r4", "r1-r4"]}
+
+    # 사이클 1: r3-r4 혼잡 → 양 끝 노드 위반 → 규칙 2로 r3-r4 지목
+    d = diagnose([ok("r1"), ok("r2"), bad("r3"), bad("r4")], costs)
+    assert d["anomaly_detected"] and d["violated_nodes"] == ["r3", "r4"], d
+    assert root_cause_analysis(d, costs) == "r3-r4", root_cause_analysis(d, costs)
+    print("OK — 사이클 1: 근본 원인 r3-r4")
+
+    # 사이클 2: r3-r4 cost=100 적용 후 잔여 위반 → 규칙 1로 None (정상 링크 건드리지 않음)
+    costs2 = {**costs, "r3-r4": 100}
+    d2 = diagnose([ok("r1"), ok("r2"), bad("r3"), bad("r4")], costs2)
+    assert "r3-r4" not in d2["unhandled_links"], d2
+    assert root_cause_analysis(d2, costs2) is None, root_cause_analysis(d2, costs2)
+    print("OK — 사이클 2: 이미 대응됨 → None (개정 전에는 'r1-r3' 오판)")
+
+    # 사이클 3: 한쪽 끝만 아직 위반 → 여전히 None
+    d3 = diagnose([ok("r1"), ok("r2"), ok("r3"), bad("r4")], costs2)
+    assert root_cause_analysis(d3, costs2) is None, root_cause_analysis(d3, costs2)
+    print("OK — 사이클 3: 단일 노드 잔여 위반 → None")
+
+    # 대응된 링크가 있어도 새 혼잡(r1-r2)이 생기면 그것을 지목
+    d4 = diagnose([bad("r1"), bad("r2"), ok("r3"), ok("r4")], costs2)
+    assert root_cause_analysis(d4, costs2) == "r1-r2", root_cause_analysis(d4, costs2)
+    print("OK — 새 혼잡 r1-r2 지목")
+
+    # 폴백(규칙 3): 위반 노드 3개를 모두 덮는 링크가 없음 → 추정
+    d5 = diagnose([bad("r1"), ok("r2"), bad("r3"), bad("r4")], costs)
+    rc5 = root_cause_analysis(d5, costs)
+    assert rc5 in ("r1-r3", "r1-r4", "r3-r4"), rc5
+    print(f"OK — 폴백(추정): {rc5}")
+
+    # 이상 없음
+    d6 = diagnose([ok("r1"), ok("r2"), ok("r3"), ok("r4")], costs)
+    assert not d6["anomaly_detected"] and root_cause_analysis(d6, costs) is None
+    print("OK — 정상 상태 → None")
+    print("\n모든 자가 테스트 통과")
