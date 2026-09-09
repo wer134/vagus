@@ -422,6 +422,12 @@ BENIGN 3,813 / 공격 4,886)으로 `SecurityAnomalyDetector`를 검증했다.
 
 ---
 
+## 관련 문서
+
+- `autonomous-network-mgmt/cowork/PROJECT_OVERVIEW.md` — 코드 구조·런타임 설명서
+- `autonomous-network-mgmt/cowork/AUDIT_2026-09-09.md` — 코드 감사 보고서와 전/후 측정치
+- `autonomous-network-mgmt/cowork/ROADMAP.md` — 고도화 계획 (트랙별 과제, 단계, 완료 기준)
+
 ## 관련 표준
 
 - [ETSI GS ZSM 002](https://www.etsi.org/deliver/etsi_gs/ZSM/001_099/002/) — Zero-touch network and Service Management
