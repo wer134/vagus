@@ -43,7 +43,12 @@ public class AiEngineClient {
                 .build();
     }
 
-    /** 이상 감지 요청 (POST /anomaly). */
+    /**
+     * 이상 감지 요청 (POST /anomaly).
+     *
+     * AI 엔진에 닿지 못하면 예외를 던진다. 이전에는 false("이상 없음")를 돌려줘 엔진 다운이
+     * 조용히 정상으로 처리됐다 (cowork/AUDIT_2026-09-09.md C2). 호출측이 "판정 불가"로 다룬다.
+     */
     public boolean isAnomaly(NetworkMetricDto metric) {
         try {
             Map<String, Object> body = Map.of(
@@ -60,10 +65,13 @@ public class AiEngineClient {
                     .timeout(Duration.ofSeconds(5))
                     .build();
             HttpResponse<String> resp = http.send(req, HttpResponse.BodyHandlers.ofString());
+            if (resp.statusCode() != 200) {
+                throw new RuntimeException("AI Engine /anomaly returned HTTP " + resp.statusCode());
+            }
             Map<?, ?> result = mapper.readValue(resp.body(), Map.class);
             return Boolean.TRUE.equals(result.get("isAnomaly"));
         } catch (Exception e) {
-            return false;
+            throw new RuntimeException("AI Engine anomaly check failed for node " + metric.nodeId(), e);
         }
     }
 

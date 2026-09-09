@@ -21,7 +21,7 @@ ENI 연결:
 time.sleep은 시뮬레이션에 영향이 없어 제거했다.
 
 추가 지표 (AUDIT P2):
-  wasted_actions     — 주입 링크가 아닌 링크의 cost를 바꾼 횟수 (부수 피해)
+  wasted_actions     — 주입 링크가 아닌 링크의 cost가 실제로 바뀐 횟수 (부수 피해; 같은 값 재설정은 제외)
   rca_all_cycles_ok  — 모든 사이클에서 root_cause_link ∈ {주입 링크, None}
 
 실행:
@@ -102,8 +102,8 @@ def run(n_episodes: int = 20, output: str | None = None, seed: int | None = 42):
 
                 if act.get("applied"):
                     actions.append(f'{act["link"]}@{act["cost"]}')
-                    if act["link"] != link:
-                        wasted += 1
+                    if act["link"] != link and act.get("changed", True):
+                        wasted += 1   # 정상 링크의 cost가 실제로 바뀐 경우만 (같은 값 재설정은 no-op)
 
                 # ZSM reasoning_chain 요약 (첫 번째만 저장)
                 if step == 1 and "reasoning_chain" in d:

@@ -45,6 +45,8 @@ def train(
     total_timesteps: int = 50_000,
     snmp_url: str = "http://localhost:5001",
     train_links: list[str] | None = None,
+    save_path: str = MODEL_PATH,
+    seed: int | None = None,
 ):
     env = NetworkEnv(snmp_base_url=snmp_url, fast_mode=True, local_mode=True, train_links=train_links)
     check_env(env, warn=True)
@@ -59,10 +61,11 @@ def train(
         gamma=0.99,
         policy_kwargs={"net_arch": [128, 64]},
         verbose=1,
+        seed=seed,
     )
     model.learn(total_timesteps=total_timesteps)
-    model.save(MODEL_PATH)
-    print(f"Model saved to {MODEL_PATH}")
+    model.save(save_path)
+    print(f"Model saved to {save_path}")
     env.close()
 
 

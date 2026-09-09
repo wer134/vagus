@@ -71,8 +71,8 @@ def run(n_episodes: int = 30, seed: int | None = 42):
 
                 if act.get("applied"):
                     actions.append(f'{act["link"]}@{act["cost"]}')
-                    if act["link"] != link:
-                        wasted += 1
+                    if act["link"] != link and act.get("changed", True):
+                        wasted += 1   # 정상 링크의 cost가 실제로 바뀐 경우만 (같은 값 재설정은 no-op)
 
                 # Check if inner-loop adaptation was used
                 adapt_note = decide.get("adapt_note", "")

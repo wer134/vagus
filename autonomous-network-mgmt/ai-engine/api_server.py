@@ -15,6 +15,7 @@ ENI 폐쇄 제어 루프 (OODA):
   Act      → _apply_ospf()
 """
 import os
+import threading
 import time
 from collections import deque
 from contextlib import asynccontextmanager
@@ -42,8 +43,8 @@ from ospf_security import (
 )
 from agents.baseline_drl import BaselineAgent
 from agents.few_shot_agent import FewShotAgent
-from environment.network_env import (
-    LINKS, OSPF_COSTS, MAX_BW, MAX_LAT, MAX_COST, N_LINKS, N_NODES,
+from topology import (
+    NODES, LINKS, OSPF_COSTS, MAX_BW, MAX_LAT, MAX_COST, N_LINKS, N_NODES, NODE_LINKS as _NODE_LINKS,
 )
 
 SNMP_URL = os.environ.get("SNMP_URL", "http://127.0.0.1:5001")
@@ -95,11 +96,19 @@ class ModelPerformanceTracker:
 perf_tracker = ModelPerformanceTracker()
 
 # 자율 루프 support buffer (MAML inner-loop)
+# 전이 (obs, action, reward)는 "obs에서 action을 실제로 실행한 결과 reward를 받았다"일 때만
+# 넣는다. 행동을 실행하지 않은 스텝(이상 없음/MAML 미학습/회복 대기)은 _prev_action=None으로
+# 표시해 다음 스텝에서 버퍼에 넣지 않는다 — 이전에는 마지막 행동 인덱스(초기값 0=r1-r2@10)가
+# 그대로 붙어 실행하지 않은 행동에 보상이 귀속됐다 (cowork/AUDIT_2026-09-09.md P6).
 _support_buffer: list[tuple] = []
 _MAX_SUPPORT    = 32
 _prev_obs: np.ndarray | None = None
-_prev_action: int = 0
-_prev_sla_violated = False
+_prev_action: int | None = None
+_buffer_skipped: int = 0   # 행동이 없어 버퍼에 넣지 않은 전이 수 (진단용)
+
+# FastAPI는 동기 핸들러를 스레드풀에서 돌린다 — 위 전역 상태와 detector 버퍼를 동시 /auto-step
+# 호출로부터 보호한다 (cowork/AUDIT_2026-09-09.md C3). 폐쇄 루프는 본질적으로 순차다.
+_loop_lock = threading.Lock()
 
 
 @asynccontextmanager
@@ -204,12 +213,10 @@ def _obs_from_payload(bws, lats, costs) -> np.ndarray:
     return np.clip(np.array(arr, dtype=np.float32), 0.0, 1.0)
 
 def _metrics_to_obs(metrics: list[dict], ospf_map: dict) -> np.ndarray:
-    LINK_ORDER = ["r1-r2", "r1-r3", "r2-r3", "r2-r4", "r3-r4", "r1-r4"]
-    NODES      = ["r1", "r2", "r3", "r4"]
     mm = {m["nodeId"]: m for m in metrics}
     bws   = [mm.get(n, {}).get("bandwidth",  500.0) / MAX_BW  for n in NODES]
     lats  = [mm.get(n, {}).get("latency",     10.0) / MAX_LAT for n in NODES]
-    costs = [ospf_map.get(lk, 10) / MAX_COST for lk in LINK_ORDER]
+    costs = [ospf_map.get(lk, 10) / MAX_COST for lk in LINKS]
     return np.clip(np.array(bws + lats + costs, dtype=np.float32), 0.0, 1.0)
 
 def _decode_action(action_idx: int):
@@ -230,26 +237,43 @@ def _tick_snmp() -> int | None:
     except Exception:
         return None
 
-def _fetch_snmp() -> tuple[list[dict], dict]:
-    try:
-        with httpx.Client(timeout=2.0) as c:
-            metrics  = c.get(f"{SNMP_URL}/metrics").json()
-            ospf_raw = c.get(f"{SNMP_URL}/ospf/costs").json()
-            ospf_map = {k: int(v) for k, v in ospf_raw.items()}
-        return metrics, ospf_map
-    except Exception:
-        NODES = ["r1", "r2", "r3", "r4"]
-        return (
-            [{"nodeId": n, "bandwidth": 500.0, "latency": 10.0, "packetLoss": 0.0} for n in NODES],
-            {lk: 10 for lk in ["r1-r2","r1-r3","r2-r3","r2-r4","r3-r4","r1-r4"]},
-        )
+class ObservationUnavailable(Exception):
+    """장비/에이전트에서 관측을 얻지 못했다 — 절대 '정상'으로 대체하지 않는다."""
 
-def _apply_ospf(link: str, cost: int):
+
+def _fetch_snmp() -> tuple[list[dict], dict]:
+    """관측 수집. 실패하면 ObservationUnavailable을 던진다.
+
+    이전에는 실패 시 '정상' 기본값(bw 500, lat 10, loss 0)을 돌려줘 장비 다운·네트워크 단절이
+    "SLA 정상, 조치 불필요"로 보고됐다 — 자율 관리 시스템에서 가장 위험한 실패 모드다
+    (cowork/AUDIT_2026-09-09.md C1). 호출측은 503으로 응답한다.
+    """
     try:
         with httpx.Client(timeout=2.0) as c:
-            c.put(f"{SNMP_URL}/ospf/costs/{link}", json={"cost": cost})
-    except Exception:
-        pass
+            r1 = c.get(f"{SNMP_URL}/metrics");    r1.raise_for_status()
+            r2 = c.get(f"{SNMP_URL}/ospf/costs"); r2.raise_for_status()
+            metrics  = r1.json()
+            ospf_map = {k: int(v) for k, v in r2.json().items()}
+    except Exception as e:
+        raise ObservationUnavailable(f"SNMP agent {SNMP_URL} unreachable: {type(e).__name__}: {e}") from e
+    if not isinstance(metrics, list) or len(metrics) != N_NODES or len(ospf_map) != N_LINKS:
+        raise ObservationUnavailable(
+            f"관측 형식 오류: metrics={len(metrics) if isinstance(metrics, list) else type(metrics)} "
+            f"(기대 {N_NODES}), ospf={len(ospf_map)} (기대 {N_LINKS})"
+        )
+    return metrics, ospf_map
+
+
+def _apply_ospf(link: str, cost: int) -> tuple[bool, str | None]:
+    """OSPF cost 적용. (성공 여부, 오류 메시지) — 실패를 삼키지 않고 응답의 act에 반영한다."""
+    try:
+        with httpx.Client(timeout=2.0) as c:
+            r = c.put(f"{SNMP_URL}/ospf/costs/{link}", json={"cost": cost})
+            if r.status_code != 200:
+                return False, f"HTTP {r.status_code}: {r.text[:200]}"
+            return True, None
+    except Exception as e:
+        return False, f"{type(e).__name__}: {e}"
 
 # ── 엔드포인트 ─────────────────────────────────────────────────────────────────
 
@@ -288,8 +312,10 @@ def decide_action(state: StatePayload):
     if state.useFewShot:
         if not few_shot_agent.is_ready():
             raise HTTPException(503, "Few-shot agent not trained")
-        if len(_support_buffer) >= 4:
-            action_idx = few_shot_agent.adapt_and_predict(_support_buffer[-32:], obs, adapt_steps=2)
+        with _loop_lock:
+            support = list(_support_buffer[-32:])
+        if len(support) >= 4:
+            action_idx = few_shot_agent.adapt_and_predict(support, obs, adapt_steps=2)
         else:
             action_idx = few_shot_agent.predict(obs)
         agent_type = "maml"
@@ -303,7 +329,10 @@ def decide_action(state: StatePayload):
 
 @app.get("/diagnose", response_model=DiagnosisResponse)
 def diagnose_now():
-    metrics, ospf_map = _fetch_snmp()
+    try:
+        metrics, ospf_map = _fetch_snmp()
+    except ObservationUnavailable as e:
+        raise HTTPException(503, str(e))
     for m in metrics: detector.update(m["bandwidth"], m["latency"], m["packetLoss"])
     result = diagnose(metrics, ospf_map)
     result["root_cause_link"] = root_cause_analysis(result, ospf_map)
@@ -319,18 +348,26 @@ def auto_step(disable_analytics: bool = False, disable_maml: bool = False):
     """
     ENI 폐쇄 루프 1 사이클 — OODA 패러다임 완전 구현.
 
-    Observe : SNMP 메트릭 수집
-    Orient  : 이상 감지 + 근본 원인 분석 (ZSM Analytics)
+    Observe : SNMP 메트릭 수집 (실패 시 503 — 정상값으로 대체하지 않음)
+    Orient  : 이상 감지(SLA 규칙) + 근본 원인 분석 (ZSM Analytics)
     Decide  : MAML inner-loop 적응 → 행동 결정 (ZSM Intelligence)
-    Act     : OSPF 변경 실행 (ZSM Orchestration)
+    Act     : OSPF 변경 실행 (ZSM Orchestration) — 실패는 act.applied=False, act.error
     + ZSM AI Model Eval: 모델 성능 자가진단
     """
-    global _support_buffer, _prev_obs, _prev_action, _prev_sla_violated
+    with _loop_lock:
+        return _auto_step_locked(disable_analytics, disable_maml)
+
+
+def _auto_step_locked(disable_analytics: bool, disable_maml: bool) -> "OODAStepResponse":
+    global _support_buffer, _prev_obs, _prev_action, _buffer_skipped
 
     # ══ Observe ══════════════════════════════════════════════════════
     t0 = time.time()
     sim_tick = _tick_snmp()          # 사이클당 정확히 1틱
-    metrics, ospf_map = _fetch_snmp()
+    try:
+        metrics, ospf_map = _fetch_snmp()
+    except ObservationUnavailable as e:
+        raise HTTPException(503, str(e))
     obs = _metrics_to_obs(metrics, ospf_map)
     for m in metrics: detector.update(m["bandwidth"], m["latency"], m["packetLoss"])
 
@@ -362,10 +399,14 @@ def auto_step(disable_analytics: bool = False, disable_maml: bool = False):
     perf_tracker.record(reward, sla_violated)
 
     if _prev_obs is not None:
-        _support_buffer.append((_prev_obs, _prev_action, float(reward)))
-        if len(_support_buffer) > _MAX_SUPPORT:
-            _support_buffer.pop(0)
+        if _prev_action is not None:
+            _support_buffer.append((_prev_obs, _prev_action, float(reward)))
+            if len(_support_buffer) > _MAX_SUPPORT:
+                _support_buffer.pop(0)
+        else:
+            _buffer_skipped += 1
     _prev_obs = obs.copy()
+    _prev_action = None   # 이 스텝에서 행동을 실행하면 아래에서 다시 설정된다
 
     # ══ 이상 없으면 조치 없이 반환 ═══════════════════════════════════
     if not diag["anomaly_detected"]:
@@ -406,18 +447,20 @@ def auto_step(disable_analytics: bool = False, disable_maml: bool = False):
         cost = 100
         action_idx = LINKS.index(link) * len(OSPF_COSTS) + OSPF_COSTS.index(100)
         adapt_note = "Analytics-only (MAML disabled)"
-        _prev_action = action_idx
-        _apply_ospf(link, cost)
+        applied, act_err = _apply_ospf(link, cost)
+        _prev_action = action_idx if applied else None
         chain = (
             f"[Observe] 위반노드={diag['violated_nodes']}  →  "
             f"[Orient] 근본원인={root_cause}  →  "
             f"[Decide/Analytics-only] {link} cost={cost}  →  "
-            f"[Act] OSPF 적용 완료"
+            f"[Act] {'OSPF 적용 완료' if applied else 'OSPF 적용 실패: ' + str(act_err)}"
         )
         return OODAStepResponse(
             observe=observe_out, orient=orient_out,
             decide={"action": {"link": link, "cost": cost}, "adapt_note": adapt_note},
-            act={"applied": True, "link": link, "cost": cost},
+            act={"applied": applied, "link": link, "cost": cost,
+                 "prev_cost": ospf_map.get(link), "changed": applied and ospf_map.get(link) != cost,
+                 "error": act_err},
             model_status=perf_tracker.status(),
             reasoning_chain=chain,
         )
@@ -435,7 +478,7 @@ def auto_step(disable_analytics: bool = False, disable_maml: bool = False):
         action_idx = few_shot_agent.adapt_and_predict(
             _support_buffer[-32:], obs, adapt_steps=3
         )
-        adapt_note = f"inner-loop 적응 ({len(_support_buffer)} samples)"
+        adapt_note = f"inner-loop 적응 ({len(_support_buffer)} samples, skipped={_buffer_skipped})"
     else:
         action_idx = few_shot_agent.predict(obs)
         adapt_note = "meta-init 직접 사용"
@@ -447,7 +490,6 @@ def auto_step(disable_analytics: bool = False, disable_maml: bool = False):
     alignment = ""
     if not disable_analytics and root_cause and root_cause != link and root_cause in LINKS:
         violated_set = set(diag.get("violated_nodes", []))
-        from anomaly_detector import _NODE_LINKS
         nodes_sharing_root = sum(1 for n in violated_set if root_cause in _NODE_LINKS.get(n, []))
         if nodes_sharing_root >= 2:
             rc_idx   = LINKS.index(root_cause)
@@ -459,16 +501,15 @@ def auto_step(disable_analytics: bool = False, disable_maml: bool = False):
         else:
             alignment = f" (근본원인={root_cause} vs MAML={link})"
 
-    _prev_action = action_idx  # support buffer에 실제 action 기록
-
     # ══ Act — OSPF 변경 ══════════════════════════════════════════════
-    _apply_ospf(link, cost)
+    applied, act_err = _apply_ospf(link, cost)
+    _prev_action = action_idx if applied else None   # 실제로 실행된 행동만 버퍼에 기록
 
     chain = (
         f"[Observe] 위반노드={diag['violated_nodes']}  →  "
         f"[Orient] 의심링크={diag['suspected_links']} 근본원인={root_cause}  →  "
         f"[Decide/{adapt_note}] {link} cost={cost}{alignment}  →  "
-        f"[Act] OSPF 적용 완료"
+        f"[Act] {'OSPF 적용 완료' if applied else 'OSPF 적용 실패: ' + str(act_err)}"
     )
 
     model_st = perf_tracker.status()
@@ -479,7 +520,9 @@ def auto_step(disable_analytics: bool = False, disable_maml: bool = False):
         observe=observe_out,
         orient=orient_out,
         decide={"action": {"link": link, "cost": cost}, "adapt_note": adapt_note},
-        act={"applied": True, "link": link, "cost": cost},
+        act={"applied": applied, "link": link, "cost": cost,
+             "prev_cost": ospf_map.get(link), "changed": applied and ospf_map.get(link) != cost,
+             "error": act_err},
         model_status=model_st,
         reasoning_chain=chain,
     )
@@ -570,11 +613,14 @@ def security_detect(metric: SecurityMetricPayload):
     IsolationForest + 임계치 규칙으로 DDoS / 포트스캔을 탐지하고
     공격 확인 시 시뮬레이션 OpenFlow 차단 룰을 반환한다.
     """
-    security_detector.update(
+    # 판정 → 학습 순서. 이전에는 update() 후 detect()라 판정 대상 샘플이 이미 학습셋에
+    # 포함된 채 판정됐다 (cowork/AUDIT_2026-09-09.md P4). 레이블 없이 모든 샘플로 학습하므로
+    # 공격이 지속되면 공격이 '정상'으로 학습되는 문제는 남아 있다 — README 한계 참고.
+    result = security_detector.detect(
         metric.bandwidth, metric.latency, metric.packetLoss,
         metric.syn_ratio, metric.unique_src_count, metric.pkt_rate,
     )
-    result = security_detector.detect(
+    security_detector.update(
         metric.bandwidth, metric.latency, metric.packetLoss,
         metric.syn_ratio, metric.unique_src_count, metric.pkt_rate,
     )
@@ -600,8 +646,9 @@ def security_status():
 
 @app.post("/reset-buffer")
 def reset_buffer():
-    global _support_buffer, _prev_obs, _prev_action
-    _support_buffer, _prev_obs, _prev_action = [], None, 0
+    global _support_buffer, _prev_obs, _prev_action, _buffer_skipped
+    with _loop_lock:
+        _support_buffer, _prev_obs, _prev_action, _buffer_skipped = [], None, None, 0
     return {"result": "buffer reset"}
 
 @app.get("/live-results")

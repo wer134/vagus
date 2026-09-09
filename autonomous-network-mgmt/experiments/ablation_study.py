@@ -45,8 +45,8 @@ def _run_episode(link: str, disable_analytics: bool, disable_maml: bool) -> dict
         act, orient = d["act"], d["orient"]
         if act.get("applied"):
             actions.append(f'{act["link"]}@{act["cost"]}')
-            if act["link"] != link:
-                wasted += 1
+            if act["link"] != link and act.get("changed", True):
+                wasted += 1   # 정상 링크의 cost가 실제로 바뀐 경우만
         if orient.get("anomaly_detected") and orient.get("root_cause_link") not in (link, None):
             rca_all_ok = False
         metrics = get(f"{SNMP}/metrics")

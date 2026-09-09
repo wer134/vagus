@@ -180,15 +180,11 @@ def sample_efficiency_experiment(
         print(f"  PPO {steps} steps 학습 중...")
         if steps == 0:
             # 미학습: 랜덤 초기화 모델
-            model_path = os.path.join(
-                os.path.dirname(__file__), "..", "ai-engine", "agents", "ppo_scratch.zip"
-            )
+            model_path = os.path.join(TMP_CKPT_DIR, "ppo_scratch.zip")
             _train_ppo_scratch(steps=1, save_path=model_path)
             agent = BaselineAgent(model_path)
         else:
-            model_path = os.path.join(
-                os.path.dirname(__file__), "..", "ai-engine", "agents", "ppo_eff_tmp.zip"
-            )
+            model_path = os.path.join(TMP_CKPT_DIR, f"ppo_eff_{steps}.zip")
             _train_ppo_scratch(steps=steps, save_path=model_path,
                                train_links=TRAIN_LINKS)
             agent = BaselineAgent(model_path)
@@ -201,9 +197,7 @@ def sample_efficiency_experiment(
     maml_curve = []
     for iters in maml_iters_list:
         print(f"  MAML {iters} iterations 학습 중...")
-        model_path = os.path.join(
-            os.path.dirname(__file__), "..", "ai-engine", "agents", "maml_eff_tmp.pt"
-        )
+        model_path = os.path.join(TMP_CKPT_DIR, f"maml_eff_{iters}.pt")
         if iters == 0:
             _train_maml_scratch(meta_iterations=1, save_path=model_path,
                                 train_links=TRAIN_LINKS)
@@ -220,6 +214,12 @@ def sample_efficiency_experiment(
     return {"ppo": ppo_curve, "maml": maml_curve}
 
 
+# 샘플 효율 실험의 임시 체크포인트는 운영 체크포인트(agents/ppo_network.zip, maml_network.pt)와
+# 분리된 디렉터리에 둔다. 이전에는 _train_maml_scratch가 train_fewshot()을 그대로 호출해
+# maml_network.pt를 덮어쓴 뒤 복사했다 — 실험 한 번이면 운영 모델이 바뀌었다 (AUDIT C5).
+TMP_CKPT_DIR = os.path.join(RESULT_DIR, "tmp_checkpoints")
+
+
 def _train_ppo_scratch(steps: int, save_path: str, train_links=None):
     from stable_baselines3 import PPO
     from stable_baselines3.common.env_checker import check_env
@@ -229,21 +229,19 @@ def _train_ppo_scratch(steps: int, save_path: str, train_links=None):
                 policy_kwargs={"net_arch": [128, 64]}, verbose=0)
     if steps > 0:
         model.learn(total_timesteps=steps)
+    os.makedirs(os.path.dirname(save_path), exist_ok=True)
     model.save(save_path)
     env.close()
 
 
 def _train_maml_scratch(meta_iterations: int, save_path: str, train_links=None):
+    os.makedirs(os.path.dirname(save_path), exist_ok=True)
     train_fewshot(
         meta_iterations=meta_iterations,
         snmp_url=SNMP_URL,
         train_links=train_links,
+        save_path=save_path,      # 운영 체크포인트를 건드리지 않는다
     )
-    # 기존 저장 경로에서 임시 경로로 복사
-    import shutil
-    src = os.path.join(os.path.dirname(__file__), "..", "ai-engine", "agents", "maml_network.pt")
-    if os.path.exists(src):
-        shutil.copy(src, save_path)
 
 
 def _quick_eval(agent, agent_type: str, n_episodes: int, max_steps: int) -> float:

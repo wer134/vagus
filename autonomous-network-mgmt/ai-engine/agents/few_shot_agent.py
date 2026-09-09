@@ -65,14 +65,27 @@ def _inner_update(model: "PolicyNet", params: dict, loss: torch.Tensor, lr: floa
     }
 
 
-def _collect_episode(env: NetworkEnv, model: "PolicyNet", params: dict | None, steps: int = 20):
+def _collect_episode(
+    env: NetworkEnv, model: "PolicyNet", params: dict | None, steps: int = 20,
+    sample: bool = True,
+):
+    """에피소드 롤아웃.
+
+    sample=True (학습 기본값): 정책 분포에서 행동을 샘플링한다. REINFORCE의 gradient 추정은
+    행동이 π(a|s)에서 뽑혔을 때만 유효하다 — 이전 구현은 argmax(결정론)로만 골라 같은 상태에서
+    늘 같은 행동을 보았고, advantage가 행동의 좋고 나쁨이 아니라 상태 차이를 반영했다
+    (cowork/AUDIT_2026-09-09.md P5). 추론(FewShotAgent.act/predict)은 여전히 argmax.
+    """
     obs, _ = env.reset()
     transitions = []
     for _ in range(steps):
         with torch.no_grad():
             t = torch.FloatTensor(obs).unsqueeze(0)
             logits = model.forward_with_params(t, params) if params is not None else model(t)
-            action = int(torch.argmax(logits, dim=-1).item())
+            if sample:
+                action = int(torch.distributions.Categorical(logits=logits).sample().item())
+            else:
+                action = int(torch.argmax(logits, dim=-1).item())
         obs_next, reward, terminated, truncated, _ = env.step(action)
         transitions.append((obs, action, float(reward)))
         obs = obs_next
@@ -122,7 +135,13 @@ def train(
     episode_steps: int = 30,     # 30 유지
     snmp_url: str = "http://localhost:5001",
     train_links: list[str] | None = None,
+    save_path: str = MODEL_PATH,  # 실험용 임시 학습은 운영 체크포인트를 덮어쓰지 않도록 별도 경로 지정
+    seed: int | None = None,
 ):
+    if seed is not None:
+        torch.manual_seed(seed)
+        np.random.seed(seed)
+        import random as _r; _r.seed(seed)
     model    = PolicyNet()
     meta_opt = torch.optim.Adam(model.parameters(), lr=meta_lr)
     env      = NetworkEnv(snmp_base_url=snmp_url, max_steps=50, fast_mode=True, local_mode=True, train_links=train_links)
@@ -153,8 +172,8 @@ def train(
         if (iteration + 1) % 20 == 0:
             print(f"[MAML] iter {iteration+1:3d}/{meta_iterations}  meta_loss={meta_loss.item():.4f}")
 
-    torch.save(model.state_dict(), MODEL_PATH)
-    print(f"MAML model saved → {MODEL_PATH}")
+    torch.save(model.state_dict(), save_path)
+    print(f"MAML model saved → {save_path}")
     env.close()
 
 
@@ -210,8 +229,11 @@ if __name__ == "__main__":
     parser.add_argument("--train",           action="store_true")
     parser.add_argument("--meta-iterations", type=int, default=200)
     parser.add_argument("--snmp-url",        default="http://localhost:5001")
+    parser.add_argument("--seed",            type=int, default=None)
+    parser.add_argument("--save-path",       default=MODEL_PATH)
     args = parser.parse_args()
     if args.train:
-        train(meta_iterations=args.meta_iterations, snmp_url=args.snmp_url)
+        train(meta_iterations=args.meta_iterations, snmp_url=args.snmp_url,
+              seed=args.seed, save_path=args.save_path)
     else:
         parser.print_help()
