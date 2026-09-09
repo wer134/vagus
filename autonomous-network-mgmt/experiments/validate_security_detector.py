@@ -22,7 +22,9 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "ai-engine"))
 
 from anomaly_detector import SecurityAnomalyDetector  # noqa: E402
 
-from cicddos_loader import load_windows_with_stats  # noqa: E402
+from cicddos_loader import (  # noqa: E402
+    ZERO_DURATION_DEFAULT, ZERO_DURATION_MODES, load_windows_with_stats,
+)
 
 from _resultmeta import result_meta  # noqa: E402
 
@@ -64,9 +66,12 @@ def run_validation(
     benign_warmup: int,
     contamination: float,
     plot_path: str | None = None,
+    zero_duration_mode: str = ZERO_DURATION_DEFAULT,
 ) -> dict:
-    print(f"CICDDoS2019 로딩 중: {csv_path} (window_sec={window_sec})", flush=True)
-    windows, loader_stats = load_windows_with_stats(csv_path, window_sec=window_sec)
+    print(f"CICDDoS2019 로딩 중: {csv_path} (window_sec={window_sec}, "
+          f"zero_duration_mode={zero_duration_mode})", flush=True)
+    windows, loader_stats = load_windows_with_stats(
+        csv_path, window_sec=window_sec, zero_duration_mode=zero_duration_mode)
     if max_windows is not None:
         windows = windows[:max_windows]  # 주의: loader_stats는 전체 CSV 기준
     n_benign = sum(1 for w in windows if not w.is_attack)
@@ -123,7 +128,9 @@ def run_validation(
             condition=(
                 f"CICDDoS2019 오프라인 검증, window_sec={window_sec}, "
                 f"benign_warmup={actual_warmup}, contamination={contamination}, "
-                "판정 순서 detect→update (2026-09-09 이전 결과는 update→detect)."
+                f"zero_duration_mode={zero_duration_mode}, "
+                "판정 순서 detect→update (2026-09-09 이전 결과는 update→detect, "
+                "zero-duration 플로우 제외)."
             ),
         ),
         "dataset": {
@@ -147,6 +154,10 @@ def run_validation(
             f"공격 플로우의 SYN Flag Count 비영 비율 {syn_nonzero_pct:.2f}% — "
             "이 배포본에서 syn_ratio 피처는 탐지에 사실상 기여하지 않음 (임계치 0.30 발화 불가)",
             "flow_rate_sum 모드의 pkt_rate는 윈도우 내 플로우 전송률의 합 — 순간 pps의 상한 근사이며 물리적 초당 패킷수와는 다름",
+            f"zero_duration_mode={zero_duration_mode}: Flow Duration==0 플로우("
+            f"{loader_stats.get('flows_zero_duration', 0)}건)의 순간 전송률은 원리적으로 알 수 없다. "
+            "window_rate는 윈도우 평균 기여분으로 근사하며, 이 근사가 실데이터 F1을 개선하는지는 "
+            "이 스크립트를 두 모드로 각각 실행해 비교해야 한다",
             f"IsolationForest contamination={contamination} vs 공격 base rate {base_rate:.2f} — 모델 가정이 데이터와 맞지 않음. "
             "레이블 없이 모든 윈도우로 학습하므로 공격이 지속되면 공격을 '정상'으로 학습한다 (튜닝하지 않고 기록만 함)",
         ],
@@ -275,6 +286,11 @@ def main() -> None:
         help="BENIGN 윈도우를 앞쪽에 N개까지 재생해 cold-start 학습 보장 (기본 0=순수 시간순)",
     )
     parser.add_argument("--contamination", type=float, default=0.05)
+    parser.add_argument(
+        "--zero-duration-mode", default=ZERO_DURATION_DEFAULT, choices=list(ZERO_DURATION_MODES),
+        help="Flow Duration==0 플로우 처리 (window_rate=윈도우 평균 기여분으로 반영, "
+             "exclude=2026-09-09 이전 방식)",
+    )
     parser.add_argument("--output", default="cicddos_validation.json")
     parser.add_argument(
         "--no-plot", action="store_true",
@@ -294,6 +310,7 @@ def main() -> None:
         benign_warmup=args.benign_warmup,
         contamination=args.contamination,
         plot_path=plot_path,
+        zero_duration_mode=args.zero_duration_mode,
     )
 
     os.makedirs(RESULT_DIR, exist_ok=True)
