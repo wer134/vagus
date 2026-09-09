@@ -139,7 +139,7 @@
 <h1>Autonomous Network Management — 대시보드</h1>
 <p class="subtitle">ZSM/ENI 폐쇄 루프 (OODA) | PPO(Baseline) vs MAML(Few-shot) | 자율 이상 감지·진단·복구</p>
 <p class="subtitle"><span style="background:#2a1b3a;color:#c39bd3;border:1px solid #c39bd3;border-radius:10px;padding:2px 10px;font-size:0.75rem;font-weight:bold;">정적 데모</span>
-&nbsp;실행 중인 시스템의 데이터가 아닙니다 — 모니터링 지표는 브라우저에서 생성되며, 실험 결과 탭은 2026-04-22 측정치(<code>summary.json</code>)를 임베드한 것입니다.</p>
+&nbsp;실행 중인 시스템의 데이터가 아닙니다 — 모니터링 지표는 브라우저에서 생성되며, 실험 결과 탭은 2026-04-22 측정치(<code>summary.json</code>)를 임베드한 것입니다. 그 수치(TTR 3.78)는 사이클당 시뮬레이터 2틱으로 측정된 값이며, 2026-09-09 재측정(1틱 기준)은 TTR 6.84입니다 — <code>cowork/AUDIT_2026-09-09.md</code> 참고.</p>
 
 <div class="tabs">
   <div class="tab active" onclick="switchTab('monitor')">실시간 모니터링</div>
@@ -173,7 +173,7 @@
     <span class="auto-stat">OODA 사이클: <b id="auto-cycles">0</b></span>
   </div>
   <div style="font-size:0.72rem;color:#555;margin-bottom:8px;">
-    Observe(SNMP) → Orient(Isolation Forest + RCA) → Decide(MAML inner-loop) → Act(OSPF)
+    Observe(SNMP) → Orient(SLA 규칙 + 인접도 RCA) → Decide(MAML inner-loop) → Act(OSPF)
   </div>
   <div class="diag-box" id="diag-box">
     <span class="diag-normal">자율 모드 ON: MAML이 ZSM Analytics 결과를 바탕으로 스스로 진단→결정→실행합니다.</span>
@@ -489,7 +489,7 @@ async function runAutoStep() {
   chainBox.style.display = 'block';
   chainBox.textContent   = [
     `[Observe]  SNMP poll: latency=${aMetric?.latency.toFixed(1)}ms, loss=${((aMetric?.packetLoss||0)*100).toFixed(2)}%`,
-    `[Orient]   IsolationForest score > threshold → anomaly confirmed`,
+    `[Orient]   SLA rule: latency > 50ms or loss > 1% → anomaly confirmed`,
     `           Adjacency heuristic: ${rootLink} carries ${((congestion[rootLink]||0)*100).toFixed(0)}% stress`,
     `           RCA confidence: HIGH (100%)`,
     `[Decide]   MAML meta-init selects: increase ${rootLink} cost → redistribute traffic`,

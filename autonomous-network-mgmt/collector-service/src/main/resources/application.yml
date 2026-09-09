@@ -2,16 +2,6 @@ spring:
   application:
     name: collector-service
 
-  datasource:
-    url: jdbc:postgresql://localhost:5432/anm_db
-    username: anm
-    password: anm_pass
-    driver-class-name: org.postgresql.Driver
-
-  jpa:
-    hibernate:
-      ddl-auto: update
-    show-sql: false
 
   kafka:
     bootstrap-servers: localhost:9092

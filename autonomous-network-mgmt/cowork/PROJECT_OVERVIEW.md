@@ -2,6 +2,7 @@
 
 > 대상 경로: `C:\autonomous-network-mgmt\autonomous-network-mgmt\`
 > 작성일: 2026-09-06 · 소스 코드를 직접 읽고 정리한 기술 문서
+> 2026-09-09 갱신: 코드 감사(`AUDIT_2026-09-09.md`) 결과 반영 — 시뮬레이터 시계, RCA, 지지 버퍼, 실패 처리
 
 리포지토리 루트의 `README.md`가 "무엇을 주장하는 프로젝트인가"(연구 포지셔닝)를 다룬다면,
 이 문서는 **"실제 코드가 어떻게 구성되고 무엇이 어디까지 동작하는가"**를 정리한다.
@@ -123,6 +124,9 @@ POST /auto-step  (ai-engine 내부에서 한 사이클 전체를 수행)
 이 파일이 없으면 프로젝트 전체가 성립하지 않는다. **링크 스트레스 모델**로 "행동 → 관측" 피드백을 만든다.
 
 - 상태: 링크 6개 각각의 스트레스 `s ∈ [0,1]` (0=정상, 1=완전 혼잡)
+- **시간은 `tick()`으로만 흐른다 (2026-09-09).** `get_*_metrics()`는 순수 조회다. 이전에는 조회마다
+  스트레스가 갱신되어 관측 횟수가 곧 시뮬레이션 시간이었다 (`AUDIT_2026-09-09.md` P1).
+  `reset_state(seed=)`로 노이즈를 재현할 수 있다.
 - 갱신식: `s_next = clip(s × 0.90 + load_s + cong_s + N(0, 0.015))`
   - `load_s` : OSPF cost 역수 기반 트래픽 비율 × 0.01 × 링크수 → **cost를 올리면 트래픽이 빠진다**
   - `cong_s` : 혼잡 주입 상태이고 `cost < 100`이면 0.50, `cost >= 100`이면 **0** (우회 성공 → 격리)
@@ -150,16 +154,21 @@ POST /auto-step  (ai-engine 내부에서 한 사이클 전체를 수행)
 | PUT | `/ospf/costs/{link}` | cost 변경 (허용값 10/20/50/100/200) |
 | POST/DELETE | `/debug/congestion/{link}` | 혼잡 주입·해제 |
 | POST/DELETE | `/debug/attack/{type}`, `/debug/attack` | 공격 주입·해제 (`ddos` / `portscan`) |
-| POST | `/debug/reset` | 에피소드 리셋 |
-| GET | `/debug/stress`, `/debug/attack-state` | 디버그 상태 |
+| POST | `/debug/reset` | 에피소드 리셋 (body `{"seed": N}` 지원) |
+| POST | `/debug/tick` | 시뮬레이션 시간 진행 (body `{"n": 1}`) — lockstep 모드에서 유일한 시간 진행 수단 |
+| GET | `/debug/stress`, `/debug/state`, `/debug/attack-state` | 디버그 상태 (틱, 링크 스트레스, 혼잡 링크 등) |
 | ANY | `/ai/<path>` | AI Engine(:8000) 프록시 (브라우저 CORS 우회용) |
+
+`SIM_CLOCK` 환경변수: `lockstep`(기본, `/debug/tick`으로만 진행) / `realtime:<ms>`(백그라운드 스레드가
+주기적으로 tick — Java collector·대시보드처럼 관측만 하는 클라이언트용).
 
 ### 4.3 `ai-engine/environment/network_env.py` — 강화학습 환경
 
 - **상태 (14차원, 0~1 정규화)**: `[대역폭×4, 지연×4, OSPF cost×6]`
 - **행동 (Discrete 30)**: `action = link_idx × 5 + cost_idx`, 링크 6개 × cost {10, 20, 50, 100, 200}
 - `local_mode=True`(기본): HTTP 없이 `metric_generator` 모듈을 직접 호출 → 학습이 매우 빠름
-- `local_mode=False`: `:5001` REST 호출 (평가/실서비스용)
+- `local_mode=False`: `:5001` REST 호출 (평가/실서비스용). 관측 실패 시 예외 (가짜 정상값 없음)
+- `step()` = 행동 적용 → `tick()` 1회 → 관측. 상수는 `ai-engine/topology.py`에서 import
 - `train_links` 인자로 **학습 링크와 평가 링크를 분리**해 일반화를 측정한다
   - TRAIN = `r1-r2, r1-r3, r2-r3, r2-r4` / TEST = `r3-r4, r1-r4`
 
@@ -186,10 +195,14 @@ SLA 기준: 지연 > 50 ms 또는 손실 > 1% (최악 노드 기준으로 패널
 
 ### 4.6 `ai-engine/anomaly_detector.py` — 3종 탐지기
 
-1. **`AnomalyDetector`** — IsolationForest(contamination 0.05). 샘플 50개 이상부터 학습(최근 200개 유지).
-   학습 전에는 SLA 규칙만으로 판정한다.
+1. **`AnomalyDetector`** — IsolationForest(contamination 0.05). 샘플 50개 이상부터 학습(최근 200개 유지,
+   10샘플마다 재학습). 학습 전에는 SLA 규칙만으로 판정한다. **Java 경로 `/anomaly`에서만 판정에 쓰이며
+   폐쇄 루프 `/auto-step`은 `update()`만 호출하고 판정에는 쓰지 않는다** (2026-09-09 확인).
 2. **`diagnose(metrics, ospf_costs)`** — 규칙 기반 진단. SLA 위반 노드 → 인접 링크 = `suspected_links`,
    그중 cost < 100인 것 = `unhandled_links`. severity는 지연 100 ms / 손실 5% 초과 시 `critical`.
+   **`root_cause_analysis(diag, ospf_costs)`** (2026-09-09에 api_server에서 이동·개정): 위반 노드 전부에
+   인접한 미대응 링크 → 근본 원인; 이미 대응된 링크가 위반 노드 전부를 덮으면 → `None`(회복 대기);
+   그 외 폴백 `(-공유 노드 수, cost)`. 개정 전에는 2번째 사이클부터 정상 링크를 지목했다 (AUDIT P2).
 3. **`SecurityAnomalyDetector`** — 6피처(대역폭·지연·손실·syn_ratio·unique_src_count·pkt_rate)
    IsolationForest + 임계치 규칙 결합.
 
@@ -199,7 +212,9 @@ SLA 기준: 지연 > 50 ms 또는 손실 > 1% (최악 노드 기준으로 패널
    | `pkt_rate` | ≥ 10,000 | ddos |
    | `syn_ratio` | ≥ 0.30 | ddos |
 
-   `is_threat = 임계치 초과 OR IsolationForest 이상`.
+   `is_threat = 임계치 초과 OR IsolationForest 이상`. 호출 순서는 `detect()` → `update()`
+   (2026-09-09: 판정 대상을 학습셋에 넣기 전에 판정). 레이블 없이 모든 샘플로 학습하므로 공격이
+   지속되면 공격을 '정상'으로 학습하는 한계가 있다.
 
 ### 4.7 `ai-engine/ospf_security.py` — OSPF 라우팅 보안
 
@@ -241,16 +256,20 @@ python ai-engine/ospf_security.py     # replay / downgrade / key-compromise / we
 
 **`POST /auto-step`** 한 번이 폐쇄 루프 한 사이클이다.
 
-1. **Observe** — `:5001`에서 메트릭·cost 수집, 14차원 관측 벡터 구성(실패 시 안전 기본값)
-2. **Orient** — `diagnose()` + `_root_cause_analysis()`
-   - RCA 점수: `score(link) = (-위반노드_공유수, ospf_cost)` → 최소값 선택
-     (위반 노드를 많이 공유할수록, cost가 낮을수록 근본 원인일 가능성이 높다)
+1. **Observe** — `POST :5001/debug/tick`(사이클당 1틱) 후 메트릭·cost 수집, 14차원 관측 벡터 구성.
+   **수집 실패 시 HTTP 503** — 2026-09-09 이전에는 '정상' 기본값으로 대체해 장비 다운이 "조치 불필요"로
+   보고됐다 (AUDIT C1).
+2. **Orient** — `diagnose()`(SLA 규칙) + `root_cause_analysis()` (§4.6)
 3. **Decide** — 지지 버퍼 ≥ 4면 `adapt_and_predict(adapt_steps=3)`, 아니면 meta-init 직접 사용
    - **Analytics override**: 근본 원인 링크에 SLA 위반 노드가 **2개 이상** 인접하면
      MAML 결정을 무시하고 `root_cause @ cost=100`으로 교체
-4. **Act** — `PUT :5001/ospf/costs/{link}`
+   - `disable_maml=true`(analytics-only)에서 근본 원인이 `None`이면 **무행동**(회복 대기)
+   - 지지 버퍼에는 실제로 실행된 행동의 전이만 들어간다 (`_prev_action=None` 처리, AUDIT P6)
+4. **Act** — `PUT :5001/ospf/costs/{link}`. 응답 `act`에 `applied`/`changed`/`prev_cost`/`error`
 5. **Evaluate** — `ModelPerformanceTracker`(window 20)가 보상·TTR·SLA 위반율을 추적하고
    `avg_ttr > 50` 또는 `sla_viol_rate > 0.7`이면 `needs_retrain=true`를 반환
+
+`/auto-step`·`/reset-buffer`·`/action`은 `threading.Lock`으로 직렬화된다.
 
 응답에는 각 단계 결과와 함께 사람이 읽는 `reasoning_chain` 문자열이 포함된다.
 `?disable_analytics=true`, `?disable_maml=true` 쿼리로 절제 실험 모드를 켤 수 있다.
@@ -281,6 +300,11 @@ python ai-engine/ospf_security.py     # replay / downgrade / key-compromise / we
 
 두 클라이언트(`SnmpClient`, `MininetClient`) 모두 "실장비 연동 시 이 클래스만 교체" 지점으로 설계되어 있다.
 
+2026-09-09: `isAnomaly()` 실패는 예외로 전파되고(이전엔 `false`), 판정 불가 노드가 있으면 라운드를 스킵하며,
+전 노드 정상이면 행동하지 않는다(행동 공간에 NO-OP이 없어 매 라운드 행동하면 정상 cost를 계속 흔들었다).
+JPA/PostgreSQL 의존성은 제거되어 PostgreSQL 없이 기동된다. 시뮬레이터를 `SIM_CLOCK=realtime:<ms>`로
+띄워야 collector가 보는 메트릭이 변한다.
+
 ### 4.10 `dashboard.html`
 
 Chart.js 기반 단일 파일 대시보드. **네트워크 호출이 전혀 없다** — 메트릭은 JS에서 자체 생성하고
@@ -304,7 +328,7 @@ docker compose up -d zookeeper kafka postgres redis
 ### 5.2 최소 구성으로 돌리기 (권장)
 
 ```bash
-# 1) 가상 장비 (터미널 1)
+# 1) 가상 장비 (터미널 1)  — 실험용 lockstep 시계(기본). Java/대시보드 데모는 SIM_CLOCK=realtime:1000
 cd simulation && pip install -r requirements.txt && python mock_snmp_agent.py     # :5001
 
 # 2) AI 엔진 (터미널 2)
@@ -316,6 +340,11 @@ curl -X POST http://127.0.0.1:8000/auto-step
 
 모델 체크포인트가 없다면 `python ai-engine/create_dummy_models.py`로 더미를 만들어 파이프라인만
 먼저 검증할 수 있다(성능은 무의미).
+
+`ai-engine/requirements.txt`는 2026-09-09부터 하한만 고정한다(numpy ≥ 2, SB3 ≥ 2.8, torch ≥ 2.6).
+커밋된 체크포인트가 그 환경에서 만들어졌기 때문이며, 이전 고정 버전(numpy 1.26)으로는
+`ppo_network.zip`을 읽지 못한다. 체크포인트 로드 실패는 이제 `/health`의 `*_load_error`로 보고되고
+엔진은 기동한다.
 
 ### 5.3 학습 · 평가
 
@@ -354,6 +383,21 @@ cd orchestrator-service && ./mvnw spring-boot:run    # :8082
 
 ## 6. 실험 결과 요약
 
+> **2026-09-09 갱신**: 아래 §6.1~6.3의 수치는 **사이클당 시뮬레이터 2틱**으로 측정된 개정 전 값이다
+> (측정 스크립트의 검증 조회가 시간을 한 번 더 진행시켰다 — `AUDIT_2026-09-09.md` P1). 1틱 기준
+> 재측정치는 다음과 같고 상세는 AUDIT §3에 있다.
+>
+> | 실험 | 개정 전 (2틱) | **개정 후 (1틱)** | 부수 피해/ep |
+> | --- | --- | --- | --- |
+> | 스트레스 50 ep | TTR 3.78 / 100% | **6.84 / 100%** (TEST 6.69, TRAIN 7.11) | 0.80 |
+> | 절제 analytics_only | 3.88 / 100% | **6.94 / 100%** | **0.00** |
+> | 절제 maml_only | 12.32 / 24% | **13.80 / 14%** | 0.86 |
+> | 절제 combined | 3.80 / 100% | **6.94 / 100%** | 0.86 |
+> | 지속 버퍼 30 ep | 3.73 | **6.93** (초기 7.00 → 후기 6.87) | 0.73 |
+> | 오프라인 PPO / MAML(재학습) / MAML(구) | 100.9 / — / 139.7 | **101.8 / 101.8 / 188.6** | — |
+>
+> 세 학습 정책(PPO, 재학습 MAML, 구 MAML)은 전부 상태 무관 상수 행동이다 (AUDIT P8).
+>
 > **2026-09-06 갱신**: 아래 수치는 측정 경로가 두 가지이며 서로 비교할 수 없다.
 > §6.1은 폐쇄 루프(`/auto-step`, Analytics 포함), §6.1b는 오프라인 정책 단독 평가다.
 
@@ -401,7 +445,8 @@ Analytics만으로도 100% 복구가 된다. 결합해도 TTR은 거의 같다.
 | 후기 16–30 | 3.73 | ~100% | 2.93 |
 
 2차 행동이 초기 `r1-r2@200`(meta-init 기본값)에서 후기 `r2-r3@10`(사실상 no-op)로 바뀐다 —
-"Analytics가 1스텝을 제대로 처리했으면 추가 간섭하지 않는다"를 학습한 것으로 해석된다.
+"Analytics가 1스텝을 제대로 처리했으면 추가 간섭하지 않는다"를 학습한 것으로 해석됐으나,
+**2026-09-09 재실행에서는 30/30 에피소드의 2차 행동이 `r3-r4@100`(상수)** 이라 이 해석은 지지되지 않는다.
 
 ### 6.4 CICDDoS2019 실데이터 검증 — 부분 개선, 여전히 미달
 
@@ -452,6 +497,16 @@ always-attack(56.2%)보다 낮아, **탐지기의 실데이터 유용성은 아�
   출처(n, 실행일)를 명시했다.
 - **남은 것**: `results/summary.json`의 baseline 항목은 여전히 30 에피소드 미학습 실행분이다
   (fewshot은 50 에피소드). 같은 표에 인용할 때 주의.
+
+**측정 방법론 — 2026-09-09 감사 (`cowork/AUDIT_2026-09-09.md`)**
+
+- 시뮬레이션 시간이 관측 호출로 흘러 실험 스크립트의 검증 조회가 사이클당 2틱을 만들었고, 보고된
+  TTR(3.78~3.88)이 실제 사이클 수의 약 절반이었다 → **수정**(tick 분리). 이 문서 §6의 폐쇄 루프 수치는
+  전부 2틱 기준이며, 1틱 기준 재측정치는 AUDIT §3에 있다.
+- RCA가 2번째 사이클부터 정상 링크를 지목했고 "RCA 정확도 100%"는 첫 사이클만 잰 값이었다 → **수정**.
+  부수 피해 지표(`wasted_actions`)와 전 사이클 정확도(`rca_all_cycles_ok`)를 추가했다.
+- MAML 학습 롤아웃이 argmax(탐색 없음)였고 지지 버퍼에 실행하지 않은 행동이 기록됐다 → **수정**, 재학습.
+- 관측 실패가 '정상'으로 대체됐다 → **수정** (503).
 
 **환경**
 
@@ -514,16 +569,24 @@ always-attack(56.2%)보다 낮아, **탐지기의 실데이터 유용성은 아�
 | 2026-06-18 | OSPF LSA 위조 탐지 + 트래픽 기반 보안 탐지 도입, README를 위협 인텔리전스로 재포지셔닝 |
 | 2026-06-20 | OSPF MD5/SHA256 인증 + 우회 시나리오 3종, CICDDoS2019 검증 파이프라인 구축 |
 | 2026-06-21 | recall 0.12 원인 진단(피처 추출 방법론 문제) 및 학습곡선 시각화, 결과를 문서에 반영 |
+| 2026-09-06 | 코드 감사 1차 (`FIX_PLAN.md` T1–T8): 피처 추출 재설계, 학습된 PPO 베이스라인, Java 경로 계약 정합화 |
+| 2026-09-09 | 코드 감사 2차 (`AUDIT_2026-09-09.md` A1–A7): 시뮬레이터 시계 분리, RCA 개정, MAML 롤아웃 샘플링·재학습, 조용한 실패 제거, 전 실험 재측정 — 정책 붕괴(P8) 발견 |
 
 ---
 
 ## 10. 다음에 손댈 만한 것
 
-1. **트래픽 보안 피처 추출 재설계** — raw pcap 기반 초당 패킷수, 또는 플로우 듀레이션 분산 집계
+(2026-09-09 정리 — 이전 목록의 2~4번은 §7에서 이미 해결된 항목이라 제거했다)
+
+> 상세 고도화 계획(트랙·단계·완료 기준)은 `cowork/ROADMAP.md`에 있다.
+
+1. **트래픽 보안 피처 추출 재설계** — `Flow Duration == 0` 플로우 처리, raw pcap 기반 초당 패킷수
    (임계치 조정으로는 불가능함이 §6.4에서 확인됨. 가장 우선순위 높은 과제)
-2. **Java 경로(A) 복구** — `ospfCosts` 6개 전달 + 정규화 일치, 또는 `/action` 대신 `/auto-step` 사용
-3. **학습된 PPO와의 공정 비교** — 현재 베이스라인은 랜덤 정책
-4. 문서·결과 파일의 절제 실험 수치 통일 (15 ep vs 50 ep)
-5. 다중 동시 위협 시나리오 추가
+2. **`SecurityAnomalyDetector`의 학습 방식** — 레이블 없이 모든 샘플로 학습해 지속 공격을 정상으로
+   학습하는 구조, `contamination` 가정과 실데이터 base rate 불일치 (AUDIT P4)
+3. **NO-OP 행동** — 행동 공간에 무행동이 없어 오프라인 평가/PPO 학습에서 정상 상태에도 매 스텝
+   cost를 바꿔야 한다. 공개 시그니처(30 행동)를 바꾸는 결정이라 보류 (AUDIT P7)
+4. 다중 동시 위협 시나리오 추가 (RCA 폴백 규칙이 실제로 검증되는 유일한 경우)
+5. Kafka 전체 경로(A) 실기동 검증 (Docker)
 6. 실제 SDN 컨트롤러(OpenDaylight/ONOS) 연동으로 OpenFlow 차단 룰 실제 적용
 7. GNN 기반 상태 표현으로 대규모 토폴로지 확장

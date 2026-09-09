@@ -15,8 +15,17 @@ ENI 연결:
   - few-shot 적응: 실시간 지지 버퍼(support buffer)로 inner-loop 적응
   - Analytics-Intelligence 계층: 고신뢰 근본원인 → Intelligence override
 
+시뮬레이션 시간 (2026-09-09): /auto-step이 사이클마다 시뮬레이터를 1틱 진행시키고,
+이 스크립트의 검증용 GET /metrics는 순수 조회다. 이전에는 검증 조회도 1틱을 진행시켜
+사이클당 2틱이 흘렀고 TTR이 약 절반으로 측정됐다 (cowork/AUDIT_2026-09-09.md P1).
+time.sleep은 시뮬레이션에 영향이 없어 제거했다.
+
+추가 지표 (AUDIT P2):
+  wasted_actions     — 주입 링크가 아닌 링크의 cost가 실제로 바뀐 횟수 (부수 피해; 같은 값 재설정은 제외)
+  rca_all_cycles_ok  — 모든 사이클에서 root_cause_link ∈ {주입 링크, None}
+
 실행:
-  python experiments/stress_test.py [--episodes 20] [--output results/stress_latest.json]
+  python experiments/stress_test.py [--episodes 20] [--seed 42] [--output results/stress_latest.json]
 """
 import argparse
 import json
@@ -51,22 +60,21 @@ def delete(url):            return _http("DELETE", url)
 def get(url):               return _http("GET",    url)
 
 
-def run(n_episodes: int = 20, output: str | None = None):
+def run(n_episodes: int = 20, output: str | None = None, seed: int | None = 42):
     results = []
+    rng = random.Random(seed)
 
     for ep in range(1, n_episodes + 1):
         # TEST 링크 2배 가중치 (일반화 평가 비중 높임)
-        link   = random.choice(TEST_LINKS + TEST_LINKS + TRAIN_LINKS)
+        link   = rng.choice(TEST_LINKS + TEST_LINKS + TRAIN_LINKS)
         ts     = datetime.now().strftime('%H:%M:%S')
         print(f"[{ts}] Ep {ep}/{n_episodes} congestion={link}", flush=True)
 
         # ── 에피소드 초기화 ─────────────────────────────────────
         try:
-            post(f"{SNMP}/debug/reset")
+            post(f"{SNMP}/debug/reset", {"seed": None if seed is None else seed * 1000 + ep})
             post(f"{AI}/reset-buffer")
-            time.sleep(0.5)
             post(f"{SNMP}/debug/congestion/{link}")
-            time.sleep(0.5)
         except Exception as e:
             print(f"  [setup error] {e}", flush=True)
             continue
@@ -75,6 +83,8 @@ def run(n_episodes: int = 20, output: str | None = None):
         first_root   = None   # 첫 번째 OODA 사이클의 근본원인 (표시용)
         last_root    = None
         actions      = []
+        wasted       = 0      # 주입 링크가 아닌 링크의 cost 변경 (부수 피해)
+        rca_all_ok   = True   # 모든 사이클에서 root cause가 {주입 링크, None}인가
         reasoning    = []
 
         for step in range(1, 16):
@@ -87,9 +97,13 @@ def run(n_episodes: int = 20, output: str | None = None):
                 # 첫 번째 이상 감지 사이클에서 근본원인 기록
                 if first_root is None and orient.get("anomaly_detected"):
                     first_root = last_root
+                if orient.get("anomaly_detected") and last_root not in (link, None):
+                    rca_all_ok = False
 
                 if act.get("applied"):
-                    actions.append(act["link"])
+                    actions.append(f'{act["link"]}@{act["cost"]}')
+                    if act["link"] != link and act.get("changed", True):
+                        wasted += 1   # 정상 링크의 cost가 실제로 바뀐 경우만 (같은 값 재설정은 no-op)
 
                 # ZSM reasoning_chain 요약 (첫 번째만 저장)
                 if step == 1 and "reasoning_chain" in d:
@@ -105,11 +119,10 @@ def run(n_episodes: int = 20, output: str | None = None):
                     ttr = step
                     print(
                         f"  -> TTR={ttr}  first_root={first_root}  "
-                        f"last_root={last_root}  act={actions}",
+                        f"last_root={last_root}  act={actions}  wasted={wasted}",
                         flush=True,
                     )
                     break
-                time.sleep(0.6)
             except Exception as e:
                 print(f"  [step {step} error] {e}", flush=True)
                 break
@@ -127,7 +140,9 @@ def run(n_episodes: int = 20, output: str | None = None):
             "group":      "test" if link in TEST_LINKS else "train",
             "ttr":        ttr,
             "first_root": first_root,
-            "root_match": (first_root == link),  # Analytics 정확도
+            "root_match": (first_root == link),  # Analytics 정확도 (첫 사이클)
+            "rca_all_cycles_ok": rca_all_ok,
+            "wasted_actions": wasted,
             "actions":    actions,
         })
 
@@ -135,7 +150,6 @@ def run(n_episodes: int = 20, output: str | None = None):
             delete(f"{SNMP}/debug/congestion/{link}")
         except Exception:
             pass
-        time.sleep(1.0)
 
     # ── 결과 집계 ───────────────────────────────────────────────
     all_ttrs   = [r["ttr"] for r in results]
@@ -145,6 +159,8 @@ def run(n_episodes: int = 20, output: str | None = None):
     train_ttrs = [r["ttr"] for r in train_res] if train_res else [0]
     success    = sum(1 for t in all_ttrs if t < 15)
     root_acc   = sum(1 for r in results if r["root_match"]) / len(results) * 100
+    rca_all    = sum(1 for r in results if r["rca_all_cycles_ok"]) / len(results) * 100
+    wasted_avg = sum(r["wasted_actions"] for r in results) / len(results)
 
     print("\n" + "=" * 55, flush=True)
     print("  ZSM/ENI OODA Loop Stress Test Results", flush=True)
@@ -155,11 +171,13 @@ def run(n_episodes: int = 20, output: str | None = None):
     print(f"  TRAIN links TTR  : {sum(train_ttrs)/len(train_ttrs):.2f} steps  (n={len(train_res)})", flush=True)
     print(f"  Success rate     : {success}/{len(results)} ({success/len(results)*100:.0f}%)", flush=True)
     print(f"  Root-cause acc   : {root_acc:.1f}%  (first_root == congested_link)", flush=True)
+    print(f"  RCA all cycles   : {rca_all:.1f}%  (every cycle root ∈ {{link, None}})", flush=True)
+    print(f"  Wasted actions   : {wasted_avg:.2f} / episode  (cost changes on healthy links)", flush=True)
     print("=" * 55, flush=True)
     print("  ZSM Paper Connection:", flush=True)
-    print("  - Orient (Analytics): IsolationForest + adjacency scoring", flush=True)
+    print("  - Orient (Analytics): SLA rules + adjacency-score RCA (IsolationForest는 /anomaly 전용)", flush=True)
     print("  - Decide (Intelligence): MAML inner-loop adaptation", flush=True)
-    print("  - Analytics->Intelligence override: nodes_sharing_root>=2", flush=True)
+    print("  - Analytics->Intelligence override: root cause adjacent to all violated nodes", flush=True)
     print("=" * 55, flush=True)
 
     summary = {
@@ -170,6 +188,13 @@ def run(n_episodes: int = 20, output: str | None = None):
         "train_avg_ttr": round(sum(train_ttrs) / len(train_ttrs), 2),
         "success_rate":  round(success / len(results) * 100, 1),
         "root_cause_accuracy_pct": round(root_acc, 1),
+        "rca_all_cycles_ok_pct":   round(rca_all, 1),
+        "wasted_actions_per_ep":   round(wasted_avg, 2),
+        "seed":          seed,
+        "_condition": (
+            "폐쇄 루프 /auto-step, 사이클당 시뮬레이터 1틱(lockstep), 검증 조회는 순수 조회. "
+            "2026-09-09 이전 결과는 사이클당 2틱으로 측정되어 직접 비교 불가."
+        ),
         "results":       results,
     }
 
@@ -185,5 +210,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--episodes", type=int, default=20)
     parser.add_argument("--output",   type=str, default=None)
+    parser.add_argument("--seed",     type=int, default=42, help="링크 선택·시뮬레이터 노이즈 seed (-1: 비고정)")
     args = parser.parse_args()
-    run(n_episodes=args.episodes, output=args.output)
+    run(n_episodes=args.episodes, output=args.output,
+        seed=None if args.seed is not None and args.seed < 0 else args.seed)

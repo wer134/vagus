@@ -29,15 +29,9 @@
             <groupId>org.springframework.kafka</groupId>
             <artifactId>spring-kafka</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-jpa</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.postgresql</groupId>
-            <artifactId>postgresql</artifactId>
-            <scope>runtime</scope>
-        </dependency>
+        <!-- data-jpa / postgresql 의존성 제거 (2026-09-09): 영속화 코드가 없는데 datasource
+             자동설정 때문에 PostgreSQL 없이는 기동이 실패했다 (cowork/AUDIT_2026-09-09.md C6).
+             메트릭 이력 저장을 구현할 때 다시 추가한다. -->
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>

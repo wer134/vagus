@@ -15,8 +15,10 @@ ETSI ZSM (Zero-touch network and Service Management) 및 ENI (Experiential Netwo
 ```
 [Observe]  GET /metrics → SNMP 수집 (Flask mock_snmp_agent)
     ↓
-[Orient]   diagnose() → IsolationForest 이상 감지
-           _root_cause_analysis() → 근본 원인 분석 (ZSM 3.1.1.2)
+[Orient]   diagnose() → SLA 규칙 이상 감지 (지연 > 50 ms 또는 손실 > 1 %)
+           root_cause_analysis() → 근본 원인 분석 (ZSM 3.1.1.2)
+           ※ IsolationForest(AnomalyDetector)는 Java 경로 /anomaly 전용 — 폐쇄 루프 Orient에는
+             관여하지 않는다 (2026-09-09 정정, cowork/AUDIT_2026-09-09.md P3)
     ↓
 [Decide]   MAML few_shot_agent.adapt_and_predict() (ZSM 3.1.1.3)
            + Analytics override (high-confidence RCA)
@@ -31,8 +33,10 @@ ETSI ZSM (Zero-touch network and Service Management) 및 ENI (Experiential Netwo
 ZSM 아키텍처의 핵심 설계 원칙인 Analytics와 Intelligence의 분리를 구현한다.
 
 - **Analytics 계층** (Orient 단계):
-  - IsolationForest 기반 다변량 이상 감지
-  - 인접도 점수 기반 근본 원인 분석: `score(link) = (-shared_violated_nodes, ospf_cost)`
+  - SLA 규칙 기반 위반 노드 판정 (IsolationForest는 쓰지 않는다 — 2026-09-09 정정)
+  - 인접도 기반 근본 원인 분석 (2026-09-09 개정): 위반 노드 전부에 인접한 미대응 링크 = 근본 원인;
+    이미 대응된(cost ≥ 100) 링크가 위반 노드 전부를 덮으면 "회복 중"(None); 그 외 폴백
+    `score(link) = (-shared_violated_nodes, ospf_cost)`
   - 고신뢰 조건: `nodes_sharing_root >= 2` (양 엔드포인트 모두 SLA 위반)
 
 - **Intelligence 계층** (Decide 단계):
@@ -59,16 +63,26 @@ ZSM 아키텍처의 핵심 설계 원칙인 Analytics와 Intelligence의 분리�
 
 ### 3.3 평가 지표
 
-- **TTR** (Time-To-Recovery): 혼잡 주입 후 전 노드 SLA 회복까지 OODA 사이클 수
+- **TTR** (Time-To-Recovery): 혼잡 주입 후 전 노드 SLA 회복까지 OODA 사이클 수.
+  **2026-09-09부터 1사이클 = 시뮬레이터 1틱**이다. 이전 측정은 검증 조회가 시간을 한 번 더
+  진행시켜 1사이클 = 2틱이었으므로, 이전 수치(§4.1 등)와 새 수치는 직접 비교할 수 없다.
 - **성공률**: TTR < 15 (타임아웃 미발생)
 - **근본 원인 정확도**: `first_root == congested_link` (첫 번째 OODA 사이클의 근본 원인)
+- **RCA 전 사이클 정확도** (2026-09-09 추가): 모든 사이클에서 `root_cause_link ∈ {주입 링크, None}`
+- **부수 피해 `wasted_actions`** (2026-09-09 추가): 주입 링크가 아닌 링크의 cost가 실제로 바뀐 횟수
 - **일반화 격차**: `|TEST_avg_TTR - TRAIN_avg_TTR|`
 
 ---
 
 ## 4. 실험 결과
 
-### 4.1 주요 비교 (50 에피소드)
+> **2026-09-09 재측정.** §4.1~4.3의 수치는 사이클당 시뮬레이터 2틱으로 측정된 개정 전 값이다
+> (`results/*_pre_audit.json`). 1틱 기준 재측정(`results/stress_50ep.json`, 50 ep, seed 42):
+> **Avg TTR 6.84** (TEST 6.69 / TRAIN 7.11), 성공률 100%, RCA 첫/전 사이클 100%/100%,
+> 부수 피해 0.80/ep, TTR 분포 4:2% 5:2% 6:42% 7:32% 8:12% 9:6% 10:4%.
+> 상세: `cowork/AUDIT_2026-09-09.md` §3.
+
+### 4.1 주요 비교 (50 에피소드, 개정 전 — 사이클당 2틱)
 
 | 시스템 | Avg TTR | 성공률 | RCA 정확도 | 일반화 격차 |
 |--------|---------|--------|-----------|------------|
@@ -111,6 +125,11 @@ TTR=5: ████████████████ (16%)
 | **Baseline PPO (50,000 steps 학습, 50 ep)** | **100.9** | **50%** | 91.1 |
 | MAML (Analytics 미적용, 50 ep) | 139.7 | 32% | 78.0 |
 
+**2026-09-09 재측정 (스텝당 1틱, `results/offline_eval_post_audit*.json`)**: PPO 101.8 / 50%,
+MAML 재학습(샘플링 롤아웃) 101.8 / 50%, MAML 개정 전 188.6 / 6%. 세 정책 모두 상태 무관 상수 행동
+(PPO·새 MAML `r3-r4@100`, 구 MAML `r1-r2@200`)이라 이 표는 정책 품질이 아니라 상수 행동과 TEST 링크의
+우연한 일치를 재고 있다 (AUDIT P8).
+
 **§4.1의 "Baseline PPO 200.0"은 미학습 랜덤 정책이었다** (`results/summary.json`의
 `PPO without trained model — random policy` 주석). 공정하게 학습시키면 PPO가 MAML보다 빠르다.
 
@@ -123,6 +142,11 @@ Analytics(RCA) 계층이며, MAML의 추가 기여는 현재 데이터로 확인
 ---
 
 ## 5. 핵심 발견사항
+
+> **2026-09-09**: §5.1의 "Step 2+ MAML meta-init r1-r2 cost=200"과 §5.3의 "학습된 교통 공학 전략"은
+> 개정 전 MAML이 상태와 무관하게 `r1-r2@200`을 출력한 결과를 해석한 것이다 (AUDIT P8). 재학습한 MAML은
+> `r3-r4@100`을 상수로 출력하며, 지속 버퍼 실험에서도 30/30 에피소드의 2번째 행동이 같다.
+> "토폴로지 대칭성을 암묵적으로 학습"이라는 §5.3의 해석은 철회한다.
 
 ### 5.1 Analytics Override가 성능의 핵심 동인
 
@@ -198,6 +222,17 @@ ZSM Analytics 계층과 ENI Intelligence 계층 각각의 기여도를 정량화
 | `combined` | ✅ 활성 | ✅ 활성 | `/auto-step` → Analytics override + MAML 2차 행동 |
 
 각 모드 50 에피소드(공통 링크 시퀀스, seed=42), 최대 TTR=15 (미해결 시 timeout).
+
+**2026-09-09 재실행 (사이클당 1틱, 에피소드별 노이즈 seed 고정, `results/ablation_study.json`)**
+
+| 모드 | Avg TTR | 성공률 | 부수 피해/ep | RCA 전 사이클 |
+|------|---------|--------|--------------|---------------|
+| `analytics_only` | **6.94** | **100%** | **0.00** | 100% |
+| `maml_only` | 13.80 | 14% | 0.86 | — |
+| `combined` | 6.94 | 100% | 0.86 | 100% |
+
+개정 전(2026-05-20, 2틱): 3.88/100%, 12.32/24%, 3.80/100% (`results/ablation_study_pre_audit.json`).
+결론은 같고 더 선명하다 — combined는 analytics_only와 TTR이 같고 정상 링크 cost 변경만 더 한다.
 
 ### 7.3 결과
 

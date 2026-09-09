@@ -22,7 +22,7 @@ AI가 네트워크 위협(라우팅 하이재킹·DDoS·포트스캔)을 실시�
 
 **핵심 연구 질문**
 
-> 라우팅 레이어(OSPF LSA 위조)와 트래픽 레이어(DDoS/포트스캔)의 위협을 AI 단일 파이프라인으로 통합 탐지하고, 사람 개입 없이 평균 3.78 step 내 자동 복구할 수 있는가?
+> 라우팅 레이어(OSPF LSA 위조)와 트래픽 레이어(DDoS/포트스캔)의 위협을 AI 단일 파이프라인으로 통합 탐지하고, 사람 개입 없이 평균 6.84 OODA 사이클(2026-09-09 재측정; 이전 3.78은 사이클당 2틱으로 잰 값) 내 자동 복구할 수 있는가?
 
 ---
 
@@ -50,7 +50,10 @@ IsolationForest + 임계치 규칙을 조합해 네트워크 트래픽에서 공
 
 ### 3. 네트워크 성능 이상 (SLA 위반)
 
-IsolationForest 기반 비지도 이상 탐지로 정상 범위를 벗어난 지연·패킷손실을 감지하고 근본 원인 링크를 자동 식별한다.
+SLA 규칙(지연 > 50 ms 또는 손실 > 1 %)으로 위반 노드를 잡고, 인접도 점수 기반 RCA로 근본 원인 링크를
+자동 식별한다. `AnomalyDetector`(IsolationForest)는 Java 경로의 `/anomaly`에서만 판정에 쓰이며
+**폐쇄 루프(`/auto-step`)의 Orient에는 관여하지 않는다** — 2026-09-09 감사에서 문서와 코드가
+달랐던 부분을 정정했다 (`cowork/AUDIT_2026-09-09.md` P3).
 
 ---
 
@@ -62,8 +65,8 @@ IsolationForest 기반 비지도 이상 탐지로 정상 범위를 벗어난 지
 [Orient]    위협 인텔리전스 분석
             ├─ OSPF LSA 위조 탐지    (ospf_security.py)
             ├─ 트래픽 공격 탐지      (SecurityAnomalyDetector)
-            ├─ 성능 이상 탐지        (AnomalyDetector)
-            └─ 근본 원인 분석 RCA    (ZSM Analytics, Clause 3.1.1.2)
+            ├─ 성능 이상 탐지        (diagnose — SLA 규칙)
+            └─ 근본 원인 분석 RCA    (root_cause_analysis, ZSM Analytics, Clause 3.1.1.2)
      ↓
 [Decide]    MAML few-shot 에이전트 — 최적 대응 행동 결정
             ├─ 라우팅 위협 → OSPF cost 재조정
@@ -75,7 +78,10 @@ IsolationForest 기반 비지도 이상 탐지로 정상 범위를 벗어난 지
             (ZSM AI Model Evaluation, Clause 3.1.1.4)
 ```
 
-평균 대응 완료까지 **3.78 step** — 물리적 복구 하한(τ ≈ 9.5 step)의 40% 수준
+평균 대응 완료까지 **6.84 OODA 사이클** (50 ep, 2026-09-09 재측정). 시뮬레이터의 물리 하한은 cost 적용 후
+4틱이고 폐쇄 루프는 1틱 뒤 첫 관측 → 행동이므로 6~7사이클이 사실상 최선이다.
+**이전 문서의 3.78은 측정 스크립트가 사이클당 시뮬레이터를 2틱 진행시켜 얻은 값이라 철회한다**
+(`cowork/AUDIT_2026-09-09.md` P1, §3).
 
 ---
 
@@ -108,7 +114,8 @@ autonomous-network-mgmt/
 │
 ├── ai-engine/
 │   ├── ospf_security.py      # OSPF LSA 위조 탐지 엔진
-│   ├── anomaly_detector.py   # IsolationForest 이상 탐지 + SecurityAnomalyDetector
+│   ├── topology.py           # 토폴로지 상수 단일 출처
+│   ├── anomaly_detector.py   # SLA 진단 + RCA + IsolationForest(/anomaly 전용) + SecurityAnomalyDetector
 │   ├── api_server.py         # FastAPI (위협 탐지·대응 엔드포인트 포함)
 │   ├── reward.py             # 보상 함수
 │   ├── environment/
@@ -147,7 +154,18 @@ autonomous-network-mgmt/
 | `POST` | `/debug/attack/{type}` | 공격 주입 (`ddos` \| `portscan`) |
 | `DELETE` | `/debug/attack` | 공격 중지 |
 | `POST` | `/debug/fake-lsa` | 위조 LSA 주입 데모 |
-| `GET` | `/metrics/security` | 보안 피처 포함 실시간 메트릭 |
+| `GET` | `/metrics/security` | 보안 피처 포함 실시간 메트릭 (순수 조회) |
+| `POST` | `/debug/tick` | 시뮬레이션 시간 1스텝 진행 — `/auto-step`이 사이클마다 호출 |
+| `POST` | `/debug/reset` | 에피소드 리셋, body `{"seed": N}`으로 노이즈 재현 |
+
+**시뮬레이션 시계 (2026-09-09).** 시간은 `POST /debug/tick`으로만 흐른다(`SIM_CLOCK=lockstep`, 기본).
+메트릭 조회는 순수 조회라 대시보드·collector·실험 스크립트의 조회가 시뮬레이션을 가속하지 않는다.
+주기적으로 관측만 하는 Java 경로 데모에는 `SIM_CLOCK=realtime:1000 python mock_snmp_agent.py`처럼
+백그라운드 시계를 켠다. 이전에는 조회마다 시간이 흘러 실험 스크립트의 검증 조회가 사이클당 2틱을
+만들었고, 보고된 TTR이 실제의 약 절반이었다 (`cowork/AUDIT_2026-09-09.md` P1).
+
+**보안 범위.** `/debug/*`·`/reset-buffer` 등은 인증이 없고 CORS `*`, `0.0.0.0` 바인딩이며 OSPF 인증 키는
+코드에 하드코딩되어 있다. 연구 데모 전용이며 외부 노출을 전제하지 않는다.
 
 ---
 
@@ -162,23 +180,50 @@ autonomous-network-mgmt/
 
 ### 1. 폐쇄 루프 — 자동 대응 속도 (50 에피소드, `/auto-step`)
 
+**2026-09-09 재측정 (사이클당 시뮬레이터 1틱, seed 42, `results/stress_50ep.json`)**
+
+| 시스템 | Avg TTR | 성공률 | RCA 정확도 (첫/전 사이클) | 부수 피해/ep |
+| ------ | ------- | ------ | ------------------------- | ------------ |
+| **본 시스템 (MAML + ZSM Analytics)** | **6.84** (TEST 6.69 / TRAIN 7.11) | **100%** | 100% / 100% | 0.80 |
+
+부수 피해(정상 링크의 cost가 실제로 바뀐 횟수)는 전부 MAML의 2번째 이후 행동이다.
+
+**개정 전 수치 (사이클당 2틱 — 직접 비교 불가, `results/stress_50ep_pre_audit.json`)**
+
 | 시스템 | Avg TTR | 성공률 | RCA 정확도 |
 | ------ | ------- | ------ | ---------- |
-| **본 시스템 (MAML + ZSM Analytics)** | **3.78** | **100%** | 100% |
+| MAML v2 + ZSM Analytics | 3.78 | 100% | 100% (첫 사이클만) |
 | MAML v1 (Analytics override 이전) | 12.41 | 96.7% | N/A |
 
-학습에 없던 새 공격 링크(TEST)에서도 동일 성능 → **제로 일반화 격차** (TEST 3.78 = TRAIN 3.78)
+측정 스크립트가 `/auto-step` 뒤에 검증용 `/metrics`를 읽을 때마다 시뮬레이터가 1틱 더 흘렀다.
+RCA는 2번째 사이클부터 정상 링크를 지목했으나 "첫 사이클 정확도"만 재서 드러나지 않았다.
+학습에 없던 링크(TEST)에서도 같은 TTR이지만, 이는 규칙 기반 Analytics의 성질이지 학습 일반화가 아니다.
 
 ### 2. 오프라인 평가 — 에이전트 정책 단독 비교 (TEST 링크)
+
+**2026-09-09 재측정 (스텝당 시뮬레이터 1틱, `results/offline_eval_post_audit*.json`)**
+
+| 에이전트 | Avg TTR | 성공률(TTR<30) | 실제 정책 |
+| -------- | ------- | -------------- | --------- |
+| Baseline PPO (50,000 steps, 재학습 안 함) | 101.8 | 50% | 상수 `r3-r4@100` |
+| MAML 재학습 (샘플링 롤아웃, 500 iter) | 101.8 | 50% | 상수 `r3-r4@100` |
+| MAML 개정 전 체크포인트 (argmax 롤아웃) | 188.6 | 6% | 상수 `r1-r2@200` |
+
+**세 정책 모두 상태와 무관한 상수 행동이다** (`cowork/scratch/policy_collapse_check.py`). 성공 50%는
+TEST 링크 두 개 중 `r3-r4`가 상수 행동과 우연히 일치하기 때문이며, 어느 에이전트도 상태에 따라 링크를
+고르는 정책을 학습하지 못했다 (`AUDIT_2026-09-09.md` P8). MAML 학습 롤아웃이 argmax(탐색 없음)였던
+결함은 고쳤지만(P5), 그 결과는 "PPO와 같은 상수"였다.
+
+**개정 전 수치 (스텝당 2틱 — 직접 비교 불가)**
 
 | 에이전트 | Avg TTR | 성공률(TTR<30) | 평균 보상 |
 | -------- | ------- | -------------- | --------- |
 | Baseline PPO (미학습·랜덤) | 200.0 | 0% | 59.7 |
-| **Baseline PPO (50,000 steps 학습)** | **100.9** | **50%** | 91.1 |
+| Baseline PPO (50,000 steps 학습) | 100.9 | 50% | 91.1 |
 | MAML (Analytics 미적용) | 139.7 | 32% | 78.0 |
 
 > 미학습 행은 30 에피소드분(`results/summary.json`), 학습 PPO·MAML 두 행은 동일 조건
-> 50 에피소드분(`results/offline_eval_trained_ppo.json`, 2026-09-06 실행).
+> 50 에피소드분(`results/offline_eval_trained_ppo_pre_audit.json`, 2026-09-06 실행).
 
 **정정 (2026-09-06)**: 이전 README는 "Baseline 대비 98.1% 대응 시간 단축(200 → 3.78)"이라고
 기술했으나, 이는 ① **미학습 랜덤 정책**과 비교한 것이고 ② **측정 경로가 다른** 두 수치를
@@ -192,15 +237,20 @@ autonomous-network-mgmt/
 
 ### Ablation Study — 위협 인텔리전스 계층의 기여
 
-| 모드 | Avg TTR | 성공률 |
-| ---- | ------- | ------ |
-| Analytics(위협 인텔리전스)만 | 3.88 | 100% |
-| MAML만 | 12.32 | 24% |
-| 통합 (본 시스템) | 3.80 | 100% |
+**2026-09-09 재실행 (사이클당 1틱, 에피소드별 seed 고정, `results/ablation_study.json`)**
 
-> 출처: `experiments/results/ablation_study.json` (모드당 50 에피소드, 2026-05-20 실행).
+| 모드 | Avg TTR | 성공률 | 부수 피해/ep | RCA 전 사이클 |
+| ---- | ------- | ------ | ------------ | ------------- |
+| Analytics(위협 인텔리전스)만 | **6.94** | **100%** | **0.00** | 100% |
+| MAML만 | 13.80 | 14% | 0.86 | — |
+| 통합 (본 시스템) | 6.94 | 100% | 0.86 | 100% |
 
-**위협 인텔리전스(Analytics) 계층이 성능의 핵심 동인**임을 정량 실증 — MAML 단독 대비 성공률 4.2배 향상
+**복구는 전부 Analytics가 한다.** 통합은 Analytics 단독과 TTR이 같고 정상 링크 cost 변경만 0.86/ep
+늘어난다 — 현재 MAML의 기여는 음(−)이다. MAML 단독 성공 14%는 상수 행동 `r3-r4@100`이 정답인
+에피소드(7/50)뿐이다.
+
+개정 전(2026-05-20, 사이클당 2틱): Analytics만 3.88/100%, MAML만 12.32/24%, 통합 3.80/100%
+(`results/ablation_study_pre_audit.json`). 결론은 같다.
 
 ### CICDDoS2019 실데이터 검증 — SecurityAnomalyDetector
 
@@ -247,12 +297,15 @@ BENIGN 3,813 / 공격 4,886)으로 `SecurityAnomalyDetector`를 검증했다.
 ## 핵심 기여
 
 1. **네트워크 위협 통합 탐지**: 라우팅 레이어(OSPF LSA 위조)와 트래픽 레이어(DDoS/포트스캔)를 단일 AI 파이프라인으로 탐지
-2. **Zero-Touch 자동 대응**: 탐지 → 대응 전 과정 자동화, 폐쇄 루프 평균 3.78 step 내 복구
-3. **위협 인텔리전스 + AI 융합**: 규칙 기반 탐지와 비지도 IsolationForest를 조합해 알려지지 않은 이상 패턴까지 커버
+2. **Zero-Touch 자동 대응**: 탐지 → 대응 전 과정 자동화, 폐쇄 루프 평균 6.84 사이클 내 복구
+   (물리 하한 대비 ~1.5배; 2026-09-09 재측정)
+3. **위협 인텔리전스 + AI 융합**: 트래픽 공격 탐지(`SecurityAnomalyDetector`)에서 임계치 규칙과 비지도
+   IsolationForest를 조합 — 단, 폐쇄 루프의 성능 이상 판정은 SLA 규칙만 사용한다 (2026-09-09 정정)
 4. **성능 동인의 정량 규명**: 절제 실험과 베이스라인 재측정으로 복구 성능이 Analytics(RCA)
    계층에서 나오며 MAML의 추가 기여는 확인되지 않음을 실증 — 어느 계층이 실제로 일하는지를
    가린 것 자체가 결과다
-5. **완전한 일반화**: 학습에 없던 공격 경로에서도 동일 TTR 달성
+5. **링크 무관 복구**: 학습에 없던 링크에서도 동일 TTR — 다만 이는 규칙 기반 Analytics의 성질이지
+   학습 일반화의 증거가 아니다 (2026-09-09 정정)
 6. **표준 기반 구현**: ETSI ZSM 002 Clause 3.1.1.2~3.1.1.4 완전 구현 및 정량 검증
 
 ---
@@ -262,9 +315,16 @@ BENIGN 3,813 / 공격 4,886)으로 `SecurityAnomalyDetector`를 검증했다.
 ### 한계
 
 - Mininet 시뮬레이션 기반 — 실제 하드웨어 환경 검증 필요
-- **MAML의 기여가 확인되지 않음** — 오프라인 동일 조건에서 학습된 PPO(TTR 100.9)가
-  MAML(139.7)보다 빠르고, 절제 실험에서도 Analytics 단독과 통합의 차이가 없다.
-  복구 성능은 사실상 근본 원인 분석 계층이 만들어낸다 (위 "성능 검증" 절 참고)
+- **MAML의 기여가 확인되지 않음 — 오히려 음(−)** — 절제 실험에서 Analytics 단독(6.94)과 통합(6.94)의
+  TTR이 같고 통합은 정상 링크 cost 변경만 0.86/ep 더 한다. 복구 성능은 근본 원인 분석 계층이
+  만들어낸다 (위 "성능 검증" 절 참고)
+- **학습된 정책이 전부 상수 행동** (2026-09-09 발견) — PPO·재학습 MAML은 `r3-r4@100`, 개정 전 MAML은
+  `r1-r2@200`을 상태와 무관하게 출력한다. 학습 중 이상 주입이 드물고(확률 0.03) 보상이 행동 간 차이를
+  거의 만들지 않는 것이 원인으로 보이며, 보상·커리큘럼 재설계 없이는 RL 계층의 의미를 평가할 수 없다
+- **행동 공간에 NO-OP이 없음** — 오프라인 평가/PPO 학습에서 정상 상태에도 매 스텝 cost를 바꿔야 한다.
+  공개 시그니처(30 행동)라 보류
+- **`SecurityAnomalyDetector`는 레이블 없이 모든 샘플로 학습** — 공격이 지속되면 공격을 정상으로
+  학습하며, `contamination=0.05`는 CICDDoS2019 공격 비율 0.56과 맞지 않는다 (튜닝하지 않고 기록)
 - 시뮬레이터에 "정답 행동"(혼잡 링크 cost ≥ 100)이 명시적으로 코딩되어 있어, 규칙 기반
   Analytics가 100% 정확한 것은 어느 정도 예정된 결과 — 난이도가 높은 시나리오 필요
 - **CICDDoS2019 실데이터에서 탐지기가 자명한 베이스라인을 넘지 못함** — 피처 추출 재설계로
@@ -342,7 +402,31 @@ BENIGN 3,813 / 공격 4,886)으로 `SecurityAnomalyDetector`를 검증했다.
   결과 JSON에 `_condition`을 남기고 ablation 수치를 50 에피소드 실행분으로 통일
 - 대시보드가 라이브 데이터를 읽지 않는 정적 데모임을 명시, 미사용 의존성(learn2learn) 제거
 
+### 2026-09-09 — 코드 감사 2차: 측정 방법론 결함 수정
+`cowork/AUDIT_2026-09-09.md`에 20건을 기록하고 A1–A7로 수정. **이번에도 나쁜 소식이 더 많다.**
+
+- **시뮬레이션 시간이 관측 호출로 흘렀다** — 실험 스크립트의 검증 조회 때문에 사이클당 2틱이 진행됐고,
+  보고된 TTR 3.78은 실제 사이클 수의 약 절반이었다. 시뮬레이터에 명시적 `tick()`을 두고 재측정:
+  **TTR 6.84** (물리 하한 4틱 + 관측 지연). 이전 수치는 `*_pre_audit.json`으로 보존
+- **RCA가 2번째 사이클부터 정상 링크를 지목** — "RCA 정확도 100%"는 첫 사이클만 잰 값이었다.
+  규칙을 고치고 전 사이클 정확도·부수 피해 지표를 추가: analytics-only 부수 피해 112회/50ep → 0회
+- **MAML 학습 롤아웃에 탐색이 없었고 지지 버퍼에 실행하지 않은 행동이 기록됐다** — 수정·재학습했으나
+  결과는 **PPO와 같은 상수 정책**(`r3-r4@100`). 세 체크포인트 모두 상태 무관 상수 행동임을 확인 —
+  "PPO vs MAML" 비교는 두 상수의 비교였다
+- **폐쇄 루프 Orient는 IsolationForest를 쓰지 않는다** — 문서를 정정 (SLA 규칙 + RCA)
+- **관측 실패가 '정상'으로 대체됐다** — 503으로 변경. Java 경로도 이상 판정 실패를 전파하고
+  전 노드 정상이면 행동하지 않음
+- `SecurityAnomalyDetector` 판정 순서(detect→update) 수정, IsolationForest 재학습 주기화,
+  토폴로지 상수 단일화(`topology.py`), JPA/PostgreSQL 의존성 제거, `requirements.txt`를 체크포인트
+  환경(numpy 2 / SB3 2.8)에 맞춤, 임시 체크포인트 git 제거
+
 ---
+
+## 관련 문서
+
+- `autonomous-network-mgmt/cowork/PROJECT_OVERVIEW.md` — 코드 구조·런타임 설명서
+- `autonomous-network-mgmt/cowork/AUDIT_2026-09-09.md` — 코드 감사 보고서와 전/후 측정치
+- `autonomous-network-mgmt/cowork/ROADMAP.md` — 고도화 계획 (트랙별 과제, 단계, 완료 기준)
 
 ## 관련 표준
 

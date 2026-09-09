@@ -39,8 +39,8 @@ services:
       retries: 5
 
   # ── 데이터베이스 ───────────────────────────────────────────
-  # 현재 미사용 — collector/orchestrator의 application.yml이 datasource를 참조하므로
-  # 서비스 기동에는 필요하지만, 영속화 코드는 아직 없다 (향후 메트릭 이력용 예약).
+  # 현재 미사용 — 2026-09-09부터 Java 서비스가 datasource를 참조하지 않으므로 기동에도
+  # 필요 없다. 영속화 코드는 아직 없다 (향후 메트릭 이력용 예약).
   postgres:
     image: postgres:16-alpine
     container_name: postgres

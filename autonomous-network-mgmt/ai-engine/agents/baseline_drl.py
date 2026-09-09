@@ -20,7 +20,16 @@ MODEL_PATH = os.path.join(os.path.dirname(__file__), "ppo_network.zip")
 
 class BaselineAgent:
     def __init__(self, model_path: str = MODEL_PATH):
-        self._model = PPO.load(model_path) if os.path.exists(model_path) else None
+        self._model = None
+        self.load_error: str | None = None
+        if os.path.exists(model_path):
+            try:
+                self._model = PPO.load(model_path)
+            except Exception as e:  # 버전 불일치(numpy/sb3/cloudpickle) 등
+                # 베이스라인 체크포인트를 못 읽어도 AI 엔진 전체가 죽으면 안 된다 —
+                # 폐쇄 루프는 MAML만 필요하다. is_ready()=False로 보고하고 원인을 남긴다.
+                self.load_error = f"{type(e).__name__}: {e}"
+                print(f"[BaselineAgent] 체크포인트 로드 실패 ({model_path}): {self.load_error}", flush=True)
 
     def predict(self, obs) -> int:
         if self._model is None:
@@ -36,6 +45,8 @@ def train(
     total_timesteps: int = 50_000,
     snmp_url: str = "http://localhost:5001",
     train_links: list[str] | None = None,
+    save_path: str = MODEL_PATH,
+    seed: int | None = None,
 ):
     env = NetworkEnv(snmp_base_url=snmp_url, fast_mode=True, local_mode=True, train_links=train_links)
     check_env(env, warn=True)
@@ -50,10 +61,11 @@ def train(
         gamma=0.99,
         policy_kwargs={"net_arch": [128, 64]},
         verbose=1,
+        seed=seed,
     )
     model.learn(total_timesteps=total_timesteps)
-    model.save(MODEL_PATH)
-    print(f"Model saved to {MODEL_PATH}")
+    model.save(save_path)
+    print(f"Model saved to {save_path}")
     env.close()
 
 

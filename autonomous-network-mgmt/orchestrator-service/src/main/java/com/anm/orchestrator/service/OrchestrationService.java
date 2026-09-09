@@ -28,6 +28,9 @@ public class OrchestrationService {
     // 연속 도착할 수 있으므로, "개수 세기" 대신 "노드별 최신값 맵"으로 라운드를 구성한다.
     private final Map<String, NetworkMetricDto> latestByNode = new ConcurrentHashMap<>();
 
+    // 이번 라운드의 노드별 이상 판정. Boolean.TRUE/FALSE = AI 엔진 판정, null = 판정 불가(엔진 오류).
+    private final Map<String, Boolean> anomalyByNode = new ConcurrentHashMap<>();
+
     public OrchestrationService(
             AiEngineClient aiEngine,
             MininetClient mininet,
@@ -47,9 +50,19 @@ public class OrchestrationService {
 
         latestByNode.put(metric.nodeId(), metric);
 
-        // 이상 감지: 단일 노드 기준 (원시값 — AI 엔진이 SLA 규칙/IsolationForest로 판정)
-        if (anomalyCheckEnabled && aiEngine.isAnomaly(metric)) {
-            log.warn("Anomaly detected on node {}", metric.nodeId());
+        // 이상 감지: 단일 노드 기준 (원시값 — AI 엔진이 SLA 규칙/IsolationForest로 판정).
+        // 엔진 오류는 "이상 없음"이 아니라 "판정 불가"(null)로 기록한다.
+        if (anomalyCheckEnabled) {
+            try {
+                boolean anomalous = aiEngine.isAnomaly(metric);
+                anomalyByNode.put(metric.nodeId(), anomalous);
+                if (anomalous) {
+                    log.warn("Anomaly detected on node {}", metric.nodeId());
+                }
+            } catch (RuntimeException e) {
+                anomalyByNode.remove(metric.nodeId());
+                log.error("Anomaly check unavailable for node {}: {}", metric.nodeId(), e.getMessage());
+            }
         }
 
         // 4개 노드가 모두 모이면(한 라운드 완성) 오케스트레이션 실행
@@ -58,7 +71,22 @@ public class OrchestrationService {
             for (String node : AiEngineClient.NODE_ORDER) {
                 snapshot.add(latestByNode.get(node));
             }
+            long anomalousNodes = anomalyByNode.values().stream().filter(Boolean::booleanValue).count();
+            boolean allJudged   = anomalyByNode.keySet().containsAll(AiEngineClient.NODE_ORDER);
             latestByNode.clear();
+            anomalyByNode.clear();
+
+            // 폐쇄 루프(/auto-step)와 같은 정책: 이상이 없으면 행동하지 않는다. 행동 공간에 NO-OP이
+            // 없어 매 라운드 행동하면 정상 네트워크의 cost를 계속 흔들게 된다 (AUDIT P7).
+            // 판정이 하나라도 불가하면(엔진 오류) 안전하게 행동하지 않는다.
+            if (anomalyCheckEnabled && !allJudged) {
+                log.warn("일부 노드의 이상 판정 불가 — 이번 라운드 스킵");
+                return;
+            }
+            if (anomalyCheckEnabled && anomalousNodes == 0) {
+                log.debug("전 노드 정상 — 오케스트레이션 생략");
+                return;
+            }
             executeOrchestration(snapshot);
         }
     }

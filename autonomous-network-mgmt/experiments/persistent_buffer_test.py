@@ -35,29 +35,29 @@ delete = lambda url:             _http("DELETE", url)
 get    = lambda url:             _http("GET",    url)
 
 
-def run(n_episodes: int = 30):
+def run(n_episodes: int = 30, seed: int | None = 42):
     results = []
+    rng = random.Random(seed)
     # Buffer starts empty, NOT reset between episodes (persistent)
     post(f"{SNMP}/debug/reset")
     post(f"{AI}/reset-buffer")
 
     for ep in range(1, n_episodes + 1):
-        link = random.choice(TEST_LINKS + TEST_LINKS + TRAIN_LINKS)
+        link = rng.choice(TEST_LINKS + TEST_LINKS + TRAIN_LINKS)
         ts   = datetime.now().strftime('%H:%M:%S')
         print(f"[{ts}] Ep {ep}/{n_episodes} congestion={link}", flush=True)
 
         try:
-            post(f"{SNMP}/debug/reset")
+            post(f"{SNMP}/debug/reset", {"seed": None if seed is None else seed * 1000 + ep})
             # NO buffer reset — buffer persists across episodes!
-            time.sleep(0.5)
             post(f"{SNMP}/debug/congestion/{link}")
-            time.sleep(0.5)
         except Exception as e:
             print(f"  [setup error] {e}", flush=True)
             continue
 
         ttr, first_root, actions = None, None, []
         model_steps_adapting = 0  # steps where adapt_and_predict was used
+        wasted = 0
 
         for step in range(1, 16):
             try:
@@ -71,6 +71,8 @@ def run(n_episodes: int = 30):
 
                 if act.get("applied"):
                     actions.append(f'{act["link"]}@{act["cost"]}')
+                    if act["link"] != link and act.get("changed", True):
+                        wasted += 1   # 정상 링크의 cost가 실제로 바뀐 경우만 (같은 값 재설정은 no-op)
 
                 # Check if inner-loop adaptation was used
                 adapt_note = decide.get("adapt_note", "")
@@ -82,7 +84,6 @@ def run(n_episodes: int = 30):
                 if all_ok and step > 1:
                     ttr = step
                     break
-                time.sleep(0.6)
             except Exception as e:
                 print(f"  [step {step} error] {e}", flush=True)
                 break
@@ -98,12 +99,12 @@ def run(n_episodes: int = 30):
             "first_root": first_root,
             "root_match": (first_root == link),
             "model_steps_adapting": model_steps_adapting,
+            "wasted_actions": wasted,
             "actions": actions,
         })
         try:
             delete(f"{SNMP}/debug/congestion/{link}")
         except Exception: pass
-        time.sleep(1.0)
 
     # summary split by phase (early vs late)
     mid = len(results) // 2
@@ -137,6 +138,9 @@ def run(n_episodes: int = 30):
             "late_adapt_rate": adapt_rate(late),
             "success_rate": sum(1 for r in results if r["ttr"] < 15) / n_episodes * 100,
             "root_cause_accuracy": sum(1 for r in results if r["root_match"]) / n_episodes * 100,
+            "wasted_actions_per_ep": round(sum(r["wasted_actions"] for r in results) / n_episodes, 2),
+            "seed": seed,
+            "_condition": "폐쇄 루프 /auto-step, 사이클당 1틱(lockstep). 2026-09-09 이전 결과는 사이클당 2틱.",
             "results": results,
         }, f, indent=2, ensure_ascii=False)
     print(f"Saved -> {out}", flush=True)
@@ -146,4 +150,6 @@ if __name__ == "__main__":
     import argparse
     p = argparse.ArgumentParser()
     p.add_argument("--episodes", type=int, default=30)
-    run(n_episodes=p.parse_args().episodes)
+    p.add_argument("--seed",     type=int, default=42)
+    a = p.parse_args()
+    run(n_episodes=a.episodes, seed=None if a.seed < 0 else a.seed)
