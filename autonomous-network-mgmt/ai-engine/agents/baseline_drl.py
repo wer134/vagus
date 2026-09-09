@@ -20,7 +20,16 @@ MODEL_PATH = os.path.join(os.path.dirname(__file__), "ppo_network.zip")
 
 class BaselineAgent:
     def __init__(self, model_path: str = MODEL_PATH):
-        self._model = PPO.load(model_path) if os.path.exists(model_path) else None
+        self._model = None
+        self.load_error: str | None = None
+        if os.path.exists(model_path):
+            try:
+                self._model = PPO.load(model_path)
+            except Exception as e:  # 버전 불일치(numpy/sb3/cloudpickle) 등
+                # 베이스라인 체크포인트를 못 읽어도 AI 엔진 전체가 죽으면 안 된다 —
+                # 폐쇄 루프는 MAML만 필요하다. is_ready()=False로 보고하고 원인을 남긴다.
+                self.load_error = f"{type(e).__name__}: {e}"
+                print(f"[BaselineAgent] 체크포인트 로드 실패 ({model_path}): {self.load_error}", flush=True)
 
     def predict(self, obs) -> int:
         if self._model is None:

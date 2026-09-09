@@ -163,13 +163,17 @@ def train(
 class FewShotAgent:
     def __init__(self, model_path: str = MODEL_PATH):
         self._model = PolicyNet()
+        self._ready = False
+        self.load_error: str | None = None
         if os.path.exists(model_path):
-            self._model.load_state_dict(
-                torch.load(model_path, weights_only=True, map_location="cpu")
-            )
-            self._ready = True
-        else:
-            self._ready = False
+            try:
+                self._model.load_state_dict(
+                    torch.load(model_path, weights_only=True, map_location="cpu")
+                )
+                self._ready = True
+            except Exception as e:
+                self.load_error = f"{type(e).__name__}: {e}"
+                print(f"[FewShotAgent] 체크포인트 로드 실패 ({model_path}): {self.load_error}", flush=True)
 
     def adapt_and_predict(
         self,

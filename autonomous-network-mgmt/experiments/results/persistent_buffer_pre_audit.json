@@ -1,0 +1,434 @@
+{
+  "timestamp": "2026-04-22T13:48:34.937855",
+  "n_episodes": 30,
+  "overall_avg_ttr": 3.73,
+  "early_avg_ttr": 3.73,
+  "late_avg_ttr": 3.73,
+  "early_adapt_rate": 3.07,
+  "late_adapt_rate": 2.93,
+  "success_rate": 100.0,
+  "root_cause_accuracy": 86.66666666666667,
+  "results": [
+    {
+      "ep": 1,
+      "link": "r1-r2",
+      "group": "train",
+      "ttr": 3,
+      "first_root": "r3-r4",
+      "root_match": false,
+      "model_steps_adapting": 0,
+      "actions": [
+        "r3-r4@100"
+      ]
+    },
+    {
+      "ep": 2,
+      "link": "r1-r4",
+      "group": "test",
+      "ttr": 2,
+      "first_root": "r1-r4",
+      "root_match": true,
+      "model_steps_adapting": 2,
+      "actions": [
+        "r1-r4@100",
+        "r2-r3@10"
+      ]
+    },
+    {
+      "ep": 3,
+      "link": "r2-r4",
+      "group": "train",
+      "ttr": 6,
+      "first_root": "r2-r3",
+      "root_match": false,
+      "model_steps_adapting": 4,
+      "actions": [
+        "r2-r3@100",
+        "r2-r3@10",
+        "r2-r3@100",
+        "r1-r2@200"
+      ]
+    },
+    {
+      "ep": 4,
+      "link": "r1-r4",
+      "group": "test",
+      "ttr": 2,
+      "first_root": "r1-r4",
+      "root_match": true,
+      "model_steps_adapting": 2,
+      "actions": [
+        "r1-r4@100",
+        "r2-r3@10"
+      ]
+    },
+    {
+      "ep": 5,
+      "link": "r3-r4",
+      "group": "test",
+      "ttr": 6,
+      "first_root": "r1-r3",
+      "root_match": false,
+      "model_steps_adapting": 5,
+      "actions": [
+        "r1-r3@100",
+        "r1-r4@100",
+        "r3-r4@100",
+        "r1-r2@200",
+        "r1-r2@200"
+      ]
+    },
+    {
+      "ep": 6,
+      "link": "r2-r4",
+      "group": "train",
+      "ttr": 5,
+      "first_root": "r2-r3",
+      "root_match": false,
+      "model_steps_adapting": 4,
+      "actions": [
+        "r2-r3@100",
+        "r2-r4@100",
+        "r1-r2@200",
+        "r1-r2@200"
+      ]
+    },
+    {
+      "ep": 7,
+      "link": "r1-r4",
+      "group": "test",
+      "ttr": 2,
+      "first_root": "r1-r4",
+      "root_match": true,
+      "model_steps_adapting": 2,
+      "actions": [
+        "r1-r4@100",
+        "r1-r2@200"
+      ]
+    },
+    {
+      "ep": 8,
+      "link": "r3-r4",
+      "group": "test",
+      "ttr": 4,
+      "first_root": "r3-r4",
+      "root_match": true,
+      "model_steps_adapting": 4,
+      "actions": [
+        "r3-r4@100",
+        "r1-r2@200",
+        "r1-r2@200",
+        "r1-r2@200"
+      ]
+    },
+    {
+      "ep": 9,
+      "link": "r1-r4",
+      "group": "test",
+      "ttr": 3,
+      "first_root": "r1-r4",
+      "root_match": true,
+      "model_steps_adapting": 2,
+      "actions": [
+        "r1-r4@100",
+        "r1-r2@200"
+      ]
+    },
+    {
+      "ep": 10,
+      "link": "r1-r4",
+      "group": "test",
+      "ttr": 3,
+      "first_root": "r1-r4",
+      "root_match": true,
+      "model_steps_adapting": 3,
+      "actions": [
+        "r1-r4@100",
+        "r1-r2@200",
+        "r1-r2@200"
+      ]
+    },
+    {
+      "ep": 11,
+      "link": "r2-r4",
+      "group": "train",
+      "ttr": 4,
+      "first_root": "r2-r4",
+      "root_match": true,
+      "model_steps_adapting": 4,
+      "actions": [
+        "r2-r4@100",
+        "r1-r2@200",
+        "r1-r2@200",
+        "r1-r2@200"
+      ]
+    },
+    {
+      "ep": 12,
+      "link": "r2-r3",
+      "group": "train",
+      "ttr": 4,
+      "first_root": "r2-r3",
+      "root_match": true,
+      "model_steps_adapting": 4,
+      "actions": [
+        "r2-r3@100",
+        "r1-r2@200",
+        "r1-r2@200",
+        "r1-r2@200"
+      ]
+    },
+    {
+      "ep": 13,
+      "link": "r1-r4",
+      "group": "test",
+      "ttr": 5,
+      "first_root": "r1-r4",
+      "root_match": true,
+      "model_steps_adapting": 3,
+      "actions": [
+        "r1-r4@100",
+        "r2-r3@10",
+        "r2-r3@10"
+      ]
+    },
+    {
+      "ep": 14,
+      "link": "r3-r4",
+      "group": "test",
+      "ttr": 4,
+      "first_root": "r3-r4",
+      "root_match": true,
+      "model_steps_adapting": 4,
+      "actions": [
+        "r3-r4@100",
+        "r2-r3@10",
+        "r2-r3@10",
+        "r2-r3@10"
+      ]
+    },
+    {
+      "ep": 15,
+      "link": "r3-r4",
+      "group": "test",
+      "ttr": 3,
+      "first_root": "r3-r4",
+      "root_match": true,
+      "model_steps_adapting": 3,
+      "actions": [
+        "r3-r4@100",
+        "r2-r3@10",
+        "r2-r3@10"
+      ]
+    },
+    {
+      "ep": 16,
+      "link": "r3-r4",
+      "group": "test",
+      "ttr": 4,
+      "first_root": "r3-r4",
+      "root_match": true,
+      "model_steps_adapting": 3,
+      "actions": [
+        "r3-r4@100",
+        "r2-r3@10",
+        "r2-r3@10"
+      ]
+    },
+    {
+      "ep": 17,
+      "link": "r1-r4",
+      "group": "test",
+      "ttr": 3,
+      "first_root": "r1-r4",
+      "root_match": true,
+      "model_steps_adapting": 3,
+      "actions": [
+        "r1-r4@100",
+        "r2-r3@10",
+        "r2-r3@10"
+      ]
+    },
+    {
+      "ep": 18,
+      "link": "r1-r2",
+      "group": "train",
+      "ttr": 4,
+      "first_root": "r1-r2",
+      "root_match": true,
+      "model_steps_adapting": 3,
+      "actions": [
+        "r1-r2@100",
+        "r2-r3@10",
+        "r2-r3@10"
+      ]
+    },
+    {
+      "ep": 19,
+      "link": "r3-r4",
+      "group": "test",
+      "ttr": 3,
+      "first_root": "r3-r4",
+      "root_match": true,
+      "model_steps_adapting": 2,
+      "actions": [
+        "r3-r4@100",
+        "r2-r3@10"
+      ]
+    },
+    {
+      "ep": 20,
+      "link": "r2-r4",
+      "group": "train",
+      "ttr": 4,
+      "first_root": "r2-r4",
+      "root_match": true,
+      "model_steps_adapting": 3,
+      "actions": [
+        "r2-r4@100",
+        "r2-r3@10",
+        "r2-r3@10"
+      ]
+    },
+    {
+      "ep": 21,
+      "link": "r3-r4",
+      "group": "test",
+      "ttr": 4,
+      "first_root": "r3-r4",
+      "root_match": true,
+      "model_steps_adapting": 3,
+      "actions": [
+        "r3-r4@100",
+        "r2-r3@10",
+        "r2-r3@10"
+      ]
+    },
+    {
+      "ep": 22,
+      "link": "r1-r4",
+      "group": "test",
+      "ttr": 5,
+      "first_root": "r1-r4",
+      "root_match": true,
+      "model_steps_adapting": 4,
+      "actions": [
+        "r1-r4@100",
+        "r2-r3@10",
+        "r2-r3@10",
+        "r2-r3@10"
+      ]
+    },
+    {
+      "ep": 23,
+      "link": "r3-r4",
+      "group": "test",
+      "ttr": 5,
+      "first_root": "r3-r4",
+      "root_match": true,
+      "model_steps_adapting": 4,
+      "actions": [
+        "r3-r4@100",
+        "r2-r3@10",
+        "r2-r3@10",
+        "r2-r3@10"
+      ]
+    },
+    {
+      "ep": 24,
+      "link": "r1-r3",
+      "group": "train",
+      "ttr": 3,
+      "first_root": "r1-r3",
+      "root_match": true,
+      "model_steps_adapting": 3,
+      "actions": [
+        "r1-r3@100",
+        "r2-r3@10",
+        "r2-r3@10"
+      ]
+    },
+    {
+      "ep": 25,
+      "link": "r1-r4",
+      "group": "test",
+      "ttr": 3,
+      "first_root": "r1-r4",
+      "root_match": true,
+      "model_steps_adapting": 2,
+      "actions": [
+        "r1-r4@100",
+        "r2-r3@10"
+      ]
+    },
+    {
+      "ep": 26,
+      "link": "r1-r3",
+      "group": "train",
+      "ttr": 3,
+      "first_root": "r1-r3",
+      "root_match": true,
+      "model_steps_adapting": 3,
+      "actions": [
+        "r1-r3@100",
+        "r2-r3@10",
+        "r2-r3@10"
+      ]
+    },
+    {
+      "ep": 27,
+      "link": "r1-r4",
+      "group": "test",
+      "ttr": 3,
+      "first_root": "r1-r4",
+      "root_match": true,
+      "model_steps_adapting": 3,
+      "actions": [
+        "r1-r4@100",
+        "r2-r3@10",
+        "r2-r3@10"
+      ]
+    },
+    {
+      "ep": 28,
+      "link": "r1-r3",
+      "group": "train",
+      "ttr": 4,
+      "first_root": "r1-r3",
+      "root_match": true,
+      "model_steps_adapting": 2,
+      "actions": [
+        "r1-r3@100",
+        "r2-r3@10"
+      ]
+    },
+    {
+      "ep": 29,
+      "link": "r3-r4",
+      "group": "test",
+      "ttr": 4,
+      "first_root": "r3-r4",
+      "root_match": true,
+      "model_steps_adapting": 3,
+      "actions": [
+        "r3-r4@100",
+        "r2-r3@10",
+        "r2-r3@10"
+      ]
+    },
+    {
+      "ep": 30,
+      "link": "r2-r4",
+      "group": "train",
+      "ttr": 4,
+      "first_root": "r2-r4",
+      "root_match": true,
+      "model_steps_adapting": 3,
+      "actions": [
+        "r2-r4@100",
+        "r2-r3@10",
+        "r2-r3@10"
+      ]
+    }
+  ]
+}

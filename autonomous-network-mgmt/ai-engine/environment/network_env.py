@@ -8,6 +8,10 @@ local_mode=True (학습 기본값):
   HTTP 없이 metric_generator 모듈을 직접 호출 → 매우 빠름 (WSL HTTP 지연 회피)
 local_mode=False (평가/실서비스):
   Mock SNMP REST API 호출 (외부 서버 연동 시 이 모드 사용)
+
+시뮬레이션 시간: step()이 행동 적용 후 tick()을 정확히 1회 호출한다. 관측
+(_fetch_raw_metrics)은 순수 조회라 평가 스크립트가 로깅용으로 메트릭을 다시 읽어도
+시간이 흐르지 않는다 (cowork/AUDIT_2026-09-09.md P1).
 """
 import importlib
 import sys
@@ -112,6 +116,7 @@ class NetworkEnv(gym.Env):
         if not self._fast_mode:
             time.sleep(0.05)
 
+        self._tick()                      # 행동 → 1틱 → 관측
         metrics = self._fetch_raw_metrics()
         obs     = self._obs_from_metrics(metrics)
 
@@ -187,6 +192,15 @@ class NetworkEnv(gym.Env):
         else:
             try:
                 self._client.delete(f"{self.snmp_url}/debug/congestion/{link}")
+            except Exception:
+                pass
+
+    def _tick(self):
+        if self._local_mode:
+            self._mg.tick()
+        else:
+            try:
+                self._client.post(f"{self.snmp_url}/debug/tick")
             except Exception:
                 pass
 
