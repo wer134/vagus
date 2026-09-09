@@ -79,8 +79,10 @@ def run_validation(
     trained_flags = []  # 윈도우별 IsolationForest 학습 완료 여부 (cold-start 구간 표시용)
 
     for w in eval_seq:
-        detector.update(**w.features)
+        # detect → update: 판정 대상 윈도우를 학습셋에 넣기 전에 판정한다 (AUDIT P4).
+        # 2026-09-09 이전 결과 파일(cicddos_validation_v2.json 등)은 update → detect 순서로 측정됐다.
         result = detector.detect(**w.features)
+        detector.update(**w.features)
         y_true.append(w.is_attack)
         y_pred.append(result["is_threat"])
         type_true.append("ddos" if w.is_attack else "none")
@@ -134,7 +136,10 @@ def run_validation(
             f"공격 플로우의 SYN Flag Count 비영 비율 {syn_nonzero_pct:.2f}% — "
             "이 배포본에서 syn_ratio 피처는 탐지에 사실상 기여하지 않음 (임계치 0.30 발화 불가)",
             "flow_rate_sum 모드의 pkt_rate는 윈도우 내 플로우 전송률의 합 — 순간 pps의 상한 근사이며 물리적 초당 패킷수와는 다름",
+            f"IsolationForest contamination={contamination} vs 공격 base rate {base_rate:.2f} — 모델 가정이 데이터와 맞지 않음. "
+            "레이블 없이 모든 윈도우로 학습하므로 공격이 지속되면 공격을 '정상'으로 학습한다 (튜닝하지 않고 기록만 함)",
         ],
+        "eval_order": "detect_then_update",
         "timestamp": datetime.now().isoformat(),
     }
 

@@ -63,5 +63,6 @@
     "CICDDoS2019에는 포트스캔 공격이 없음 — attack_type='portscan' 분기는 이 데이터셋으로 검증 불가 (실패 아님)",
     "공격일 CSV는 BENIGN 비중이 낮아 cold-start 학습이 민감함 — benign_warmup 값으로 결과가 달라질 수 있음"
   ],
-  "timestamp": "2026-06-20T23:03:05.632088"
+  "timestamp": "2026-06-20T23:03:05.632088",
+  "_note": "2026-09-09: 이 결과는 update() → detect() 순서(판정 대상이 학습셋에 포함된 상태)로 측정됐다. 이후 validate_security_detector.py는 detect() → update() 순서로 바뀌었으며, 다음 재실행 결과와 직접 비교 시 이 차이를 감안할 것. 측정값은 수정하지 않았다."
 }
