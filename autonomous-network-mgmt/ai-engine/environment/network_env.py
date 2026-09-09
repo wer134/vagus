@@ -23,17 +23,13 @@ import numpy as np
 import gymnasium as gym
 from gymnasium import spaces
 
-# ── 상수 ────────────────────────────────────────────────────────────────────
-NODES      = ["r1", "r2", "r3", "r4"]
-LINKS      = ["r1-r2", "r1-r3", "r2-r3", "r2-r4", "r3-r4", "r1-r4"]
-OSPF_COSTS = [10, 20, 50, 100, 200]
-
-N_NODES = len(NODES)
-N_LINKS = len(LINKS)
-
-MAX_BW   = 1000.0
-MAX_LAT  = 200.0
-MAX_COST = 200.0
+# ── 상수 (단일 출처: ai-engine/topology.py) ──────────────────────────────────
+_AI_ENGINE_DIR = os.path.join(os.path.dirname(__file__), "..")
+if _AI_ENGINE_DIR not in sys.path:
+    sys.path.insert(0, _AI_ENGINE_DIR)
+from topology import (  # noqa: E402
+    NODES, LINKS, OSPF_COSTS, N_NODES, N_LINKS, MAX_BW, MAX_LAT, MAX_COST,
+)
 
 ANOMALY_PROB        = 0.03
 ANOMALY_CLEAR_STEPS = 120
@@ -216,15 +212,11 @@ class NetworkEnv(gym.Env):
     def _fetch_raw_metrics(self) -> list[dict]:
         if self._local_mode:
             return self._mg.get_all_metrics()
-        try:
-            resp = self._client.get(f"{self.snmp_url}/metrics")
-            resp.raise_for_status()
-            return resp.json()
-        except Exception:
-            return [
-                {"nodeId": n, "bandwidth": 500.0, "latency": 10.0, "packetLoss": 0.0}
-                for n in NODES
-            ]
+        # HTTP 모드에서 관측 실패는 예외다 — 가짜 '정상' 관측으로 대체하면 에이전트가
+        # 장애를 정상으로 학습/판단한다 (cowork/AUDIT_2026-09-09.md C1).
+        resp = self._client.get(f"{self.snmp_url}/metrics")
+        resp.raise_for_status()
+        return resp.json()
 
     def _get_obs(self) -> np.ndarray:
         return self._obs_from_metrics(self._fetch_raw_metrics())

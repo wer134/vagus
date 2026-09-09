@@ -6,3 +6,8 @@ __pycache__/
 .claude/
 autonomous-network-mgmt/data/
 target/
+# 실험 임시 체크포인트 (experiments/run_experiment.py --sample-efficiency)
+autonomous-network-mgmt/experiments/results/tmp_checkpoints/
+*_eff_tmp.pt
+*_eff_tmp.zip
+ppo_scratch.zip

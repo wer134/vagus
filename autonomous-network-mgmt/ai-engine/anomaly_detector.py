@@ -1,31 +1,42 @@
-"""이상 감지 + 링크 진단 — Isolation Forest 기반."""
+"""이상 감지 + 링크 진단.
+
+- diagnose()            : SLA 규칙 기반 진단 (폐쇄 루프 Orient가 쓰는 것)
+- root_cause_analysis() : 인접도 기반 근본 원인 링크 선택
+- AnomalyDetector       : IsolationForest — /anomaly(Java 경로) 전용
+- SecurityAnomalyDetector: 트래픽 공격 탐지 (임계치 + IsolationForest)
+"""
 import numpy as np
 from sklearn.ensemble import IsolationForest
+
+from topology import NODE_LINKS as _NODE_LINKS, BYPASS_COST
 
 SLA_LATENCY_MS    = 50.0
 SLA_PACKET_LOSS   = 0.01
 
-# 노드별 인접 링크 (metric_generator와 동일 토폴로지)
-_NODE_LINKS: dict[str, list[str]] = {
-    "r1": ["r1-r2", "r1-r3", "r1-r4"],
-    "r2": ["r1-r2", "r2-r3", "r2-r4"],
-    "r3": ["r1-r3", "r2-r3", "r3-r4"],
-    "r4": ["r2-r4", "r3-r4", "r1-r4"],
-}
-
 
 class AnomalyDetector:
-    def __init__(self, contamination: float = 0.05):
+    """SLA 위반 노드용 IsolationForest. /anomaly(Java 경로)에서만 판정에 쓰인다 —
+    폐쇄 루프(/auto-step)의 Orient는 diagnose()의 SLA 규칙만 사용한다."""
+
+    def __init__(self, contamination: float = 0.05, refit_every: int = 10):
         self._model   = IsolationForest(contamination=contamination, random_state=42)
         self._trained = False
         self._buffer: list[list[float]] = []
         self._min_samples = 50
+        self._refit_every = max(1, refit_every)   # 이전: 매 샘플마다 fit (AUDIT C4)
+        self._since_fit   = 0
 
     def update(self, bandwidth: float, latency: float, packet_loss: float):
         self._buffer.append([bandwidth, latency, packet_loss])
-        if len(self._buffer) >= self._min_samples:
-            self._model.fit(np.array(self._buffer[-200:]))  # 최근 200개만 유지
-            self._trained = True
+        if len(self._buffer) > 200:
+            del self._buffer[:-200]                  # 최근 200개만 유지
+        self._since_fit += 1
+        if len(self._buffer) >= self._min_samples and (
+            not self._trained or self._since_fit >= self._refit_every
+        ):
+            self._model.fit(np.array(self._buffer))
+            self._trained  = True
+            self._since_fit = 0
 
     def is_anomaly(self, bandwidth: float, latency: float, packet_loss: float) -> bool:
         sla_breach = latency > SLA_LATENCY_MS or packet_loss > SLA_PACKET_LOSS
@@ -74,7 +85,7 @@ def diagnose(
             suspected.add(lk)
 
     # 의심 링크 중 아직 cost < 100인 것 (우선 대응 대상)
-    unhandled = [lk for lk in sorted(suspected) if ospf_costs.get(lk, 10) < 100]
+    unhandled = [lk for lk in sorted(suspected) if ospf_costs.get(lk, 10) < BYPASS_COST]
 
     v_nodes   = [m["nodeId"] for m in violated]
     max_lat   = max(m.get("latency", 0) for m in violated)
@@ -101,7 +112,7 @@ def diagnose(
 def root_cause_analysis(
     diag: dict,
     ospf_costs: dict[str, int],
-    bypass_cost: int = 100,
+    bypass_cost: int = BYPASS_COST,
 ) -> str | None:
     """
     ZSM 3.1.1.2: Root Cause Analysis Service — diagnose() 결과에서 근본 원인 링크를 고른다.
@@ -153,26 +164,39 @@ class SecurityAnomalyDetector:
 
     _THRESHOLDS = {
         "syn_ratio":        0.30,    # SYN 비율 30% 초과 → DDoS SYN-flood 의심
-        "unique_src_count": 500.0,   # 5초 내 500 IP 초과 → 포트스캔 의심
+        # 윈도우당 고유 출발지 IP 수. 윈도우 길이는 데이터 공급자가 정한다 — 시뮬레이션
+        # (metric_generator)은 5초 윈도우를 가정하고 CICDDoS2019 로더는 1초 윈도우로 집계하므로
+        # 같은 임계치가 서로 다른 의미를 가진다 (AUDIT C7). 임계치는 튜닝하지 않았다.
+        "unique_src_count": 500.0,
         "pkt_rate":         10000.0, # 10k pps 초과 → DDoS 의심
     }
 
-    def __init__(self, contamination: float = 0.05):
+    def __init__(self, contamination: float = 0.05, refit_every: int = 10):
         self._model   = IsolationForest(contamination=contamination, random_state=42)
         self._trained = False
         self._buffer: list[list[float]] = []
         self._min_samples = 30
+        self._refit_every = max(1, refit_every)
+        self._since_fit   = 0
 
     def update(
         self,
         bandwidth: float, latency: float, packet_loss: float,
         syn_ratio: float = 0.0, unique_src_count: float = 0.0, pkt_rate: float = 0.0,
     ) -> None:
+        """관측을 학습 버퍼에 넣는다 (레이블 없음 — 공격 샘플도 그대로 학습된다).
+        detect() 뒤에 호출할 것: 판정 대상을 먼저 학습셋에 넣으면 평가가 누수된다 (AUDIT P4)."""
         self._buffer.append([bandwidth, latency, packet_loss,
                               syn_ratio, unique_src_count, pkt_rate])
-        if len(self._buffer) >= self._min_samples:
-            self._model.fit(np.array(self._buffer[-200:]))
-            self._trained = True
+        if len(self._buffer) > 200:
+            del self._buffer[:-200]
+        self._since_fit += 1
+        if len(self._buffer) >= self._min_samples and (
+            not self._trained or self._since_fit >= self._refit_every
+        ):
+            self._model.fit(np.array(self._buffer))
+            self._trained  = True
+            self._since_fit = 0
 
     def detect(
         self,
