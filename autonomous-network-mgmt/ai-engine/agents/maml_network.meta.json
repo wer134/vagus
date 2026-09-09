@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "timestamp": "2026-09-09T07:29:58.041781",
-  "git_commit": "8e547b6-dirty",
+  "timestamp": "2026-09-09T07:41:25.152595",
+  "git_commit": "61ad244-dirty",
   "seed": 42,
   "contract": {
     "obs_version": 1,
     "action_version": 1,
     "reward_version": 1,
-    "sim_version": 2
+    "sim_version": 3
   },
   "_condition": "학습 직후 정책 붕괴 검사 (ROADMAP A-5)",
   "checkpoint": "maml_network.pt",
@@ -19,11 +19,9 @@
     "tasks_per_iter": 4,
     "adapt_steps": 3,
     "episode_steps": 30,
+    "train_links": null,
     "seed": 42,
-    "rollout": "sampled",
-    "trained_at": "2026-09-09",
-    "sim_version_at_train": 2,
-    "note": "AUDIT A3(롤아웃 샘플링) 수정 후 재학습"
+    "rollout": "sampled"
   },
   "policy_check": {
     "top_action": "r3-r4@100",
@@ -36,7 +34,8 @@
       "r3-r4@100": 48
     },
     "random_obs_counts": {
-      "r3-r4@100": 200
+      "r3-r4@100": 198,
+      "r2-r3@10": 2
     },
     "probe": {
       "links": 6,
