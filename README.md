@@ -50,7 +50,10 @@ IsolationForest + 임계치 규칙을 조합해 네트워크 트래픽에서 공
 
 ### 3. 네트워크 성능 이상 (SLA 위반)
 
-IsolationForest 기반 비지도 이상 탐지로 정상 범위를 벗어난 지연·패킷손실을 감지하고 근본 원인 링크를 자동 식별한다.
+SLA 규칙(지연 > 50 ms 또는 손실 > 1 %)으로 위반 노드를 잡고, 인접도 점수 기반 RCA로 근본 원인 링크를
+자동 식별한다. `AnomalyDetector`(IsolationForest)는 Java 경로의 `/anomaly`에서만 판정에 쓰이며
+**폐쇄 루프(`/auto-step`)의 Orient에는 관여하지 않는다** — 2026-09-09 감사에서 문서와 코드가
+달랐던 부분을 정정했다 (`cowork/AUDIT_2026-09-09.md` P3).
 
 ---
 
@@ -62,8 +65,8 @@ IsolationForest 기반 비지도 이상 탐지로 정상 범위를 벗어난 지
 [Orient]    위협 인텔리전스 분석
             ├─ OSPF LSA 위조 탐지    (ospf_security.py)
             ├─ 트래픽 공격 탐지      (SecurityAnomalyDetector)
-            ├─ 성능 이상 탐지        (AnomalyDetector)
-            └─ 근본 원인 분석 RCA    (ZSM Analytics, Clause 3.1.1.2)
+            ├─ 성능 이상 탐지        (diagnose — SLA 규칙)
+            └─ 근본 원인 분석 RCA    (root_cause_analysis, ZSM Analytics, Clause 3.1.1.2)
      ↓
 [Decide]    MAML few-shot 에이전트 — 최적 대응 행동 결정
             ├─ 라우팅 위협 → OSPF cost 재조정
@@ -108,7 +111,8 @@ autonomous-network-mgmt/
 │
 ├── ai-engine/
 │   ├── ospf_security.py      # OSPF LSA 위조 탐지 엔진
-│   ├── anomaly_detector.py   # IsolationForest 이상 탐지 + SecurityAnomalyDetector
+│   ├── topology.py           # 토폴로지 상수 단일 출처
+│   ├── anomaly_detector.py   # SLA 진단 + RCA + IsolationForest(/anomaly 전용) + SecurityAnomalyDetector
 │   ├── api_server.py         # FastAPI (위협 탐지·대응 엔드포인트 포함)
 │   ├── reward.py             # 보상 함수
 │   ├── environment/
@@ -147,7 +151,18 @@ autonomous-network-mgmt/
 | `POST` | `/debug/attack/{type}` | 공격 주입 (`ddos` \| `portscan`) |
 | `DELETE` | `/debug/attack` | 공격 중지 |
 | `POST` | `/debug/fake-lsa` | 위조 LSA 주입 데모 |
-| `GET` | `/metrics/security` | 보안 피처 포함 실시간 메트릭 |
+| `GET` | `/metrics/security` | 보안 피처 포함 실시간 메트릭 (순수 조회) |
+| `POST` | `/debug/tick` | 시뮬레이션 시간 1스텝 진행 — `/auto-step`이 사이클마다 호출 |
+| `POST` | `/debug/reset` | 에피소드 리셋, body `{"seed": N}`으로 노이즈 재현 |
+
+**시뮬레이션 시계 (2026-09-09).** 시간은 `POST /debug/tick`으로만 흐른다(`SIM_CLOCK=lockstep`, 기본).
+메트릭 조회는 순수 조회라 대시보드·collector·실험 스크립트의 조회가 시뮬레이션을 가속하지 않는다.
+주기적으로 관측만 하는 Java 경로 데모에는 `SIM_CLOCK=realtime:1000 python mock_snmp_agent.py`처럼
+백그라운드 시계를 켠다. 이전에는 조회마다 시간이 흘러 실험 스크립트의 검증 조회가 사이클당 2틱을
+만들었고, 보고된 TTR이 실제의 약 절반이었다 (`cowork/AUDIT_2026-09-09.md` P1).
+
+**보안 범위.** `/debug/*`·`/reset-buffer` 등은 인증이 없고 CORS `*`, `0.0.0.0` 바인딩이며 OSPF 인증 키는
+코드에 하드코딩되어 있다. 연구 데모 전용이며 외부 노출을 전제하지 않는다.
 
 ---
 
@@ -248,11 +263,13 @@ BENIGN 3,813 / 공격 4,886)으로 `SecurityAnomalyDetector`를 검증했다.
 
 1. **네트워크 위협 통합 탐지**: 라우팅 레이어(OSPF LSA 위조)와 트래픽 레이어(DDoS/포트스캔)를 단일 AI 파이프라인으로 탐지
 2. **Zero-Touch 자동 대응**: 탐지 → 대응 전 과정 자동화, 폐쇄 루프 평균 3.78 step 내 복구
-3. **위협 인텔리전스 + AI 융합**: 규칙 기반 탐지와 비지도 IsolationForest를 조합해 알려지지 않은 이상 패턴까지 커버
+3. **위협 인텔리전스 + AI 융합**: 트래픽 공격 탐지(`SecurityAnomalyDetector`)에서 임계치 규칙과 비지도
+   IsolationForest를 조합 — 단, 폐쇄 루프의 성능 이상 판정은 SLA 규칙만 사용한다 (2026-09-09 정정)
 4. **성능 동인의 정량 규명**: 절제 실험과 베이스라인 재측정으로 복구 성능이 Analytics(RCA)
    계층에서 나오며 MAML의 추가 기여는 확인되지 않음을 실증 — 어느 계층이 실제로 일하는지를
    가린 것 자체가 결과다
-5. **완전한 일반화**: 학습에 없던 공격 경로에서도 동일 TTR 달성
+5. **링크 무관 복구**: 학습에 없던 링크에서도 동일 TTR — 다만 이는 규칙 기반 Analytics의 성질이지
+   학습 일반화의 증거가 아니다 (2026-09-09 정정)
 6. **표준 기반 구현**: ETSI ZSM 002 Clause 3.1.1.2~3.1.1.4 완전 구현 및 정량 검증
 
 ---

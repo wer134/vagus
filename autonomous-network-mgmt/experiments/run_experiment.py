@@ -137,6 +137,7 @@ def evaluate_agent(
     n_episodes: int = 30,
     max_steps:  int = 200,
     test_links: list[str] | None = None,
+    model_path: str | None = None,
 ) -> list[EpisodeResult]:
     links = test_links or TEST_LINKS
 
@@ -144,13 +145,13 @@ def evaluate_agent(
                      inject_anomalies=False, local_mode=True)
 
     if agent_type == "baseline":
-        agent = BaselineAgent()
+        agent = BaselineAgent(model_path) if model_path else BaselineAgent()
         if not agent.is_ready():
-            raise RuntimeError("Baseline PPO 모델 없음. --train-baseline 먼저.")
+            raise RuntimeError(f"Baseline PPO 모델 없음/로드 실패 ({agent.load_error}). --train-baseline 먼저.")
     else:
-        agent = FewShotAgent()
+        agent = FewShotAgent(model_path) if model_path else FewShotAgent()
         if not agent.is_ready():
-            raise RuntimeError("MAML 모델 없음. --train-fewshot 먼저.")
+            raise RuntimeError(f"MAML 모델 없음/로드 실패 ({agent.load_error}). --train-fewshot 먼저.")
 
     results = []
     for ep in range(n_episodes):
@@ -315,6 +316,9 @@ def main():
     # 확정 결과가 들어 있고 /live-results 엔드포인트가 이를 읽는다 —
     # 오프라인 평가로 덮어쓰지 말고 별도 파일명을 지정할 것.
     parser.add_argument("--summary-out",       default="summary.json")
+    parser.add_argument("--maml-path",         default=None, help="평가할 MAML 체크포인트 (기본: agents/maml_network.pt)")
+    parser.add_argument("--ppo-path",          default=None, help="평가할 PPO 체크포인트 (기본: agents/ppo_network.zip)")
+    parser.add_argument("--seed",              type=int, default=42, help="학습/시뮬레이터 seed")
     args = parser.parse_args()
 
     if args.all:
@@ -335,25 +339,25 @@ def main():
               f"train_links={TRAIN_LINKS})...")
         train_baseline(total_timesteps=args.timesteps,
                        snmp_url=args.snmp_url,
-                       train_links=TRAIN_LINKS)
+                       train_links=TRAIN_LINKS, seed=args.seed)
 
     if args.train_fewshot:
         print(f"\n[2/4] Training MAML ({args.meta_iterations} iters, "
               f"train_links={TRAIN_LINKS})...")
         train_fewshot(meta_iterations=args.meta_iterations,
                       snmp_url=args.snmp_url,
-                      train_links=TRAIN_LINKS)
+                      train_links=TRAIN_LINKS, seed=args.seed)
 
     if args.evaluate:
         print(f"\n[3/4] Evaluating on {args.eval_links} links: {eval_links}  "
               f"({args.episodes} ep each)...")
 
         baseline_results = evaluate_agent("baseline", args.episodes,
-                                          test_links=eval_links)
+                                          test_links=eval_links, model_path=args.ppo_path)
         save_results(baseline_results, "baseline_results.csv")
 
         fewshot_results = evaluate_agent("fewshot", args.episodes,
-                                         test_links=eval_links)
+                                         test_links=eval_links, model_path=args.maml_path)
         save_results(fewshot_results, "fewshot_results.csv")
 
         print_comparison(baseline_results, fewshot_results)
@@ -372,11 +376,13 @@ def main():
                    "fewshot":  _stats(fewshot_results),
                    "eval_links": eval_links,
                    "train_links": TRAIN_LINKS,
+                   "maml_path": args.maml_path, "ppo_path": args.ppo_path,
                    "_condition": (
                        "offline NetworkEnv(local_mode, inject_anomalies=False, "
                        "max_steps=200) 평가 — Analytics override 없음. "
                        "/auto-step 폐쇄 루프(OODA) 수치와 직접 비교 불가. "
-                       "미해결 시 TTR=200."
+                       "미해결 시 TTR=200. 2026-09-09부터 스텝당 시뮬레이터 1틱 "
+                       "(이전에는 로깅용 재조회로 2틱) — 이전 오프라인 결과와 직접 비교 불가."
                    ),
                    "_timestamp": __import__("datetime").datetime.now().isoformat()}
         os.makedirs(RESULT_DIR, exist_ok=True)

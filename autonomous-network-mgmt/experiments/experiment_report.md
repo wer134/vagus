@@ -15,8 +15,10 @@ ETSI ZSM (Zero-touch network and Service Management) 및 ENI (Experiential Netwo
 ```
 [Observe]  GET /metrics → SNMP 수집 (Flask mock_snmp_agent)
     ↓
-[Orient]   diagnose() → IsolationForest 이상 감지
-           _root_cause_analysis() → 근본 원인 분석 (ZSM 3.1.1.2)
+[Orient]   diagnose() → SLA 규칙 이상 감지 (지연 > 50 ms 또는 손실 > 1 %)
+           root_cause_analysis() → 근본 원인 분석 (ZSM 3.1.1.2)
+           ※ IsolationForest(AnomalyDetector)는 Java 경로 /anomaly 전용 — 폐쇄 루프 Orient에는
+             관여하지 않는다 (2026-09-09 정정, cowork/AUDIT_2026-09-09.md P3)
     ↓
 [Decide]   MAML few_shot_agent.adapt_and_predict() (ZSM 3.1.1.3)
            + Analytics override (high-confidence RCA)
@@ -31,8 +33,10 @@ ETSI ZSM (Zero-touch network and Service Management) 및 ENI (Experiential Netwo
 ZSM 아키텍처의 핵심 설계 원칙인 Analytics와 Intelligence의 분리를 구현한다.
 
 - **Analytics 계층** (Orient 단계):
-  - IsolationForest 기반 다변량 이상 감지
-  - 인접도 점수 기반 근본 원인 분석: `score(link) = (-shared_violated_nodes, ospf_cost)`
+  - SLA 규칙 기반 위반 노드 판정 (IsolationForest는 쓰지 않는다 — 2026-09-09 정정)
+  - 인접도 기반 근본 원인 분석 (2026-09-09 개정): 위반 노드 전부에 인접한 미대응 링크 = 근본 원인;
+    이미 대응된(cost ≥ 100) 링크가 위반 노드 전부를 덮으면 "회복 중"(None); 그 외 폴백
+    `score(link) = (-shared_violated_nodes, ospf_cost)`
   - 고신뢰 조건: `nodes_sharing_root >= 2` (양 엔드포인트 모두 SLA 위반)
 
 - **Intelligence 계층** (Decide 단계):
@@ -59,9 +63,13 @@ ZSM 아키텍처의 핵심 설계 원칙인 Analytics와 Intelligence의 분리�
 
 ### 3.3 평가 지표
 
-- **TTR** (Time-To-Recovery): 혼잡 주입 후 전 노드 SLA 회복까지 OODA 사이클 수
+- **TTR** (Time-To-Recovery): 혼잡 주입 후 전 노드 SLA 회복까지 OODA 사이클 수.
+  **2026-09-09부터 1사이클 = 시뮬레이터 1틱**이다. 이전 측정은 검증 조회가 시간을 한 번 더
+  진행시켜 1사이클 = 2틱이었으므로, 이전 수치(§4.1 등)와 새 수치는 직접 비교할 수 없다.
 - **성공률**: TTR < 15 (타임아웃 미발생)
 - **근본 원인 정확도**: `first_root == congested_link` (첫 번째 OODA 사이클의 근본 원인)
+- **RCA 전 사이클 정확도** (2026-09-09 추가): 모든 사이클에서 `root_cause_link ∈ {주입 링크, None}`
+- **부수 피해 `wasted_actions`** (2026-09-09 추가): 주입 링크가 아닌 링크의 cost가 실제로 바뀐 횟수
 - **일반화 격차**: `|TEST_avg_TTR - TRAIN_avg_TTR|`
 
 ---

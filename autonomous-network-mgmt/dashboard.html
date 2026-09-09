@@ -173,7 +173,7 @@
     <span class="auto-stat">OODA 사이클: <b id="auto-cycles">0</b></span>
   </div>
   <div style="font-size:0.72rem;color:#555;margin-bottom:8px;">
-    Observe(SNMP) → Orient(Isolation Forest + RCA) → Decide(MAML inner-loop) → Act(OSPF)
+    Observe(SNMP) → Orient(SLA 규칙 + 인접도 RCA) → Decide(MAML inner-loop) → Act(OSPF)
   </div>
   <div class="diag-box" id="diag-box">
     <span class="diag-normal">자율 모드 ON: MAML이 ZSM Analytics 결과를 바탕으로 스스로 진단→결정→실행합니다.</span>
@@ -489,7 +489,7 @@ async function runAutoStep() {
   chainBox.style.display = 'block';
   chainBox.textContent   = [
     `[Observe]  SNMP poll: latency=${aMetric?.latency.toFixed(1)}ms, loss=${((aMetric?.packetLoss||0)*100).toFixed(2)}%`,
-    `[Orient]   IsolationForest score > threshold → anomaly confirmed`,
+    `[Orient]   SLA rule: latency > 50ms or loss > 1% → anomaly confirmed`,
     `           Adjacency heuristic: ${rootLink} carries ${((congestion[rootLink]||0)*100).toFixed(0)}% stress`,
     `           RCA confidence: HIGH (100%)`,
     `[Decide]   MAML meta-init selects: increase ${rootLink} cost → redistribute traffic`,
