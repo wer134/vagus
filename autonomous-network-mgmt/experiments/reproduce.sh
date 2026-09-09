@@ -52,13 +52,12 @@ trap stop_servers EXIT
 
 # ── 1) 학습 ───────────────────────────────────────────────────────────────────
 if [ "$TRAIN" = 1 ]; then
-  step "MAML 메타학습 ($MAML_ITERS iters, seed $SEED)"
-  (cd "$ROOT/ai-engine" && "$PY" agents/few_shot_agent.py --train \
-      --meta-iterations "$MAML_ITERS" --seed "$SEED") || exit 1
-
-  step "PPO 학습 ($PPO_STEPS steps, seed $SEED)"
-  (cd "$ROOT/ai-engine" && "$PY" agents/baseline_drl.py --train \
-      --timesteps "$PPO_STEPS" --seed "$SEED") || exit 1
+  # run_experiment.py를 거쳐 학습한다 — 이쪽만 train_links=TRAIN_LINKS를 넘긴다.
+  # 에이전트 스크립트를 직접 부르면 train_links=None이 되어 TEST 링크(r3-r4, r1-r4)까지
+  # 학습에 쓰이고, "학습에 없던 링크에서의 성능"이라는 평가 자체가 무의미해진다.
+  step "MAML + PPO 학습 (MAML $MAML_ITERS iters / PPO $PPO_STEPS steps, seed $SEED, TRAIN 링크만)"
+  (cd "$ROOT/experiments" && "$PY" run_experiment.py --train-fewshot --train-baseline \
+      --meta-iterations "$MAML_ITERS" --timesteps "$PPO_STEPS" --seed "$SEED") || exit 1
 else
   step "학습 생략 (--no-train) — 기존 체크포인트 사용"
 fi
