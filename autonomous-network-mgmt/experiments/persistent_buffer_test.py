@@ -8,10 +8,13 @@ ZSM/ENI 논문 연결:
   - 에피소드 간 지지 버퍼 유지 = "Experiential Networking" (ENI GS 007)
   - 시간이 지남에 따라 Intelligence 레이어가 향상됨
 """
-import json, random, time
+import json, random, sys, time
 from datetime import datetime
 from pathlib import Path
 import urllib.request
+
+sys.path.insert(0, str(Path(__file__).parent))
+from _resultmeta import result_meta  # noqa: E402
 
 AI   = "http://127.0.0.1:8000"
 SNMP = "http://127.0.0.1:5001"
@@ -129,7 +132,10 @@ def run(n_episodes: int = 30, seed: int | None = 42):
     out.parent.mkdir(exist_ok=True)
     with open(out, "w", encoding="utf-8") as f:
         json.dump({
-            "timestamp": datetime.now().isoformat(),
+            **result_meta(
+                seed=seed,
+                condition="폐쇄 루프 /auto-step, 사이클당 1틱(lockstep). 2026-09-09 이전 결과는 사이클당 2틱.",
+            ),
             "n_episodes": n_episodes,
             "overall_avg_ttr": avg_ttr(results),
             "early_avg_ttr": avg_ttr(early),
@@ -139,8 +145,6 @@ def run(n_episodes: int = 30, seed: int | None = 42):
             "success_rate": sum(1 for r in results if r["ttr"] < 15) / n_episodes * 100,
             "root_cause_accuracy": sum(1 for r in results if r["root_match"]) / n_episodes * 100,
             "wasted_actions_per_ep": round(sum(r["wasted_actions"] for r in results) / n_episodes, 2),
-            "seed": seed,
-            "_condition": "폐쇄 루프 /auto-step, 사이클당 1틱(lockstep). 2026-09-09 이전 결과는 사이클당 2틱.",
             "results": results,
         }, f, indent=2, ensure_ascii=False)
     print(f"Saved -> {out}", flush=True)

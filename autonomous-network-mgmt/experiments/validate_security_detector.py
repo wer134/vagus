@@ -17,11 +17,14 @@ import os
 import sys
 from datetime import datetime
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "ai-engine"))
 
 from anomaly_detector import SecurityAnomalyDetector  # noqa: E402
 
 from cicddos_loader import load_windows_with_stats  # noqa: E402
+
+from _resultmeta import result_meta  # noqa: E402
 
 from sklearn.metrics import (  # noqa: E402
     classification_report,
@@ -115,6 +118,14 @@ def run_validation(
     )
 
     result_doc = {
+        **result_meta(
+            seed=None,
+            condition=(
+                f"CICDDoS2019 오프라인 검증, window_sec={window_sec}, "
+                f"benign_warmup={actual_warmup}, contamination={contamination}, "
+                "판정 순서 detect→update (2026-09-09 이전 결과는 update→detect)."
+            ),
+        ),
         "dataset": {
             "name":          "CICDDoS2019",
             "file":          os.path.basename(csv_path),
@@ -140,7 +151,6 @@ def run_validation(
             "레이블 없이 모든 윈도우로 학습하므로 공격이 지속되면 공격을 '정상'으로 학습한다 (튜닝하지 않고 기록만 함)",
         ],
         "eval_order": "detect_then_update",
-        "timestamp": datetime.now().isoformat(),
     }
 
     _print_summary(csv_path, result_doc)

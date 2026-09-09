@@ -12,9 +12,12 @@ ZSM 관점:
 이전 결과(ablation_study_pre_audit.json)는 사이클당 2틱으로 측정됐다 — 직접 비교 불가.
 추가 지표: wasted_actions(정상 링크 cost 변경 횟수), rca_all_cycles_ok.
 """
-import json, random, time, urllib.request
+import json, random, sys, time, urllib.request
 from datetime import datetime
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).parent))
+from _resultmeta import result_meta  # noqa: E402
 
 AI   = "http://127.0.0.1:8000"
 SNMP = "http://127.0.0.1:5001"
@@ -131,10 +134,13 @@ def run_ablation(n_per_mode: int = 50, output: str | None = None):
     out.parent.mkdir(exist_ok=True)
     with open(out, "w", encoding="utf-8") as f:
         json.dump({
-            "timestamp": datetime.now().isoformat(), "n_per_mode": n_per_mode,
-            "_condition": (
-                "폐쇄 루프 /auto-step, 사이클당 시뮬레이터 1틱(lockstep), 검증 조회는 순수 조회, "
-                "에피소드별 노이즈 seed 고정(42000+i). 2026-09-09 이전 결과는 사이클당 2틱."
+            **result_meta(
+                seed=42,
+                condition=(
+                    "폐쇄 루프 /auto-step, 사이클당 시뮬레이터 1틱(lockstep), 검증 조회는 순수 조회, "
+                    "에피소드별 노이즈 seed 고정(42000+i). 2026-09-09 이전 결과는 사이클당 2틱."
+                ),
+                n_per_mode=n_per_mode,
             ),
             "results": results,
         }, f, indent=2, ensure_ascii=False)

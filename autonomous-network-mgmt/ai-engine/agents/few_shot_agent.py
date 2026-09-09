@@ -176,6 +176,21 @@ def train(
     print(f"MAML model saved → {save_path}")
     env.close()
 
+    # ROADMAP A-5: 학습 직후 정책 붕괴 검사 → <name>.meta.json
+    try:
+        from policy_check import write_checkpoint_meta
+        write_checkpoint_meta(
+            FewShotAgent(save_path), save_path,
+            train_info={
+                "algo": "maml", "meta_iterations": meta_iterations, "meta_lr": meta_lr,
+                "fast_lr": fast_lr, "tasks_per_iter": tasks_per_iter,
+                "adapt_steps": adapt_steps, "episode_steps": episode_steps,
+                "train_links": train_links, "seed": seed, "rollout": "sampled",
+            },
+        )
+    except Exception as e:  # 검사 실패가 학습을 무효화하지는 않는다
+        print(f"[policy-check] 건너뜀: {type(e).__name__}: {e}", flush=True)
+
 
 # ── 추론 클래스 ───────────────────────────────────────────────────────────────
 

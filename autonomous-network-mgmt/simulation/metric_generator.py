@@ -21,6 +21,11 @@ import random
 import threading
 import time
 
+# 시뮬레이터 동작 버전 (결과 파일의 contract 블록에 기록 — cowork/ROADMAP.md E-4)
+#   1 = 관측 호출이 시간을 진행시키던 모델 (~2026-09-08)
+#   2 = 명시적 tick() 분리 (2026-09-09, AUDIT P1)
+SIM_VERSION = 2
+
 NODES = ["r1", "r2", "r3", "r4"]
 
 LINKS_LIST = ["r1-r2", "r1-r3", "r2-r3", "r2-r4", "r3-r4", "r1-r4"]

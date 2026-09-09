@@ -17,7 +17,10 @@ import time
 from dataclasses import dataclass, asdict
 from typing import Literal
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "ai-engine"))
+
+from _resultmeta import result_meta  # noqa: E402
 
 import numpy as np
 
@@ -372,19 +375,23 @@ def main():
                 "ttr_list":     ttrs,
             }
 
-        summary = {"baseline": _stats(baseline_results),
-                   "fewshot":  _stats(fewshot_results),
-                   "eval_links": eval_links,
-                   "train_links": TRAIN_LINKS,
-                   "maml_path": args.maml_path, "ppo_path": args.ppo_path,
-                   "_condition": (
-                       "offline NetworkEnv(local_mode, inject_anomalies=False, "
-                       "max_steps=200) 평가 — Analytics override 없음. "
-                       "/auto-step 폐쇄 루프(OODA) 수치와 직접 비교 불가. "
-                       "미해결 시 TTR=200. 2026-09-09부터 스텝당 시뮬레이터 1틱 "
-                       "(이전에는 로깅용 재조회로 2틱) — 이전 오프라인 결과와 직접 비교 불가."
-                   ),
-                   "_timestamp": __import__("datetime").datetime.now().isoformat()}
+        summary = {
+            **result_meta(
+                seed=args.seed,
+                condition=(
+                    "offline NetworkEnv(local_mode, inject_anomalies=False, "
+                    "max_steps=200) 평가 — Analytics override 없음. "
+                    "/auto-step 폐쇄 루프(OODA) 수치와 직접 비교 불가. "
+                    "미해결 시 TTR=200. 2026-09-09부터 스텝당 시뮬레이터 1틱 "
+                    "(이전에는 로깅용 재조회로 2틱) — 이전 오프라인 결과와 직접 비교 불가."
+                ),
+            ),
+            "baseline": _stats(baseline_results),
+            "fewshot":  _stats(fewshot_results),
+            "eval_links": eval_links,
+            "train_links": TRAIN_LINKS,
+            "maml_path": args.maml_path, "ppo_path": args.ppo_path,
+        }
         os.makedirs(RESULT_DIR, exist_ok=True)
         with open(os.path.join(RESULT_DIR, args.summary_out), "w") as f:
             json.dump(summary, f, indent=2)
@@ -393,11 +400,14 @@ def main():
     if args.sample_efficiency:
         print("\n[4/4] Sample Efficiency 실험...")
         eff_data = sample_efficiency_experiment()
-        eff_data["_condition"] = (
-            "offline NetworkEnv(local_mode, inject_anomalies=False, max_steps=200) 평가 — "
-            "Analytics override 없음. /auto-step 폐쇄 루프(OODA) 수치(예: TTR 3.78)와 "
-            "직접 비교 불가. 미해결 시 TTR=200."
-        )
+        eff_data.update(result_meta(
+            seed=args.seed,
+            condition=(
+                "offline NetworkEnv(local_mode, inject_anomalies=False, max_steps=200) 평가 — "
+                "Analytics override 없음. /auto-step 폐쇄 루프(OODA) 수치와 "
+                "직접 비교 불가. 미해결 시 TTR=200."
+            ),
+        ))
         os.makedirs(RESULT_DIR, exist_ok=True)
         with open(os.path.join(RESULT_DIR, "sample_efficiency.json"), "w") as f:
             json.dump(eff_data, f, indent=2)

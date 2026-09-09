@@ -68,15 +68,29 @@ def train(
     print(f"Model saved to {save_path}")
     env.close()
 
+    # ROADMAP A-5: 학습 직후 정책 붕괴 검사 → <name>.meta.json
+    try:
+        from policy_check import write_checkpoint_meta
+        write_checkpoint_meta(
+            BaselineAgent(save_path), save_path,
+            train_info={"algo": "ppo", "total_timesteps": total_timesteps,
+                        "train_links": train_links, "seed": seed,
+                        "net_arch": [128, 64], "learning_rate": 3e-4},
+        )
+    except Exception as e:
+        print(f"[policy-check] 건너뜀: {type(e).__name__}: {e}", flush=True)
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--train", action="store_true")
     parser.add_argument("--timesteps", type=int, default=50_000)
     parser.add_argument("--snmp-url", default="http://localhost:5001")
+    parser.add_argument("--seed",      type=int, default=None)
+    parser.add_argument("--save-path", default=MODEL_PATH)
     args = parser.parse_args()
 
     if args.train:
-        train(args.timesteps, args.snmp_url)
+        train(args.timesteps, args.snmp_url, save_path=args.save_path, seed=args.seed)
     else:
         parser.print_help()
