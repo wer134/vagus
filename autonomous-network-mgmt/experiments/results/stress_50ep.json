@@ -1,28 +1,35 @@
 {
-  "timestamp": "2026-09-09T02:54:49.441459",
+  "schema_version": 1,
+  "timestamp": "2026-09-09T08:12:37.281090",
+  "git_commit": "0ac5e75-dirty",
+  "seed": 42,
+  "contract": {
+    "obs_version": 1,
+    "action_version": 1,
+    "reward_version": 1,
+    "sim_version": 3
+  },
+  "_condition": "폐쇄 루프 /auto-step, 사이클당 시뮬레이터 1틱(lockstep), 검증 조회는 순수 조회. 2026-09-09 이전 결과는 사이클당 2틱으로 측정되어 직접 비교 불가.",
   "total": 50,
-  "avg_ttr": 6.84,
-  "test_avg_ttr": 6.69,
-  "train_avg_ttr": 7.11,
+  "avg_ttr": 6.86,
+  "test_avg_ttr": 6.75,
+  "train_avg_ttr": 7.06,
   "success_rate": 100.0,
   "root_cause_accuracy_pct": 100.0,
   "rca_all_cycles_ok_pct": 100.0,
   "wasted_actions_per_ep": 0.8,
-  "seed": 42,
-  "_condition": "폐쇄 루프 /auto-step, 사이클당 시뮬레이터 1틱(lockstep), 검증 조회는 순수 조회. 2026-09-09 이전 결과는 사이클당 2틱으로 측정되어 직접 비교 불가.",
   "results": [
     {
       "ep": 1,
       "link": "r1-r4",
       "group": "test",
-      "ttr": 7,
+      "ttr": 6,
       "first_root": "r1-r4",
       "root_match": true,
       "rca_all_cycles_ok": true,
       "wasted_actions": 1,
       "actions": [
         "r1-r4@100",
-        "r3-r4@100",
         "r3-r4@100",
         "r3-r4@100",
         "r3-r4@100",
@@ -97,7 +104,6 @@
         "r1-r4@100",
         "r3-r4@100",
         "r3-r4@100",
-        "r3-r4@100",
         "r3-r4@100"
       ]
     },
@@ -121,7 +127,7 @@
       "ep": 7,
       "link": "r1-r4",
       "group": "test",
-      "ttr": 6,
+      "ttr": 7,
       "first_root": "r1-r4",
       "root_match": true,
       "rca_all_cycles_ok": true,
@@ -139,13 +145,14 @@
       "ep": 8,
       "link": "r1-r4",
       "group": "test",
-      "ttr": 6,
+      "ttr": 10,
       "first_root": "r1-r4",
       "root_match": true,
       "rca_all_cycles_ok": true,
       "wasted_actions": 1,
       "actions": [
         "r1-r4@100",
+        "r3-r4@100",
         "r3-r4@100",
         "r3-r4@100",
         "r3-r4@100",
@@ -181,6 +188,7 @@
       "rca_all_cycles_ok": true,
       "wasted_actions": 0,
       "actions": [
+        "r3-r4@100",
         "r3-r4@100",
         "r3-r4@100",
         "r3-r4@100",
@@ -252,6 +260,7 @@
       "wasted_actions": 1,
       "actions": [
         "r1-r4@100",
+        "r3-r4@100",
         "r3-r4@100",
         "r3-r4@100",
         "r3-r4@100",
@@ -345,8 +354,6 @@
         "r2-r4@100",
         "r3-r4@100",
         "r3-r4@100",
-        "r3-r4@100",
-        "r3-r4@100",
         "r3-r4@100"
       ]
     },
@@ -408,7 +415,7 @@
       "ep": 23,
       "link": "r2-r3",
       "group": "train",
-      "ttr": 9,
+      "ttr": 7,
       "first_root": "r2-r3",
       "root_match": true,
       "rca_all_cycles_ok": true,
@@ -426,7 +433,7 @@
       "ep": 24,
       "link": "r1-r3",
       "group": "train",
-      "ttr": 10,
+      "ttr": 11,
       "first_root": "r1-r3",
       "root_match": true,
       "rca_all_cycles_ok": true,
@@ -461,7 +468,7 @@
       "ep": 26,
       "link": "r3-r4",
       "group": "test",
-      "ttr": 6,
+      "ttr": 7,
       "first_root": "r3-r4",
       "root_match": true,
       "rca_all_cycles_ok": true,
@@ -507,7 +514,6 @@
         "r3-r4@100",
         "r3-r4@100",
         "r3-r4@100",
-        "r3-r4@100",
         "r3-r4@100"
       ]
     },
@@ -515,7 +521,7 @@
       "ep": 29,
       "link": "r1-r4",
       "group": "test",
-      "ttr": 7,
+      "ttr": 8,
       "first_root": "r1-r4",
       "root_match": true,
       "rca_all_cycles_ok": true,
@@ -569,7 +575,7 @@
       "ep": 32,
       "link": "r1-r4",
       "group": "test",
-      "ttr": 8,
+      "ttr": 7,
       "first_root": "r1-r4",
       "root_match": true,
       "rca_all_cycles_ok": true,
@@ -666,9 +672,8 @@
         "r3-r4@100",
         "r3-r4@100",
         "r3-r4@100",
-        "r2-r3@10",
-        "r2-r3@10",
-        "r2-r3@10"
+        "r3-r4@100",
+        "r3-r4@100"
       ]
     },
     {
@@ -710,14 +715,13 @@
       "ep": 40,
       "link": "r1-r4",
       "group": "test",
-      "ttr": 8,
+      "ttr": 6,
       "first_root": "r1-r4",
       "root_match": true,
       "rca_all_cycles_ok": true,
       "wasted_actions": 1,
       "actions": [
         "r1-r4@100",
-        "r3-r4@100",
         "r3-r4@100",
         "r3-r4@100",
         "r3-r4@100",
@@ -758,7 +762,6 @@
         "r3-r4@100",
         "r3-r4@100",
         "r3-r4@100",
-        "r3-r4@100",
         "r3-r4@100"
       ]
     },
@@ -783,14 +786,13 @@
       "ep": 44,
       "link": "r1-r4",
       "group": "test",
-      "ttr": 7,
+      "ttr": 4,
       "first_root": "r1-r4",
       "root_match": true,
       "rca_all_cycles_ok": true,
       "wasted_actions": 1,
       "actions": [
         "r1-r4@100",
-        "r3-r4@100",
         "r3-r4@100",
         "r3-r4@100",
         "r3-r4@100"
@@ -806,6 +808,7 @@
       "rca_all_cycles_ok": true,
       "wasted_actions": 0,
       "actions": [
+        "r3-r4@100",
         "r3-r4@100",
         "r3-r4@100",
         "r3-r4@100",
@@ -868,13 +871,14 @@
       "ep": 49,
       "link": "r1-r4",
       "group": "test",
-      "ttr": 4,
+      "ttr": 6,
       "first_root": "r1-r4",
       "root_match": true,
       "rca_all_cycles_ok": true,
       "wasted_actions": 1,
       "actions": [
         "r1-r4@100",
+        "r3-r4@100",
         "r3-r4@100",
         "r3-r4@100",
         "r3-r4@100"
