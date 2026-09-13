@@ -104,9 +104,9 @@ def train(
 
     if probe is not None and probe.samples:
         probe.save(
-            curve_path or os.path.join(
-                os.path.dirname(__file__), "..", "..", "experiments", "results",
-                "train_curve_ppo.json"),
+            curve_path or os.path.normpath(os.path.join(
+                os.path.dirname(os.path.abspath(__file__)), "..", "..",
+                "experiments", "results", "train_curve_ppo.json")),
             train_info={"algo": "ppo", "total_timesteps": total_timesteps,
                         "train_links": train_links, "seed": seed},
         )

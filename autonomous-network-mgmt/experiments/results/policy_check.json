@@ -1,4 +1,15 @@
 {
+  "schema_version": 1,
+  "timestamp": "2026-09-13T09:20:38.082295",
+  "git_commit": "74300b6-dirty",
+  "seed": null,
+  "contract": {
+    "obs_version": 1,
+    "action_version": 1,
+    "reward_version": 1,
+    "sim_version": 3
+  },
+  "_condition": "체크포인트별 정책 행동 분포 프로브 (링크마다 혼잡 주입 후 8스텝, 무작위 관측 200회)",
   "ppo": {
     "loaded": true,
     "top_action": "r1-r4@20",

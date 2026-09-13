@@ -21,8 +21,9 @@ from palette import INK, SURFACE  # noqa: E402
 
 OUT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "out")
 
-# 이미지 안에 들어가도 되는 문자 (한글이 섞이면 폰트 문제로 깨진다)
-_ASCII_OK = re.compile(r"^[\x20-\x7E]*$")
+# 이미지 안에 들어가도 되는 문자 (한글이 섞이면 폰트 문제로 깨진다).
+# 줄바꿈·탭은 라벨 줄바꿈에 쓰이므로 허용한다.
+_ASCII_OK = re.compile(r"\A[\x20-\x7E\n\t]*\Z")
 
 
 def assert_ascii(*texts: str) -> None:
@@ -130,6 +131,8 @@ if __name__ == "__main__":
         print("OK — 한글 라벨 거부 (폰트 부재 대비)")
     else:
         raise AssertionError("한글 라벨이 통과됐다")
+    assert_ascii("two\nlines", "tab\there")   # 줄바꿈·탭은 라벨에 쓰이므로 허용
+    print("OK — ASCII 줄바꿈 라벨 허용")
 
     fig, ax = new_figure(figsize=(4, 2))
     bars = ax.barh(["a", "b"], [1.0, 2.0])

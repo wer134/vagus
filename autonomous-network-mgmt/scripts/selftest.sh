@@ -48,6 +48,8 @@ run "anomaly_detector"  "$ROOT/ai-engine"   "$PY" anomaly_detector.py
 run "ospf_security"     "$ROOT/ai-engine"   "$PY" ospf_security.py
 run "cicddos_loader"    "$ROOT/experiments" "$PY" cicddos_loader.py
 run "result_meta"       "$ROOT/experiments" "$PY" _resultmeta.py
+run "figures/palette"   "$ROOT/experiments/figures" "$PY" palette.py
+run "figures/figspec"   "$ROOT/experiments/figures" "$PY" figspec.py
 
 # ── 2) 문법 검사 (자가 테스트가 없는 모듈까지 최소한 import 가능한지) ──────────
 run "py_compile(all)"   "$ROOT"             "$PY" -m compileall -q \

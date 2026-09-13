@@ -4,7 +4,7 @@
 # 학습 → 오프라인 평가 → 폐쇄 루프 실험 3종을 한 번에 돌려 README·문서의 모든 수치를
 # 재생성한다. 결과 파일은 스크립트 출력으로만 갱신한다 (수기 편집 금지 — FIX_PLAN §0.2-2).
 #
-#   ./experiments/reproduce.sh                # 전체 (약 40~60분)
+#   ./experiments/reproduce.sh                # 전체 (약 40~60분, 도판까지)
 #   ./experiments/reproduce.sh --quick        # seed 1개 · 에피소드 축소 (약 10분)
 #   ./experiments/reproduce.sh --no-train     # 기존 체크포인트로 평가만
 #   ./experiments/reproduce.sh --suffix _b1   # 결과 파일명에 접미사 (전/후 병기용)
@@ -97,7 +97,13 @@ step "지속 버퍼 ($PERSIST_EPISODES ep)"
 (cd "$ROOT/experiments" && "$PY" persistent_buffer_test.py \
     --episodes "$PERSIST_EPISODES" --seed "$SEED") || exit 1
 
-# ── 5) 요약 ───────────────────────────────────────────────────────────────────
+# ── 5) 도판 ───────────────────────────────────────────────────────────────────
+# 결과가 갱신되면 그림도 같은 실행에서 갱신된다 — 둘이 어긋날 수 없게
+# (cowork/VISUALIZATION_PLAN.md §2.2).
+step "도판 생성"
+(cd "$ROOT/experiments" && "$PY" make_figures.py) || exit 1
+
+# ── 6) 요약 ───────────────────────────────────────────────────────────────────
 step "요약"
 "$PY" - "$RESULTS" "$SUFFIX" "$EPISODES" <<'PYEOF'
 import json, os, sys

@@ -271,8 +271,22 @@ def main() -> int:
         )
 
     if args.json:
+        # E-4: 결과 JSON은 측정 조건을 달고 다닌다. 에이전트 항목은 최상위에 그대로 두고
+        # 메타데이터를 병합한다 (소비자는 'loaded' 키로 에이전트를 걸러낸다).
+        doc = dict(report)
+        try:
+            sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "experiments"))
+            from _resultmeta import result_meta
+            doc = {**result_meta(
+                seed=None,
+                condition=("체크포인트별 정책 행동 분포 프로브 "
+                           f"(링크마다 혼잡 주입 후 {PROBE_STEPS_PER_LINK}스텝, "
+                           f"무작위 관측 {PROBE_RANDOM_OBS}회)"),
+            ), **doc}
+        except Exception as e:
+            print(f"[policy-check] 메타데이터 생략: {type(e).__name__}: {e}", flush=True)
         with open(args.json, "w", encoding="utf-8") as f:
-            json.dump(report, f, indent=2, ensure_ascii=False)
+            json.dump(doc, f, indent=2, ensure_ascii=False)
         print(f"Saved -> {args.json}", flush=True)
 
     return 1 if (any_collapsed and args.fail_on_collapse) else 0

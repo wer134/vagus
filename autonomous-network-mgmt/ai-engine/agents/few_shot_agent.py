@@ -200,9 +200,9 @@ def train(
 
     if probe is not None and probe.samples:
         probe.save(
-            curve_path or os.path.join(
-                os.path.dirname(__file__), "..", "..", "experiments", "results",
-                "train_curve_maml.json"),
+            curve_path or os.path.normpath(os.path.join(
+                os.path.dirname(os.path.abspath(__file__)), "..", "..",
+                "experiments", "results", "train_curve_maml.json")),
             train_info={"algo": "maml", "meta_iterations": meta_iterations,
                         "meta_lr": meta_lr, "fast_lr": fast_lr,
                         "train_links": train_links, "seed": seed, "rollout": "sampled"},
