@@ -103,6 +103,16 @@ step "지속 버퍼 ($PERSIST_EPISODES ep)"
 step "도판 생성"
 (cd "$ROOT/experiments" && "$PY" make_figures.py) || exit 1
 
+# 대시보드도 같은 실행에서 갱신한다 — 페이지에 수치를 손으로 적지 않기 위함
+# (cowork/VISUALIZATION_PLAN.md §1-1). 접미사를 준 비교 실행에서는 운영 대시보드를
+# 건드리지 않는다.
+if [ -z "$SUFFIX" ]; then
+  step "대시보드 데이터 생성"
+  (cd "$ROOT/experiments" && "$PY" make_dashboard_data.py --episodes="$EPISODES") || exit 1
+  command -v node >/dev/null 2>&1 && (cd "$ROOT" && node scripts/dashboard_smoke.js >/dev/null) \
+      && echo "  대시보드 스모크 테스트 통과"
+fi
+
 # ── 6) 요약 ───────────────────────────────────────────────────────────────────
 step "요약"
 "$PY" - "$RESULTS" "$SUFFIX" "$EPISODES" <<'PYEOF'

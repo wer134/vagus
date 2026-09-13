@@ -55,6 +55,13 @@ run "figures/figspec"   "$ROOT/experiments/figures" "$PY" figspec.py
 run "py_compile(all)"   "$ROOT"             "$PY" -m compileall -q \
     simulation ai-engine experiments
 
+# ── 2b) 대시보드 (node가 있을 때만 — 없으면 생략, 실패가 아니다) ─────────────
+if command -v node >/dev/null 2>&1; then
+  run "dashboard_smoke"  "$ROOT"           node scripts/dashboard_smoke.js
+else
+  SKIP+=("dashboard_smoke (node 없음)")
+fi
+
 # ── 3) 정책 붕괴 검사 (체크포인트가 있을 때만, 실패시켜도 되는 항목이 아님) ────
 if [ "$RUN_POLICY" = 1 ]; then
   printf '\n\033[1m── policy_check\033[0m (ai-engine)\n'
