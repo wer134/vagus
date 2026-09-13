@@ -137,14 +137,27 @@ def train(
     train_links: list[str] | None = None,
     save_path: str = MODEL_PATH,  # 실험용 임시 학습은 운영 체크포인트를 덮어쓰지 않도록 별도 경로 지정
     seed: int | None = None,
+    probe_every: int = 20,        # 0이면 학습 중 프로브 생략
+    curve_path: str | None = None,
 ):
     if seed is not None:
         torch.manual_seed(seed)
         np.random.seed(seed)
         import random as _r; _r.seed(seed)
+    # 학습 중 붕괴 곡선 (VISUALIZATION_PLAN T1). snapshot/restore로 감싸므로 프로브를
+    # 켜도 같은 seed의 학습 결과는 바뀌지 않는다.
+    probe = None
+    if probe_every:
+        try:
+            from policy_check import TrainingProbe
+            probe = TrainingProbe("maml", meta_iterations, probe_every, seed=seed or 0)
+        except Exception as e:
+            print(f"[probe] 비활성화: {type(e).__name__}: {e}", flush=True)
+
     model    = PolicyNet()
     meta_opt = torch.optim.Adam(model.parameters(), lr=meta_lr)
-    env      = NetworkEnv(snmp_base_url=snmp_url, max_steps=50, fast_mode=True, local_mode=True, train_links=train_links)
+    env      = NetworkEnv(snmp_base_url=snmp_url, max_steps=50, fast_mode=True,
+                          local_mode=True, train_links=train_links, sim_seed=seed)
 
     for iteration in range(meta_iterations):
         meta_opt.zero_grad()
@@ -169,12 +182,31 @@ def train(
         torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
         meta_opt.step()
 
-        if (iteration + 1) % 20 == 0:
-            print(f"[MAML] iter {iteration+1:3d}/{meta_iterations}  meta_loss={meta_loss.item():.4f}")
+        done = iteration + 1
+        if probe is not None and (done % probe_every == 0 or done == 1):
+            sm = probe.record(done, model.act)
+            if sm:
+                print(f"[MAML] iter {done:3d}/{meta_iterations}  "
+                      f"meta_loss={meta_loss.item():.4f}  "
+                      f"entropy={sm['action_entropy_bits']:.2f}bit "
+                      f"top={sm['top_action']}({sm['top_action_share']:.2f})", flush=True)
+                continue
+        if done % 20 == 0:
+            print(f"[MAML] iter {done:3d}/{meta_iterations}  meta_loss={meta_loss.item():.4f}")
 
     torch.save(model.state_dict(), save_path)
     print(f"MAML model saved → {save_path}")
     env.close()
+
+    if probe is not None and probe.samples:
+        probe.save(
+            curve_path or os.path.join(
+                os.path.dirname(__file__), "..", "..", "experiments", "results",
+                "train_curve_maml.json"),
+            train_info={"algo": "maml", "meta_iterations": meta_iterations,
+                        "meta_lr": meta_lr, "fast_lr": fast_lr,
+                        "train_links": train_links, "seed": seed, "rollout": "sampled"},
+        )
 
     # ROADMAP A-5: 학습 직후 정책 붕괴 검사 → <name>.meta.json
     try:
@@ -246,9 +278,11 @@ if __name__ == "__main__":
     parser.add_argument("--snmp-url",        default="http://localhost:5001")
     parser.add_argument("--seed",            type=int, default=None)
     parser.add_argument("--save-path",       default=MODEL_PATH)
+    parser.add_argument("--probe-every",     type=int, default=20,
+                        help="학습 중 정책 프로브 주기 (0=끔) — VISUALIZATION_PLAN T1")
     args = parser.parse_args()
     if args.train:
         train(meta_iterations=args.meta_iterations, snmp_url=args.snmp_url,
-              seed=args.seed, save_path=args.save_path)
+              seed=args.seed, save_path=args.save_path, probe_every=args.probe_every)
     else:
         parser.print_help()

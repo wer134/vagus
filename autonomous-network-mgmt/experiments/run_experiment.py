@@ -141,11 +141,12 @@ def evaluate_agent(
     max_steps:  int = 200,
     test_links: list[str] | None = None,
     model_path: str | None = None,
+    sim_seed: int | None = None,
 ) -> list[EpisodeResult]:
     links = test_links or TEST_LINKS
 
     env = NetworkEnv(max_steps=max_steps, fast_mode=True,
-                     inject_anomalies=False, local_mode=True)
+                     inject_anomalies=False, local_mode=True, sim_seed=sim_seed)
 
     if agent_type == "baseline":
         agent = BaselineAgent(model_path) if model_path else BaselineAgent()
@@ -356,11 +357,13 @@ def main():
               f"({args.episodes} ep each)...")
 
         baseline_results = evaluate_agent("baseline", args.episodes,
-                                          test_links=eval_links, model_path=args.ppo_path)
+                                          test_links=eval_links, model_path=args.ppo_path,
+                                          sim_seed=args.seed)
         save_results(baseline_results, "baseline_results.csv")
 
         fewshot_results = evaluate_agent("fewshot", args.episodes,
-                                         test_links=eval_links, model_path=args.maml_path)
+                                         test_links=eval_links, model_path=args.maml_path,
+                                         sim_seed=args.seed)
         save_results(fewshot_results, "fewshot_results.csv")
 
         print_comparison(baseline_results, fewshot_results)

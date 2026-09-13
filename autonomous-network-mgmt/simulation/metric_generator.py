@@ -377,6 +377,41 @@ def get_attack_state() -> str | None:
     return _attack_state
 
 
+def snapshot() -> dict:
+    """시뮬레이터 전체 상태를 복사해 반환한다 (난수 상태 포함).
+
+    학습 중 정책 프로브(ROADMAP A-5 / VISUALIZATION_PLAN T1)처럼 **학습을 방해하면 안 되는**
+    관찰자가 시뮬레이터를 잠깐 빌려 쓸 때 사용한다. 이 모듈은 싱글턴이라 프로브가 reset을
+    부르면 학습 중인 환경의 상태가 날아가고, 난수 스트림이 어긋나 같은 seed의 학습 결과가
+    바뀐다. snapshot/restore로 감싸면 프로브가 비침습적이 된다.
+    """
+    with _lock:
+        return {
+            "link_stress":  dict(_link_stress),
+            "ospf_costs":   dict(_ospf_costs),
+            "congested":    set(_congested_links),
+            "attack":       _attack_state,
+            "tick":         _tick_count,
+            "demand":       dict(_demand),
+            "routing_mode": _routing_mode,
+            "rng":          _rng.getstate(),
+        }
+
+
+def restore(snap: dict) -> None:
+    """snapshot()이 만든 상태로 되돌린다."""
+    global _congested_links, _attack_state, _tick_count, _routing_mode
+    with _lock:
+        _link_stress.update(snap["link_stress"])
+        _ospf_costs.update(snap["ospf_costs"])
+        _congested_links = set(snap["congested"])
+        _attack_state    = snap["attack"]
+        _tick_count      = snap["tick"]
+        _demand.update(snap["demand"])
+        _routing_mode    = snap["routing_mode"]
+        _rng.setstate(snap["rng"])
+
+
 def reset_state(seed: int | None = None) -> None:
     """전체 상태 초기화 (에피소드 리셋용). seed를 주면 노이즈가 재현된다.
 
@@ -472,4 +507,26 @@ if __name__ == "__main__":
     detour = get_link_stress()["r1-r3"]
     assert detour > base, (base, detour)
     print(f"OK — 우회 경로 r1-r3 정상상태 스트레스 {base:.3f} → {detour:.3f} (우회 부담)")
+
+    # 9) snapshot/restore가 비침습적인가 — 상태와 난수 스트림이 모두 복원돼야 한다
+    reset_state(seed=11)
+    inject_congestion("r2-r3")
+    tick(3)
+    snap = snapshot()
+    expected = [get_all_metrics()[0]["latency"] for _ in range(3)]  # 복원 후 재현할 값
+    restore(snap)
+
+    # 프로브가 하는 짓: 리셋하고 다른 링크를 혼잡시키고 시간을 진행시킨다
+    reset_state(seed=999)
+    inject_congestion("r1-r4")
+    set_ospf_cost("r1-r4", 200)
+    tick(7)
+
+    restore(snap)
+    assert get_tick() == 3, get_tick()
+    assert get_congested_links() == ["r2-r3"], get_congested_links()
+    assert get_ospf_costs()["r1-r4"] == 10, get_ospf_costs()
+    after = [get_all_metrics()[0]["latency"] for _ in range(3)]
+    assert after == expected, (expected, after)   # 난수 스트림까지 같은 자리
+    print("OK — snapshot/restore: 상태·난수 스트림 복원 (학습 중 프로브가 비침습적)")
     print("\n모든 자가 테스트 통과")

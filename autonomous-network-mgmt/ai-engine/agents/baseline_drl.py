@@ -41,14 +41,42 @@ class BaselineAgent:
         return self._model is not None
 
 
+def _make_probe_callback(probe, model_ref):
+    """rollout이 끝날 때마다 정책 행동 분포를 잰다 (VISUALIZATION_PLAN T1).
+
+    rollout 경계에서만 재고 metric_generator를 snapshot/restore로 감싸므로 학습 롤아웃을
+    건드리지 않는다.
+    """
+    from stable_baselines3.common.callbacks import BaseCallback
+
+    class ProbeCallback(BaseCallback):
+        def _on_step(self) -> bool:      # 매 스텝 호출 — 아무것도 하지 않는다
+            return True
+
+        def _on_rollout_end(self) -> None:
+            def predict(obs):
+                action, _ = model_ref[0].predict(obs, deterministic=True)
+                return int(action)
+            sm = probe.record(int(self.num_timesteps), predict)
+            if sm:
+                print(f"[PPO] {self.num_timesteps:6d} steps  "
+                      f"entropy={sm['action_entropy_bits']:.2f}bit "
+                      f"top={sm['top_action']}({sm['top_action_share']:.2f})", flush=True)
+
+    return ProbeCallback()
+
+
 def train(
     total_timesteps: int = 50_000,
     snmp_url: str = "http://localhost:5001",
     train_links: list[str] | None = None,
     save_path: str = MODEL_PATH,
     seed: int | None = None,
+    probe_every: int = 1,          # rollout 몇 번마다 잴지 (0=끔)
+    curve_path: str | None = None,
 ):
-    env = NetworkEnv(snmp_base_url=snmp_url, fast_mode=True, local_mode=True, train_links=train_links)
+    env = NetworkEnv(snmp_base_url=snmp_url, fast_mode=True, local_mode=True,
+                     train_links=train_links, sim_seed=seed)
     check_env(env, warn=True)
 
     model = PPO(
@@ -63,7 +91,26 @@ def train(
         verbose=1,
         seed=seed,
     )
-    model.learn(total_timesteps=total_timesteps)
+    probe, callback = None, None
+    if probe_every:
+        try:
+            from policy_check import TrainingProbe
+            probe = TrainingProbe("ppo", total_timesteps, 2048 * probe_every, seed=seed or 0)
+            callback = _make_probe_callback(probe, [model])
+        except Exception as e:
+            print(f"[probe] 비활성화: {type(e).__name__}: {e}", flush=True)
+
+    model.learn(total_timesteps=total_timesteps, callback=callback)
+
+    if probe is not None and probe.samples:
+        probe.save(
+            curve_path or os.path.join(
+                os.path.dirname(__file__), "..", "..", "experiments", "results",
+                "train_curve_ppo.json"),
+            train_info={"algo": "ppo", "total_timesteps": total_timesteps,
+                        "train_links": train_links, "seed": seed},
+        )
+
     model.save(save_path)
     print(f"Model saved to {save_path}")
     env.close()
@@ -88,9 +135,12 @@ if __name__ == "__main__":
     parser.add_argument("--snmp-url", default="http://localhost:5001")
     parser.add_argument("--seed",      type=int, default=None)
     parser.add_argument("--save-path", default=MODEL_PATH)
+    parser.add_argument("--probe-every", type=int, default=1,
+                        help="rollout 몇 번마다 정책 프로브 (0=끔) — VISUALIZATION_PLAN T1")
     args = parser.parse_args()
 
     if args.train:
-        train(args.timesteps, args.snmp_url, save_path=args.save_path, seed=args.seed)
+        train(args.timesteps, args.snmp_url, save_path=args.save_path, seed=args.seed,
+              probe_every=args.probe_every)
     else:
         parser.print_help()

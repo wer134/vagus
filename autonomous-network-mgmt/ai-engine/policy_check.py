@@ -141,6 +141,99 @@ def write_checkpoint_meta(agent, checkpoint_path: str, train_info: dict | None =
     return meta
 
 
+# ── 학습 중 프로브 (VISUALIZATION_PLAN T1) ────────────────────────────────────
+
+class _CallablePolicy:
+    """`predict(obs) -> int` 하나만 있으면 policy_action_stats를 쓸 수 있게 감싼다."""
+
+    load_error = None
+
+    def __init__(self, fn):
+        self._fn = fn
+
+    def predict(self, obs) -> int:
+        return int(self._fn(obs))
+
+    def is_ready(self) -> bool:
+        return True
+
+
+class TrainingProbe:
+    """학습 **도중** 정책 행동 분포를 주기적으로 기록한다.
+
+    왜 손실이 아니라 행동인가: 이 MAML의 `meta_loss`는 advantage를 정규화한 REINFORCE 손실이라
+    0 주변에서 진동할 뿐 추세가 없다. 그리면 과학적으로 보이지만 진척을 나타내지 않는다.
+    붕괴가 **언제** 일어나는지는 행동 분포(엔트로피·최빈 비율)만이 답한다
+    (cowork/VISUALIZATION_PLAN.md T1, AUDIT P8).
+
+    프로브는 시뮬레이터를 잠깐 빌려 쓰므로 `metric_generator.snapshot()/restore()`로 감싼다.
+    난수 스트림까지 복원되어 **프로브를 붙여도 같은 seed의 학습 결과가 바뀌지 않는다.**
+    """
+
+    def __init__(self, algo: str, total: int, every: int,
+                 steps_per_link: int = 4, n_random: int = 50, seed: int = 0):
+        self.algo, self.total, self.every = algo, total, every
+        self.steps_per_link, self.n_random, self.seed = steps_per_link, n_random, seed
+        self.samples: list[dict] = []
+
+    def record(self, progress: int, predict_fn) -> dict | None:
+        """progress(iteration 또는 timestep)에서 한 번 잰다. 기록했으면 요약을 반환."""
+        import importlib
+        mg_path = os.path.join(os.path.dirname(__file__), "..", "simulation")
+        if mg_path not in sys.path:
+            sys.path.insert(0, mg_path)
+        mg = importlib.import_module("metric_generator")
+
+        snap = mg.snapshot()
+        try:
+            stats = policy_action_stats(
+                _CallablePolicy(predict_fn),
+                steps_per_link=self.steps_per_link,
+                n_random=self.n_random,
+                seed=self.seed,
+            )
+        except Exception as e:
+            print(f"[probe] {progress}: 실패 — {type(e).__name__}: {e}", flush=True)
+            return None
+        finally:
+            mg.restore(snap)      # 학습 환경과 난수 스트림을 원래대로
+
+        sample = {
+            "progress":            progress,
+            "action_entropy_bits": stats["action_entropy_bits"],
+            "top_action":          stats["top_action"],
+            "top_action_share":    stats["top_action_share"],
+            "distinct_actions":    stats["distinct_actions"],
+            "collapsed":           stats["collapsed"],
+        }
+        self.samples.append(sample)
+        return sample
+
+    def save(self, path: str, train_info: dict | None = None) -> None:
+        doc = {
+            "algo": self.algo, "total": self.total, "probe_every": self.every,
+            "probe": {"steps_per_link": self.steps_per_link,
+                      "n_random_obs": self.n_random, "seed": self.seed},
+            "collapse_threshold": COLLAPSE_THRESHOLD,
+            "train": train_info or {},
+            "samples": self.samples,
+        }
+        try:
+            sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "experiments"))
+            from _resultmeta import result_meta
+            doc = {**result_meta(
+                seed=(train_info or {}).get("seed"),
+                condition=(f"{self.algo} 학습 중 {self.every}마다 정책 행동 분포 프로브 "
+                           "(손실이 아니라 행동 — VISUALIZATION_PLAN T1)"),
+            ), **doc}
+        except Exception:
+            pass
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump(doc, f, indent=2, ensure_ascii=False)
+        print(f"[probe] {len(self.samples)}개 표본 → {path}", flush=True)
+
+
 def _load_agents(maml_path: str | None, ppo_path: str | None) -> dict:
     from agents.baseline_drl import BaselineAgent
     from agents.few_shot_agent import FewShotAgent
