@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "timestamp": "2026-09-13T09:20:38.082295",
-  "git_commit": "74300b6-dirty",
+  "timestamp": "2026-09-13T09:27:37.335814",
+  "git_commit": "7eb1afb-dirty",
   "seed": null,
   "contract": {
     "obs_version": 1,
@@ -13,25 +13,23 @@
   "ppo": {
     "loaded": true,
     "top_action": "r1-r4@20",
-    "top_action_share": 0.6458,
-    "action_entropy_bits": 1.6975,
-    "distinct_actions": 6,
+    "top_action_share": 0.4583,
+    "action_entropy_bits": 1.6513,
+    "distinct_actions": 5,
     "collapsed": false,
     "collapse_threshold": 0.8,
     "on_policy_counts": {
-      "r1-r4@20": 31,
-      "r2-r4@100": 6,
-      "r2-r4@200": 4,
-      "r1-r2@200": 3,
-      "r2-r3@100": 3,
-      "r1-r3@200": 1
+      "r1-r4@20": 22,
+      "r1-r3@200": 19,
+      "r2-r3@200": 4,
+      "r1-r2@100": 2,
+      "r2-r4@200": 1
     },
     "random_obs_counts": {
-      "r1-r2@200": 127,
-      "r2-r3@100": 27,
-      "r1-r3@200": 24,
-      "r2-r4@200": 17,
-      "r1-r4@20": 4
+      "r1-r3@200": 160,
+      "r1-r2@100": 29,
+      "r2-r3@200": 10,
+      "r1-r4@20": 1
     },
     "probe": {
       "links": 6,
@@ -52,7 +50,8 @@
       "r3-r4@100": 48
     },
     "random_obs_counts": {
-      "r3-r4@100": 200
+      "r3-r4@100": 186,
+      "r2-r3@10": 14
     },
     "probe": {
       "links": 6,
