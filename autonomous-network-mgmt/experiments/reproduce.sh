@@ -138,8 +138,10 @@ if off:
             a = off[agent]
             print(f"  오프라인 {agent:9s}: TTR {a['avg_ttr']:6.2f}  성공 {a['success_rate']:5.1f}%")
 if pc:
+    # policy_check.json은 최상위에 E-4 메타데이터(schema_version 등)와 에이전트 항목이
+    # 섞여 있다. 에이전트만 'loaded' 키로 걸러낸다.
     for name, r in pc.items():
-        if r.get("loaded"):
+        if isinstance(r, dict) and r.get("loaded"):
             print(f"  정책검사 {name:9s}: {'COLLAPSED' if r['collapsed'] else 'ok':9s} "
                   f"top={r['top_action']} share={r['top_action_share']} "
                   f"entropy={r['action_entropy_bits']}bit")

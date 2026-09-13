@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "timestamp": "2026-09-09T08:12:37.281090",
-  "git_commit": "0ac5e75-dirty",
+  "timestamp": "2026-09-13T09:41:41.316545",
+  "git_commit": "25feed0-dirty",
   "seed": 42,
   "contract": {
     "obs_version": 1,
@@ -11,13 +11,13 @@
   },
   "_condition": "폐쇄 루프 /auto-step, 사이클당 시뮬레이터 1틱(lockstep), 검증 조회는 순수 조회. 2026-09-09 이전 결과는 사이클당 2틱으로 측정되어 직접 비교 불가.",
   "total": 50,
-  "avg_ttr": 6.86,
+  "avg_ttr": 6.88,
   "test_avg_ttr": 6.75,
-  "train_avg_ttr": 7.06,
+  "train_avg_ttr": 7.11,
   "success_rate": 100.0,
   "root_cause_accuracy_pct": 100.0,
   "rca_all_cycles_ok_pct": 100.0,
-  "wasted_actions_per_ep": 0.8,
+  "wasted_actions_per_ep": 0.7,
   "results": [
     {
       "ep": 1,
@@ -437,15 +437,15 @@
       "first_root": "r1-r3",
       "root_match": true,
       "rca_all_cycles_ok": true,
-      "wasted_actions": 1,
+      "wasted_actions": 0,
       "actions": [
         "r1-r3@100",
-        "r3-r4@100",
-        "r3-r4@100",
-        "r3-r4@100",
-        "r3-r4@100",
-        "r3-r4@100",
-        "r3-r4@100"
+        "r2-r3@10",
+        "r2-r3@10",
+        "r2-r3@10",
+        "r2-r3@10",
+        "r2-r3@10",
+        "r2-r3@10"
       ]
     },
     {
@@ -508,13 +508,14 @@
       "first_root": "r1-r3",
       "root_match": true,
       "rca_all_cycles_ok": true,
-      "wasted_actions": 1,
+      "wasted_actions": 0,
       "actions": [
         "r1-r3@100",
-        "r3-r4@100",
-        "r3-r4@100",
-        "r3-r4@100",
-        "r3-r4@100"
+        "r2-r3@10",
+        "r2-r3@10",
+        "r2-r3@10",
+        "r2-r3@10",
+        "r2-r3@10"
       ]
     },
     {
@@ -592,18 +593,18 @@
       "ep": 33,
       "link": "r1-r3",
       "group": "train",
-      "ttr": 7,
+      "ttr": 8,
       "first_root": "r1-r3",
       "root_match": true,
       "rca_all_cycles_ok": true,
-      "wasted_actions": 1,
+      "wasted_actions": 0,
       "actions": [
         "r1-r3@100",
-        "r3-r4@100",
-        "r3-r4@100",
-        "r3-r4@100",
-        "r3-r4@100",
-        "r3-r4@100"
+        "r2-r3@10",
+        "r2-r3@10",
+        "r2-r3@10",
+        "r2-r3@10",
+        "r2-r3@10"
       ]
     },
     {
@@ -614,13 +615,13 @@
       "first_root": "r1-r3",
       "root_match": true,
       "rca_all_cycles_ok": true,
-      "wasted_actions": 1,
+      "wasted_actions": 0,
       "actions": [
         "r1-r3@100",
-        "r3-r4@100",
-        "r3-r4@100",
-        "r3-r4@100",
-        "r3-r4@100"
+        "r2-r3@10",
+        "r2-r3@10",
+        "r2-r3@10",
+        "r2-r3@10"
       ]
     },
     {
@@ -672,8 +673,8 @@
         "r3-r4@100",
         "r3-r4@100",
         "r3-r4@100",
-        "r3-r4@100",
-        "r3-r4@100"
+        "r2-r3@10",
+        "r2-r3@10"
       ]
     },
     {
@@ -755,14 +756,14 @@
       "first_root": "r1-r3",
       "root_match": true,
       "rca_all_cycles_ok": true,
-      "wasted_actions": 1,
+      "wasted_actions": 0,
       "actions": [
         "r1-r3@100",
-        "r3-r4@100",
-        "r3-r4@100",
-        "r3-r4@100",
-        "r3-r4@100",
-        "r3-r4@100"
+        "r2-r3@10",
+        "r2-r3@10",
+        "r2-r3@10",
+        "r2-r3@10",
+        "r2-r3@10"
       ]
     },
     {

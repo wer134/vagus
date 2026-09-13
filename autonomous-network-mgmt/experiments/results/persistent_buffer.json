@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "timestamp": "2026-09-09T08:13:34.208900",
-  "git_commit": "0ac5e75-dirty",
+  "timestamp": "2026-09-13T09:42:52.338410",
+  "git_commit": "25feed0-dirty",
   "seed": 42,
   "contract": {
     "obs_version": 1,
@@ -441,8 +441,8 @@
       "wasted_actions": 1,
       "actions": [
         "r1-r3@100",
-        "r3-r4@100",
-        "r3-r4@100",
+        "r2-r3@10",
+        "r2-r3@10",
         "r3-r4@100",
         "r3-r4@100",
         "r3-r4@100",
