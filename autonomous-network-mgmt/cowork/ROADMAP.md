@@ -112,6 +112,9 @@ B-1~B-3은 Python만으로 가능하고 Track A의 전제다. B-6은 별도 마�
 | D-2 | 제어 경로 단일화 | (A) Java 경로가 `/action`(단건) 대신 `/auto-step`을 호출하거나, (B) `/auto-step`의 Orient·Decide 로직을 라이브러리로 분리해 두 경로가 공유. 현재는 같은 목적의 루프가 두 벌(§3.2 OVERVIEW) | 절제 실험 결과가 두 경로에서 같음 |
 | D-3 | 메트릭·결정 이력 저장 | PostgreSQL 재도입(이번엔 코드와 함께): 관측, 진단, 행동, 결과를 시계열로 저장. 대시보드 라이브화의 전제 | `/history?from=&to=` API |
 | D-4 | 대시보드 라이브화 | 정적 데모 대신 `/live-results`·`/history`를 읽는 프런트. 정적 버전은 GitHub Pages용으로 유지 | 라이브/정적 빌드 분리 |
+
+> 도판·대시보드 작업의 상세 계획은 `cowork/VISUALIZATION_PLAN.md`에 있다. 특히 현재 대시보드가
+> 철회된 수치(TTR 3.78, 랜덤 정책 베이스라인, 샘플 효율 곡선)를 렌더링하고 있다는 점을 다룬다.
 | D-5 | 관측성 | 구조화 로그(JSON), 사이클별 지연·실패 카운터, `/metrics`(Prometheus) | 503·apply 실패가 카운터로 보임 |
 | D-6 | 접근 제어 | `/debug/*`·`/reset-buffer`에 토큰, CORS 화이트리스트, OSPF 키를 환경변수/키스토어로 | README 보안 범위 절 갱신 |
 
