@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "timestamp": "2026-09-13T09:27:37.335814",
+  "git_commit": "7eb1afb-dirty",
+  "seed": null,
+  "contract": {
+    "obs_version": 1,
+    "action_version": 1,
+    "reward_version": 1,
+    "sim_version": 3
+  },
+  "_condition": "체크포인트별 정책 행동 분포 프로브 (링크마다 혼잡 주입 후 8스텝, 무작위 관측 200회)",
+  "ppo": {
+    "loaded": true,
+    "top_action": "r1-r4@20",
+    "top_action_share": 0.4583,
+    "action_entropy_bits": 1.6513,
+    "distinct_actions": 5,
+    "collapsed": false,
+    "collapse_threshold": 0.8,
+    "on_policy_counts": {
+      "r1-r4@20": 22,
+      "r1-r3@200": 19,
+      "r2-r3@200": 4,
+      "r1-r2@100": 2,
+      "r2-r4@200": 1
+    },
+    "random_obs_counts": {
+      "r1-r3@200": 160,
+      "r1-r2@100": 29,
+      "r2-r3@200": 10,
+      "r1-r4@20": 1
+    },
+    "probe": {
+      "links": 6,
+      "steps_per_link": 8,
+      "n_random_obs": 200,
+      "seed": 0
+    }
+  },
+  "maml": {
+    "loaded": true,
+    "top_action": "r3-r4@100",
+    "top_action_share": 1.0,
+    "action_entropy_bits": 0.0,
+    "distinct_actions": 1,
+    "collapsed": true,
+    "collapse_threshold": 0.8,
+    "on_policy_counts": {
+      "r3-r4@100": 48
+    },
+    "random_obs_counts": {
+      "r3-r4@100": 186,
+      "r2-r3@10": 14
+    },
+    "probe": {
+      "links": 6,
+      "steps_per_link": 8,
+      "n_random_obs": 200,
+      "seed": 0
+    }
+  }
+}

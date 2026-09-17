@@ -3,6 +3,9 @@
 모든 항이 [0,1] 범위로 정규화되어 스케일 안정성 확보.
 """
 
+# v1: 지연·처리량·SLA 패널티만. 행동 비용/부수 피해 항 없음 (cowork/ROADMAP.md A-3).
+REWARD_VERSION = 1
+
 W_LAT  = 0.4
 W_TPUT = 0.4
 W_PEN  = 0.2

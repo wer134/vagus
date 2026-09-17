@@ -30,12 +30,16 @@ time.sleep은 시뮬레이션에 영향이 없어 제거했다.
 import argparse
 import json
 import random
+import sys
 import time
 from datetime import datetime
 from pathlib import Path
 
 import urllib.request
 import urllib.error
+
+sys.path.insert(0, str(Path(__file__).parent))
+from _resultmeta import result_meta  # noqa: E402
 
 AI   = "http://127.0.0.1:8000"
 SNMP = "http://127.0.0.1:5001"
@@ -181,7 +185,13 @@ def run(n_episodes: int = 20, output: str | None = None, seed: int | None = 42):
     print("=" * 55, flush=True)
 
     summary = {
-        "timestamp":     datetime.now().isoformat(),
+        **result_meta(
+            seed=seed,
+            condition=(
+                "폐쇄 루프 /auto-step, 사이클당 시뮬레이터 1틱(lockstep), 검증 조회는 순수 조회. "
+                "2026-09-09 이전 결과는 사이클당 2틱으로 측정되어 직접 비교 불가."
+            ),
+        ),
         "total":         len(results),
         "avg_ttr":       round(sum(all_ttrs) / len(all_ttrs), 2),
         "test_avg_ttr":  round(sum(test_ttrs) / len(test_ttrs), 2),
@@ -190,11 +200,6 @@ def run(n_episodes: int = 20, output: str | None = None, seed: int | None = 42):
         "root_cause_accuracy_pct": round(root_acc, 1),
         "rca_all_cycles_ok_pct":   round(rca_all, 1),
         "wasted_actions_per_ep":   round(wasted_avg, 2),
-        "seed":          seed,
-        "_condition": (
-            "폐쇄 루프 /auto-step, 사이클당 시뮬레이터 1틱(lockstep), 검증 조회는 순수 조회. "
-            "2026-09-09 이전 결과는 사이클당 2틱으로 측정되어 직접 비교 불가."
-        ),
         "results":       results,
     }
 

@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "timestamp": "2026-09-09T07:30:04.914413",
+  "git_commit": "8e547b6-dirty",
+  "seed": null,
+  "contract": {
+    "obs_version": 1,
+    "action_version": 1,
+    "reward_version": 1,
+    "sim_version": 2
+  },
+  "_condition": "학습 직후 정책 붕괴 검사 (ROADMAP A-5)",
+  "checkpoint": "maml_network_pre_audit.pt",
+  "train": {
+    "algo": "maml",
+    "rollout": "argmax",
+    "seed": null,
+    "trained_at": "~2026-09-06",
+    "sim_version_at_train": 1,
+    "note": "AUDIT P5 수정 전 체크포인트 — 비교용 보존"
+  },
+  "policy_check": {
+    "top_action": "r1-r2@200",
+    "top_action_share": 0.875,
+    "action_entropy_bits": 0.5436,
+    "distinct_actions": 2,
+    "collapsed": true,
+    "collapse_threshold": 0.8,
+    "on_policy_counts": {
+      "r1-r2@200": 42,
+      "r2-r3@10": 6
+    },
+    "random_obs_counts": {
+      "r1-r2@200": 200
+    },
+    "probe": {
+      "links": 6,
+      "steps_per_link": 8,
+      "n_random_obs": 200,
+      "seed": 0
+    }
+  }
+}

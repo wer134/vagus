@@ -1,0 +1,53 @@
+{
+  "ppo": {
+    "loaded": true,
+    "top_action": "r1-r4@20",
+    "top_action_share": 0.6458,
+    "action_entropy_bits": 1.6975,
+    "distinct_actions": 6,
+    "collapsed": false,
+    "collapse_threshold": 0.8,
+    "on_policy_counts": {
+      "r1-r4@20": 31,
+      "r2-r4@100": 6,
+      "r2-r4@200": 4,
+      "r1-r2@200": 3,
+      "r2-r3@100": 3,
+      "r1-r3@200": 1
+    },
+    "random_obs_counts": {
+      "r1-r2@200": 127,
+      "r2-r3@100": 27,
+      "r1-r3@200": 24,
+      "r2-r4@200": 17,
+      "r1-r4@20": 4
+    },
+    "probe": {
+      "links": 6,
+      "steps_per_link": 8,
+      "n_random_obs": 200,
+      "seed": 0
+    }
+  },
+  "maml": {
+    "loaded": true,
+    "top_action": "r3-r4@100",
+    "top_action_share": 1.0,
+    "action_entropy_bits": 0.0,
+    "distinct_actions": 1,
+    "collapsed": true,
+    "collapse_threshold": 0.8,
+    "on_policy_counts": {
+      "r3-r4@100": 48
+    },
+    "random_obs_counts": {
+      "r3-r4@100": 200
+    },
+    "probe": {
+      "links": 6,
+      "steps_per_link": 8,
+      "n_random_obs": 200,
+      "seed": 0
+    }
+  }
+}
