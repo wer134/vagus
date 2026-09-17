@@ -6,6 +6,11 @@ simulation/metric_generator.py는 별도 배포 단위(가상 장비)라 자체 
 Java 쪽 AiEngineClient.NODE_ORDER / LINK_ORDER도 같은 순서여야 한다.
 """
 
+# ── 계약 버전 (결과 파일의 contract 블록에 기록된다 — cowork/ROADMAP.md E-4) ──────
+# 관측/행동 규약을 바꿀 때 올린다. 버전이 다른 결과는 직접 비교할 수 없다.
+OBS_VERSION    = 1   # v1: [bw×4, lat×4, cost×6] 14차원, bw/1000·lat/200·cost/200, clip 0~1
+ACTION_VERSION = 1   # v1: Discrete(30) = link_idx × len(OSPF_COSTS) + cost_idx (NO-OP 없음)
+
 NODES      = ["r1", "r2", "r3", "r4"]
 LINKS      = ["r1-r2", "r1-r3", "r2-r3", "r2-r4", "r3-r4", "r1-r4"]
 OSPF_COSTS = [10, 20, 50, 100, 200]

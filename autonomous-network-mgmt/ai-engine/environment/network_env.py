@@ -62,6 +62,7 @@ class NetworkEnv(gym.Env):
         inject_anomalies: bool = True,
         local_mode: bool = True,
         train_links: list[str] | None = None,  # None=전체, 지정 시 해당 링크만 이상 주입
+        sim_seed: int | None = None,           # 시뮬레이터 노이즈 스트림 시드 (재현성)
     ):
         super().__init__()
         self.snmp_url        = snmp_base_url
@@ -86,6 +87,13 @@ class NetworkEnv(gym.Env):
             import httpx
             self._client = httpx.Client(timeout=5.0)
             self._mg     = None
+
+        # 시뮬레이터 노이즈 스트림을 한 번만 시드한다. torch/numpy/random을 시드해도
+        # metric_generator의 `_rng`는 별도 스트림이라, 이걸 빼먹으면 같은 seed로 학습해도
+        # 결과가 달라진다 (2026-09-13 발견). 이후 reset()은 seed 없이 부르므로 스트림이
+        # 이어지고, 에피소드마다 다르되 전체 시퀀스는 재현된다.
+        if sim_seed is not None:
+            self._seed_backend(sim_seed)
 
     # ── gymnasium API ────────────────────────────────────────────────────────
 
@@ -143,6 +151,15 @@ class NetworkEnv(gym.Env):
         return target
 
     # ── 내부 헬퍼 ─────────────────────────────────────────────────────────────
+
+    def _seed_backend(self, sim_seed: int):
+        if self._local_mode:
+            self._mg.reset_state(seed=sim_seed)
+        else:
+            try:
+                self._client.post(f"{self.snmp_url}/debug/reset", json={"seed": sim_seed})
+            except Exception:
+                pass
 
     def _reset_backend(self):
         if self._local_mode:

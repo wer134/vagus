@@ -1,0 +1,246 @@
+{
+  "schema_version": 1,
+  "timestamp": "2026-09-13T09:26:53.682003",
+  "git_commit": "7eb1afb-dirty",
+  "seed": 42,
+  "contract": {
+    "obs_version": 1,
+    "action_version": 1,
+    "reward_version": 1,
+    "sim_version": 3
+  },
+  "_condition": "maml 학습 중 20마다 정책 행동 분포 프로브 (손실이 아니라 행동 — VISUALIZATION_PLAN T1)",
+  "algo": "maml",
+  "total": 500,
+  "probe_every": 20,
+  "probe": {
+    "steps_per_link": 4,
+    "n_random_obs": 50,
+    "seed": 42
+  },
+  "collapse_threshold": 0.8,
+  "train": {
+    "algo": "maml",
+    "meta_iterations": 500,
+    "meta_lr": 0.0003,
+    "fast_lr": 0.02,
+    "train_links": [
+      "r1-r2",
+      "r1-r3",
+      "r2-r3",
+      "r2-r4"
+    ],
+    "seed": 42,
+    "rollout": "sampled"
+  },
+  "samples": [
+    {
+      "progress": 1,
+      "action_entropy_bits": 0.9544,
+      "top_action": "r1-r4@100",
+      "top_action_share": 0.625,
+      "distinct_actions": 2,
+      "collapsed": false
+    },
+    {
+      "progress": 20,
+      "action_entropy_bits": 0.9544,
+      "top_action": "r3-r4@50",
+      "top_action_share": 0.625,
+      "distinct_actions": 2,
+      "collapsed": false
+    },
+    {
+      "progress": 40,
+      "action_entropy_bits": 0.9183,
+      "top_action": "r3-r4@50",
+      "top_action_share": 0.6667,
+      "distinct_actions": 2,
+      "collapsed": false
+    },
+    {
+      "progress": 60,
+      "action_entropy_bits": 1.644,
+      "top_action": "r3-r4@50",
+      "top_action_share": 0.4583,
+      "distinct_actions": 4,
+      "collapsed": false
+    },
+    {
+      "progress": 80,
+      "action_entropy_bits": 0.9544,
+      "top_action": "r3-r4@50",
+      "top_action_share": 0.625,
+      "distinct_actions": 2,
+      "collapsed": false
+    },
+    {
+      "progress": 100,
+      "action_entropy_bits": 0.9544,
+      "top_action": "r3-r4@50",
+      "top_action_share": 0.625,
+      "distinct_actions": 2,
+      "collapsed": false
+    },
+    {
+      "progress": 120,
+      "action_entropy_bits": 0.0,
+      "top_action": "r3-r4@50",
+      "top_action_share": 1.0,
+      "distinct_actions": 1,
+      "collapsed": true
+    },
+    {
+      "progress": 140,
+      "action_entropy_bits": 0.0,
+      "top_action": "r3-r4@50",
+      "top_action_share": 1.0,
+      "distinct_actions": 1,
+      "collapsed": true
+    },
+    {
+      "progress": 160,
+      "action_entropy_bits": 0.0,
+      "top_action": "r3-r4@50",
+      "top_action_share": 1.0,
+      "distinct_actions": 1,
+      "collapsed": true
+    },
+    {
+      "progress": 180,
+      "action_entropy_bits": 0.8113,
+      "top_action": "r3-r4@50",
+      "top_action_share": 0.75,
+      "distinct_actions": 2,
+      "collapsed": false
+    },
+    {
+      "progress": 200,
+      "action_entropy_bits": 0.9544,
+      "top_action": "r3-r4@50",
+      "top_action_share": 0.625,
+      "distinct_actions": 2,
+      "collapsed": false
+    },
+    {
+      "progress": 220,
+      "action_entropy_bits": 1.5613,
+      "top_action": "r3-r4@50",
+      "top_action_share": 0.375,
+      "distinct_actions": 3,
+      "collapsed": false
+    },
+    {
+      "progress": 240,
+      "action_entropy_bits": 0.0,
+      "top_action": "r1-r3@200",
+      "top_action_share": 1.0,
+      "distinct_actions": 1,
+      "collapsed": true
+    },
+    {
+      "progress": 260,
+      "action_entropy_bits": 0.9799,
+      "top_action": "r3-r4@100",
+      "top_action_share": 0.5833,
+      "distinct_actions": 2,
+      "collapsed": false
+    },
+    {
+      "progress": 280,
+      "action_entropy_bits": 0.0,
+      "top_action": "r3-r4@100",
+      "top_action_share": 1.0,
+      "distinct_actions": 1,
+      "collapsed": true
+    },
+    {
+      "progress": 300,
+      "action_entropy_bits": 0.0,
+      "top_action": "r3-r4@100",
+      "top_action_share": 1.0,
+      "distinct_actions": 1,
+      "collapsed": true
+    },
+    {
+      "progress": 320,
+      "action_entropy_bits": 0.0,
+      "top_action": "r3-r4@100",
+      "top_action_share": 1.0,
+      "distinct_actions": 1,
+      "collapsed": true
+    },
+    {
+      "progress": 340,
+      "action_entropy_bits": 0.0,
+      "top_action": "r3-r4@100",
+      "top_action_share": 1.0,
+      "distinct_actions": 1,
+      "collapsed": true
+    },
+    {
+      "progress": 360,
+      "action_entropy_bits": 0.5436,
+      "top_action": "r3-r4@100",
+      "top_action_share": 0.875,
+      "distinct_actions": 2,
+      "collapsed": true
+    },
+    {
+      "progress": 380,
+      "action_entropy_bits": 0.0,
+      "top_action": "r3-r4@100",
+      "top_action_share": 1.0,
+      "distinct_actions": 1,
+      "collapsed": true
+    },
+    {
+      "progress": 400,
+      "action_entropy_bits": 0.0,
+      "top_action": "r3-r4@100",
+      "top_action_share": 1.0,
+      "distinct_actions": 1,
+      "collapsed": true
+    },
+    {
+      "progress": 420,
+      "action_entropy_bits": 0.0,
+      "top_action": "r3-r4@100",
+      "top_action_share": 1.0,
+      "distinct_actions": 1,
+      "collapsed": true
+    },
+    {
+      "progress": 440,
+      "action_entropy_bits": 0.0,
+      "top_action": "r3-r4@100",
+      "top_action_share": 1.0,
+      "distinct_actions": 1,
+      "collapsed": true
+    },
+    {
+      "progress": 460,
+      "action_entropy_bits": 0.0,
+      "top_action": "r2-r3@10",
+      "top_action_share": 1.0,
+      "distinct_actions": 1,
+      "collapsed": true
+    },
+    {
+      "progress": 480,
+      "action_entropy_bits": 0.5436,
+      "top_action": "r2-r3@10",
+      "top_action_share": 0.875,
+      "distinct_actions": 2,
+      "collapsed": true
+    },
+    {
+      "progress": 500,
+      "action_entropy_bits": 0.0,
+      "top_action": "r3-r4@100",
+      "top_action_share": 1.0,
+      "distinct_actions": 1,
+      "collapsed": true
+    }
+  ]
+}

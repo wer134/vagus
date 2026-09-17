@@ -2,9 +2,21 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<title>ANM 대시보드</title>
+<title>vagus — 대시보드</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<!-- 실험 수치는 experiments/make_dashboard_data.py가 results/*.json에서 생성한다.
+     이 페이지에 숫자를 직접 적지 않는다 (cowork/VISUALIZATION_PLAN.md §1-1). -->
+<script src="dashboard_data.js"></script>
 <style>
+  /* 계열색·상태색은 experiments/figures/palette.py가 단일 출처다. 문서 도판(matplotlib)과
+     이 페이지(Chart.js)가 같은 값을 쓰도록 window.ANM_DATA.palette에서 읽어 적용한다 —
+     아래 값은 스크립트가 뜨기 전의 대체값일 뿐이다. */
+  :root {
+    --series-1: #3987e5; --series-2: #d95926; --series-3: #199e70; --series-4: #c98500;
+    --status-good: #0ca30c; --status-warning: #fab219;
+    --status-serious: #ec835a; --status-critical: #d03b3b;
+    --deemphasis: #52514e;
+  }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: 'Segoe UI', sans-serif; background: #0f1117; color: #e0e0e0; padding: 20px; }
   h1 { text-align: center; color: #7eb6ff; margin-bottom: 6px; font-size: 1.4rem; }
@@ -103,6 +115,22 @@
 
   .no-data { color: #555; text-align: center; padding: 40px; font-size: 0.9rem; }
 
+  /* 조건 스탬프 — 어떤 커밋·계약 버전·조건에서 잰 수치인지 도판 규칙과 동일하게 병기 */
+  .provenance {
+    background: #0d1117; border: 1px solid #2a2d3e; border-radius: 8px;
+    padding: 10px 14px; margin-bottom: 16px; font-family: monospace;
+    font-size: 0.72rem; color: #888; line-height: 1.7;
+  }
+  .provenance b { color: #b0b0b0; font-weight: normal; }
+  .chart-note { color: #777; font-size: 0.72rem; margin-top: 10px; line-height: 1.6; }
+  .tag.good { background: #1b3a1b; color: #4caf50; }
+  .tag.bad  { background: #3a1b1b; color: #ff6b6b; }
+  .caveat {
+    background: #241d10; border-left: 3px solid #fab219; border-radius: 6px;
+    padding: 10px 14px; margin-bottom: 16px; font-size: 0.78rem;
+    color: #c9bda3; line-height: 1.7;
+  }
+
   /* ── Auto Mode ─────────────────────────────────────────────────── */
   .auto-panel {
     background: #1a1d27; border-radius: 10px; padding: 16px; margin-bottom: 20px;
@@ -136,15 +164,16 @@
 </head>
 <body>
 
-<h1>Autonomous Network Management — 대시보드</h1>
+<h1>vagus — 대시보드</h1>
 <p class="subtitle">ZSM/ENI 폐쇄 루프 (OODA) | PPO(Baseline) vs MAML(Few-shot) | 자율 이상 감지·진단·복구</p>
 <p class="subtitle"><span style="background:#2a1b3a;color:#c39bd3;border:1px solid #c39bd3;border-radius:10px;padding:2px 10px;font-size:0.75rem;font-weight:bold;">정적 데모</span>
-&nbsp;실행 중인 시스템의 데이터가 아닙니다 — 모니터링 지표는 브라우저에서 생성되며, 실험 결과 탭은 2026-04-22 측정치(<code>summary.json</code>)를 임베드한 것입니다. 그 수치(TTR 3.78)는 사이클당 시뮬레이터 2틱으로 측정된 값이며, 2026-09-09 재측정(1틱 기준)은 TTR 6.84입니다 — <code>cowork/AUDIT_2026-09-09.md</code> 참고.</p>
+&nbsp;<b>실시간 모니터링</b> 탭은 실행 중인 시스템이 아니라 브라우저가 만든 난수입니다 — 화면 구성을 보여줄 뿐 어떤 측정도 아닙니다.
+<b>실험 결과</b>·<b>학습 동역학</b> 탭은 <code>experiments/results/*.json</code>에서 <code>make_dashboard_data.py</code>가 생성한 실제 측정치이며, 각 탭 머리의 조건 스탬프에 커밋·계약 버전·측정 조건이 붙어 있습니다.</p>
 
 <div class="tabs">
   <div class="tab active" onclick="switchTab('monitor')">실시간 모니터링</div>
   <div class="tab" onclick="switchTab('results')">실험 결과 비교</div>
-  <div class="tab" onclick="switchTab('efficiency')">샘플 효율</div>
+  <div class="tab" onclick="switchTab('training')">학습 동역학</div>
 </div>
 
 <!-- ═══════════════════ TAB 1: Live Monitor ═══════════════════ -->
@@ -210,110 +239,147 @@
 <!-- ═══════════════════ TAB 2: Results ═══════════════════ -->
 <div id="page-results" class="page">
 
-<div style="display:flex;justify-content:flex-end;margin-bottom:12px;">
-  <button class="btn-load" onclick="loadResults()">결과 새로 고침</button>
-</div>
+<div class="provenance" id="prov-results">데이터 로딩 중…</div>
 
-<div style="font-size:0.75rem;color:#555;margin-bottom:10px;">
-  ZSM 검증 지표 | 평가 링크: r3-r4, r1-r4 (미학습 Test Links) | Baseline=PPO, Few-shot=MAML+REINFORCE
-</div>
 <div class="kpi-row" id="kpi-row">
-  <div class="kpi blue"><div class="kpi-label">PPO 평균 TTR (ZSM Recovery)</div><div class="kpi-val" id="kpi-ppo-ttr">—</div><div class="kpi-sub">steps</div></div>
-  <div class="kpi purple"><div class="kpi-label">MAML 평균 TTR (ZSM Recovery)</div><div class="kpi-val" id="kpi-maml-ttr">—</div><div class="kpi-sub">steps</div></div>
-  <div class="kpi orange"><div class="kpi-label">SLA 위반 (PPO / ZSM SLA Eval)</div><div class="kpi-val" id="kpi-ppo-sla">—</div><div class="kpi-sub">avg per episode</div></div>
-  <div class="kpi green"><div class="kpi-label">SLA 위반 (MAML / ZSM SLA Eval)</div><div class="kpi-val" id="kpi-maml-sla">—</div><div class="kpi-sub">avg per episode</div></div>
+  <div class="kpi green"><div class="kpi-label">평균 복구 시간 (TTR)</div><div class="kpi-val" id="kpi-ttr">—</div><div class="kpi-sub" id="kpi-ttr-sub">steps</div></div>
+  <div class="kpi green"><div class="kpi-label">복구 성공률</div><div class="kpi-val" id="kpi-success">—</div><div class="kpi-sub" id="kpi-success-sub">&nbsp;</div></div>
+  <div class="kpi blue"><div class="kpi-label">근본 원인 정확도</div><div class="kpi-val" id="kpi-rca">—</div><div class="kpi-sub">첫 진단 / 전 사이클</div></div>
+  <div class="kpi orange"><div class="kpi-label">부수 조치</div><div class="kpi-val" id="kpi-waste">—</div><div class="kpi-sub">에피소드당 (낮을수록 좋음)</div></div>
 </div>
 
 <div class="results-grid">
   <div class="chart-card">
-    <h3>TTR 비교 — 에피소드별 (ZSM 복구 시간)</h3>
+    <h3>복구 시간 분포 — 학습 링크 vs 미학습 링크</h3>
     <div class="chart-wrap"><canvas id="chart-ttr"></canvas></div>
+    <p class="chart-note" id="note-ttr"></p>
   </div>
   <div class="chart-card">
-    <h3>평균 TTR / SLA 위반 / 보상 (ZSM KPI 요약)</h3>
-    <div class="chart-wrap"><canvas id="chart-bar"></canvas></div>
+    <h3>오프라인 평가 — 제한 시간 내 해결 여부</h3>
+    <div class="chart-wrap"><canvas id="chart-offline"></canvas></div>
+    <p class="chart-note" id="note-offline"></p>
   </div>
   <div class="chart-card">
-    <h3>TTR 분포 — MAML vs PPO (Box Plot)</h3>
-    <div class="chart-wrap"><canvas id="chart-box"></canvas></div>
+    <h3>절제 실험 — 평균 TTR (낮을수록 좋음)</h3>
+    <div class="chart-wrap"><canvas id="chart-abl-ttr"></canvas></div>
   </div>
   <div class="chart-card">
-    <h3>성공률 [TTR &lt; 30] — ENI 자율도 지표</h3>
-    <div class="chart-wrap"><canvas id="chart-success"></canvas></div>
+    <h3>절제 실험 — 에피소드당 부수 조치 (낮을수록 좋음)</h3>
+    <div class="chart-wrap"><canvas id="chart-abl-waste"></canvas></div>
   </div>
 </div>
 
+<p class="chart-note" style="margin:-6px 0 20px">두 절제 그림은 같은 순서·같은 실험이며 축이 다르므로 분리했습니다 — 단위가 다른 두 값을 한 그림의 두 축에 겹쳐 그리지 않습니다.</p>
+
 <div class="action-panel">
-  <h2>상세 비교표 — ZSM/ENI 검증 지표</h2>
-  <table class="summary-table" id="detail-table">
+  <h2>절제 실험 — 구성 요소별 기여</h2>
+  <table class="summary-table">
     <thead><tr>
-      <th>지표 (ZSM 평가 항목)</th>
-      <th>PPO (Baseline DRL)</th>
-      <th>MAML (Few-shot / ENI)</th>
-      <th>개선 배율</th>
+      <th>구성</th><th>평균 TTR</th><th>성공률</th><th>부수 조치/ep</th><th>전 사이클 RCA</th>
     </tr></thead>
-    <tbody id="detail-tbody">
-      <tr><td colspan="4" class="no-data">결과 파일을 로드하거나 실험을 실행하세요.</td></tr>
-    </tbody>
+    <tbody id="abl-tbody"><tr><td colspan="5" class="no-data">—</td></tr></tbody>
+  </table>
+</div>
+
+<div class="action-panel">
+  <h2>오프라인 평가 — PPO vs MAML (미학습 링크)</h2>
+  <div class="caveat" id="offline-caveat"></div>
+  <table class="summary-table">
+    <thead><tr>
+      <th>지표</th><th>PPO (Baseline DRL)</th><th>MAML (Few-shot)</th>
+    </tr></thead>
+    <tbody id="detail-tbody"><tr><td colspan="3" class="no-data">—</td></tr></tbody>
   </table>
 </div>
 
 </div><!-- /page-results -->
 
-<!-- ═══════════════════ TAB 3: Sample Efficiency ═══════════════════ -->
-<div id="page-efficiency" class="page">
+<!-- ═══════════════════ TAB 3: Training dynamics ═══════════════════ -->
+<div id="page-training" class="page">
 
-<div style="display:flex;justify-content:flex-end;margin-bottom:12px;">
-  <button class="btn-load" onclick="loadEfficiency()">결과 새로 고침</button>
+<div class="provenance" id="prov-training">데이터 로딩 중…</div>
+
+<div class="caveat">
+  강화학습의 손실값은 진행도를 뜻하지 않습니다(정규화된 어드밴티지를 쓰는 REINFORCE의 손실은 0 근처를 오갑니다).
+  그래서 손실 곡선 대신 <b>정책이 실제로 고르는 행동</b>을 학습 도중 주기적으로 프로브해 기록합니다 —
+  최빈 행동 점유율이 임계값 이상이면 상태와 무관한 상수 정책으로 붕괴한 것입니다.
 </div>
 
 <div class="results-grid">
   <div class="chart-card" style="grid-column:1/-1">
-    <h3>학습 샘플 수 대비 평균 TTR (낮을수록 좋음)</h3>
-    <div class="chart-wrap" style="height:300px"><canvas id="chart-eff"></canvas></div>
+    <h3>학습 중 행동 엔트로피 (높을수록 다양한 행동)</h3>
+    <div class="chart-wrap" style="height:270px"><canvas id="chart-entropy"></canvas></div>
   </div>
-  <div class="chart-card">
-    <h3>PPO — 스텝별 TTR</h3>
-    <div class="chart-wrap"><canvas id="chart-ppo-eff"></canvas></div>
+  <div class="chart-card" style="grid-column:1/-1">
+    <h3>학습 중 최빈 행동 점유율 — 붕괴 임계선 표시</h3>
+    <div class="chart-wrap" style="height:270px"><canvas id="chart-topshare"></canvas></div>
+    <p class="chart-note" id="note-collapse"></p>
   </div>
-  <div class="chart-card">
-    <h3>MAML — 반복별 TTR</h3>
-    <div class="chart-wrap"><canvas id="chart-maml-eff"></canvas></div>
+  <div class="chart-card" style="grid-column:1/-1">
+    <h3>최종 체크포인트의 행동 분포 (혼잡 주입 후 온-폴리시 프로브)</h3>
+    <div class="chart-wrap" style="height:200px"><canvas id="chart-policy"></canvas></div>
   </div>
 </div>
 
 <div class="action-panel">
-  <h2>샘플 효율 비교표</h2>
+  <h2>체크포인트 현황</h2>
   <table class="summary-table">
-    <thead><tr><th>알고리즘</th><th>학습 샘플 수</th><th>세부 정보</th><th>평균 TTR</th></tr></thead>
-    <tbody id="eff-tbody">
-      <tr><td colspan="4" class="no-data">sample_efficiency.json 파일을 로드하세요.</td></tr>
-    </tbody>
+    <thead><tr>
+      <th>체크포인트</th><th>붕괴</th><th>엔트로피 (bit)</th><th>최빈 행동</th>
+      <th>서로 다른 행동</th><th>학습 커밋</th>
+    </tr></thead>
+    <tbody id="ckpt-tbody"><tr><td colspan="6" class="no-data">—</td></tr></tbody>
   </table>
+  <p class="chart-note">붕괴한 체크포인트도 지우지 않고 "붕괴했다는 사실과 함께" 보존합니다.</p>
 </div>
 
-</div><!-- /page-efficiency -->
+</div><!-- /page-training -->
 
 
 <script>
-// ═══════════════════ Embedded experiment results (no backend needed) ═══════════════════
-// [정적 데모 데이터] 아래 상수는 2026-04-22 측정치를 하드코딩한 것 —
-// 이 페이지는 서버를 호출하지 않으며(fetch 없음), 라이브 시스템 상태를 반영하지 않는다.
-// baseline의 avg_ttr=200은 "미학습 PPO(랜덤 정책)" 기록임에 주의 (README 성능 검증 절 참고).
-const EMBEDDED_SUMMARY = {"fewshot":{"avg_ttr":3.78,"avg_sla":3.78,"avg_reward":185.4,"success_rate":100.0,"ttr_list":[5,3,4,4,3,4,3,3,4,4,3,5,3,4,5,4,5,3,4,4,4,4,4,3,3,4,5,4,3,4,4,4,3,3,3,4,4,4,5,4,3,4,3,4,3,4,5,4,3,4]},"baseline":{"avg_ttr":200.0,"avg_sla":200.0,"avg_reward":59.6844,"success_rate":0.0,"ttr_list":[200.0,200.0,200.0,200.0,200.0,200.0,200.0,200.0,200.0,200.0,200.0,200.0,200.0,200.0,200.0,200.0,200.0,200.0,200.0,200.0,200.0,200.0,200.0,200.0,200.0,200.0,200.0,200.0,200.0,200.0]},"eval_links":["r3-r4","r1-r4"],"train_links":["r1-r2","r1-r3","r2-r3","r2-r4"]};
-const EMBEDDED_EFFICIENCY = {"ppo":[{"samples":0,"avg_ttr":100.7},{"samples":2000,"avg_ttr":200.0},{"samples":5000,"avg_ttr":100.9},{"samples":10000,"avg_ttr":200.0},{"samples":20000,"avg_ttr":123.7},{"samples":30000,"avg_ttr":200.0}],"maml":[{"samples":0,"iterations":0,"avg_ttr":200.0},{"samples":9600,"iterations":20,"avg_ttr":200.0},{"samples":24000,"iterations":50,"avg_ttr":200.0},{"samples":48000,"iterations":100,"avg_ttr":200.0},{"samples":72000,"iterations":150,"avg_ttr":200.0},{"samples":96000,"iterations":200,"avg_ttr":111.4}]};
+// ═══════════════════ Experiment data ═══════════════════
+// 수치는 이 파일에 없다. dashboard_data.js(window.ANM_DATA)가 experiments/results/*.json에서
+// 생성되고, 이 페이지는 그것을 읽기만 한다. 결과가 바뀌면 make_dashboard_data.py를 다시 돌린다.
+const D = window.ANM_DATA || null;
+const PAL = (D && D.palette) || { categorical: [], status: {}, deemphasis: '#52514e' };
+
+function applyPalette() {
+  if (!D) return;
+  const root = document.documentElement.style;
+  PAL.categorical.forEach((c, i) => root.setProperty(`--series-${i+1}`, c));
+  Object.entries(PAL.status).forEach(([k, v]) => root.setProperty(`--status-${k}`, v));
+  root.setProperty('--deemphasis', PAL.deemphasis);
+}
+function series(i)  { return PAL.categorical[i] || '#888'; }
+function status(k)  { return PAL.status[k] || '#888'; }
+function alpha(hex, a) {
+  const n = parseInt(hex.slice(1), 16);
+  return `rgba(${(n>>16)&255},${(n>>8)&255},${n&255},${a})`;
+}
+
+// 조건 스탬프 — 어느 커밋에서 어떤 계약 버전으로 잰 값인지 그림 옆에 반드시 적는다
+function stampHTML(title, prov, extra) {
+  if (!prov) return '';
+  const c = prov.contract || {};
+  const ver = `obs${c.obs_version}/act${c.action_version}/rew${c.reward_version}/sim${c.sim_version}`;
+  return `<div><b>${title}</b> · commit ${prov.git_commit || '?'} · ${ver}`
+       + (prov.seed != null ? ` · seed ${prov.seed}` : '')
+       + (prov.timestamp ? ` · ${prov.timestamp.slice(0, 16).replace('T', ' ')}` : '')
+       + (extra ? ` · ${extra}` : '')
+       + (prov.condition ? `<br>&nbsp;&nbsp;조건: ${prov.condition}` : '') + '</div>';
+}
 
 // ═══════════════════ Tabs ═══════════════════
 function switchTab(name) {
   currentTab = name;
   document.querySelectorAll('.tab').forEach((t, i) => {
-    const names = ['monitor', 'results', 'efficiency'];
+    const names = ['monitor', 'results', 'training'];
     t.classList.toggle('active', names[i] === name);
   });
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.getElementById('page-' + name).classList.add('active');
   if (name === 'results') loadResults();
-  if (name === 'efficiency') loadEfficiency();
+  if (name === 'training') loadTraining();
 }
 
 // ═══════════════════ Live Monitor (Demo Mode) ═══════════════════
@@ -333,7 +399,6 @@ let tick = 0, lastMetrics = [];
 let autoMode = false;
 let autoCycles = 0, autoInterventions = 0;
 let currentTab = 'monitor';
-let liveResultsCache = null;
 
 function ts() { return new Date().toLocaleTimeString('ko-KR'); }
 
@@ -522,7 +587,7 @@ const DARK_GRID = { color: '#2a2d3e' };
 const DARK_TEXT = { color: '#888' };
 const BASE_OPTS = {
   responsive: true, maintainAspectRatio: false,
-  plugins: { legend: { labels: { color: '#ccc', font: { size: 11 } } } },
+  plugins: { legend: { labels: { color: '#ccc', font: { size: 11 }, boxWidth: 12 } } },
   scales: {
     x: { ticks: DARK_TEXT, grid: DARK_GRID },
     y: { ticks: DARK_TEXT, grid: DARK_GRID }
@@ -533,199 +598,253 @@ let charts = {};
 function destroyChart(id) {
   if (charts[id]) { charts[id].destroy(); delete charts[id]; }
 }
-
-// ═══════════════════ Results Tab ═══════════════════
-async function fetchLiveResultsCache() {
-  liveResultsCache = EMBEDDED_SUMMARY;
+// Chart.js는 CDN에서 온다. 오프라인이거나 CDN이 막히면 못 그리는데, 그때 예외가
+// 렌더 함수를 통째로 중단시켜 **표와 수치까지** 사라지면 안 된다. 그림은 못 그려도
+// 숫자는 남는다 — 그림은 표의 보조이지 대체물이 아니다.
+function chartsAvailable() { return typeof Chart !== 'undefined'; }
+function mkChart(id, cfg) {
+  const el = document.getElementById('chart-' + id);
+  if (!el) return;
+  if (!chartsAvailable()) { chartFallback(el); return; }
+  destroyChart(id);
+  charts[id] = new Chart(el, cfg);
+}
+function chartFallback(el) {
+  const wrap = el.parentElement;
+  if (!wrap || wrap.dataset.fallback) return;
+  wrap.dataset.fallback = '1';
+  wrap.innerHTML = '<p class="no-data">그림 라이브러리(Chart.js CDN)를 불러오지 못했습니다 — 아래 표의 수치는 그대로 유효합니다.</p>';
 }
 
-async function loadResults() {
-  await fetchLiveResultsCache();
-  renderResults(liveResultsCache);
+function axis(text, opts) { return Object.assign({ title: { display:true, text, color:'#888' }, ticks: DARK_TEXT, grid: DARK_GRID }, opts || {}); }
+
+function noData(tbodyIds) {
+  tbodyIds.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.innerHTML = '<tr><td colspan="6" class="no-data">dashboard_data.js가 없습니다 — experiments/make_dashboard_data.py를 실행하세요.</td></tr>';
+  });
 }
 
-function renderResults(data) {
-  const b = data.baseline, f = data.fewshot;
+// ═══════════════════ Results Tab (폐쇄 루프 · 절제 · 오프라인) ═══════════════════
+function loadResults() {
+  if (!D) { document.getElementById('prov-results').textContent =
+    'dashboard_data.js를 찾을 수 없습니다 — python3 experiments/make_dashboard_data.py'; noData(['abl-tbody','detail-tbody']); return; }
+  renderResults(D);
+}
 
-  // KPIs
-  document.getElementById('kpi-ppo-ttr').textContent  = b.avg_ttr.toFixed(1);
-  document.getElementById('kpi-maml-ttr').textContent = f.avg_ttr.toFixed(1);
-  document.getElementById('kpi-ppo-sla').textContent  = b.avg_sla.toFixed(1);
-  document.getElementById('kpi-maml-sla').textContent = f.avg_sla.toFixed(1);
+function renderResults(d) {
+  const cl = d.closed_loop, ab = d.ablation, off = d.offline;
 
-  // Colour KPIs
-  const ppoWins = b.avg_ttr < f.avg_ttr;
-  document.querySelector('#kpi-row .kpi:nth-child(1)').className = `kpi ${ppoWins?'green':'blue'}`;
-  document.querySelector('#kpi-row .kpi:nth-child(2)').className = `kpi ${!ppoWins?'green':'purple'}`;
+  document.getElementById('prov-results').innerHTML =
+      stampHTML(`폐쇄 루프 ${cl.n}ep`, cl.provenance)
+    + stampHTML(`절제 ${ab.n_per_mode}ep×${ab.modes.length}`, ab.provenance)
+    + stampHTML('오프라인 평가', off.provenance,
+                `학습 ${off.train_links.join(' ')} / 평가 ${off.eval_links.join(' ')}`);
 
-  // TTR line chart per episode
-  const ttrB = b.ttr_list || [];
-  const ttrF = f.ttr_list || [];
-  const labels = ttrB.map((_, i) => `ep${i+1}`);
-  destroyChart('ttr');
-  charts['ttr'] = new Chart(document.getElementById('chart-ttr'), {
-    type: 'line',
-    data: {
-      labels,
-      datasets: [
-        { label: 'PPO TTR', data: ttrB, borderColor: '#7eb6ff', backgroundColor: 'rgba(126,182,255,0.1)', tension: 0.3, pointRadius: 3 },
-        { label: 'MAML TTR', data: ttrF, borderColor: '#c39bd3', backgroundColor: 'rgba(195,155,211,0.1)', tension: 0.3, pointRadius: 3 }
-      ]
-    },
-    options: { ...BASE_OPTS, plugins: { ...BASE_OPTS.plugins } }
-  });
+  // ── KPI (폐쇄 루프 기준) ──
+  document.getElementById('kpi-ttr').textContent = cl.avg_ttr.toFixed(2);
+  document.getElementById('kpi-ttr-sub').textContent =
+    `steps · 미학습 ${cl.test_avg_ttr.toFixed(2)} / 학습 ${cl.train_avg_ttr.toFixed(2)}`;
+  document.getElementById('kpi-success').textContent = cl.success_rate.toFixed(0) + '%';
+  document.getElementById('kpi-success-sub').textContent = `${cl.n}회 중 해결`;
+  document.getElementById('kpi-rca').textContent =
+    `${cl.rca_first_pct.toFixed(0)} / ${cl.rca_all_pct.toFixed(0)}%`;
+  document.getElementById('kpi-waste').textContent = cl.wasted_per_ep.toFixed(2);
 
-  // Bar summary
-  destroyChart('bar');
-  charts['bar'] = new Chart(document.getElementById('chart-bar'), {
+  // 표와 설명을 먼저 채운다 — 그림보다 이쪽이 1차 자료다
+  renderResultTables(d);
+
+  // ── TTR 분포: 학습 링크 vs 미학습 링크 (두 정체성 = 범주 2색) ──
+  mkChart('ttr', {
     type: 'bar',
     data: {
-      labels: ['평균 TTR', '평균 SLA위반', '평균 보상'],
+      labels: cl.hist_bins.map(b => `${b}`),
       datasets: [
-        { label: 'PPO',  data: [b.avg_ttr, b.avg_sla, b.avg_reward], backgroundColor: 'rgba(126,182,255,0.7)' },
-        { label: 'MAML', data: [f.avg_ttr, f.avg_sla, f.avg_reward], backgroundColor: 'rgba(195,155,211,0.7)' }
+        { label: `미학습 링크 (test, n=${cl.n_test})`,  data: cl.hist_test,  backgroundColor: series(0) },
+        { label: `학습 링크 (train, n=${cl.n_train})`, data: cl.hist_train, backgroundColor: series(1) }
       ]
     },
-    options: { ...BASE_OPTS }
+    options: { ...BASE_OPTS,
+      scales: { x: axis('복구까지 걸린 사이클 수 (TTR)'), y: axis('에피소드 수', { beginAtZero:true, ticks:{...DARK_TEXT, precision:0} }) } }
   });
-
-  // Box-like chart using min/max/p25/p75 approximation from ttr_list
-  function boxStats(arr) {
-    if (!arr.length) return { min:0, q1:0, med:0, q3:0, max:0 };
-    const s = [...arr].sort((a,b)=>a-b);
-    const n = s.length;
-    return {
-      min: s[0], q1: s[Math.floor(n*0.25)], med: s[Math.floor(n*0.5)],
-      q3: s[Math.floor(n*0.75)], max: s[n-1]
-    };
-  }
-  const bx = boxStats(ttrB), fx = boxStats(ttrF);
-  destroyChart('box');
-  charts['box'] = new Chart(document.getElementById('chart-box'), {
+  // ── 오프라인 평가: 해결 / 미해결 누적 막대 (상태색, 라벨 병기) ──
+  mkChart('offline', {
     type: 'bar',
     data: {
-      labels: ['Min', 'Q1', 'Median', 'Q3', 'Max'],
+      labels: off.agents.map(a => a.label),
       datasets: [
-        { label: 'PPO',  data: [bx.min, bx.q1, bx.med, bx.q3, bx.max], backgroundColor: 'rgba(126,182,255,0.7)' },
-        { label: 'MAML', data: [fx.min, fx.q1, fx.med, fx.q3, fx.max], backgroundColor: 'rgba(195,155,211,0.7)' }
+        { label: `제한 시간 내 해결`, data: off.agents.map(a => a.solved),   backgroundColor: status('good') },
+        { label: `미해결 (${off.timeout}스텝 타임아웃)`, data: off.agents.map(a => a.unsolved), backgroundColor: status('critical') }
       ]
     },
-    options: { ...BASE_OPTS }
+    options: { ...BASE_OPTS, indexAxis: 'y',
+      scales: { x: axis('에피소드 수', { stacked:true, beginAtZero:true }), y: { stacked:true, ticks: DARK_TEXT, grid: DARK_GRID } } }
   });
-
-  // Success rate donut
-  const bSuc = (b.success_rate !== undefined) ? b.success_rate : (ttrB.filter(v=>v<30).length / Math.max(ttrB.length,1) * 100);
-  const fSuc = (f.success_rate !== undefined) ? f.success_rate : (ttrF.filter(v=>v<30).length / Math.max(ttrF.length,1) * 100);
-  destroyChart('success');
-  charts['success'] = new Chart(document.getElementById('chart-success'), {
-    type: 'doughnut',
-    data: {
-      labels: ['PPO 성공', 'PPO 실패', 'MAML 성공', 'MAML 실패'],
-      datasets: [{
-        data: [bSuc, 100-bSuc, fSuc, 100-fSuc],
-        backgroundColor: ['rgba(126,182,255,0.8)', 'rgba(126,182,255,0.2)', 'rgba(195,155,211,0.8)', 'rgba(195,155,211,0.2)']
-      }]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { labels: { color: '#ccc', font: {size:10} } } }
-    }
+  // ── 절제 실험: 두 지표를 축이 다르므로 두 그림으로 (이중축 금지) ──
+  const ablLabels = ab.modes.map(m => m.label);
+  const best = Math.min(...ab.modes.map(m => m.avg_ttr));
+  mkChart('abl-ttr', {
+    type: 'bar',
+    data: { labels: ablLabels, datasets: [{
+      label: `평균 TTR (${ab.n_per_mode}ep)`,
+      data: ab.modes.map(m => m.avg_ttr),
+      backgroundColor: ab.modes.map(m => m.success_rate >= 99 ? series(0) : PAL.deemphasis)
+    }]},
+    options: { ...BASE_OPTS, indexAxis: 'y',
+      plugins: { ...BASE_OPTS.plugins, legend: { display:false },
+        tooltip: { callbacks: { afterLabel: (c) => `성공률 ${ab.modes[c.dataIndex].success_rate.toFixed(0)}%` } } },
+      scales: { x: axis('사이클', { beginAtZero:true }), y: { ticks: DARK_TEXT, grid: DARK_GRID } } }
   });
+  mkChart('abl-waste', {
+    type: 'bar',
+    data: { labels: ablLabels, datasets: [{
+      label: '에피소드당 부수 조치',
+      data: ab.modes.map(m => m.wasted_per_ep),
+      backgroundColor: ab.modes.map(m => m.success_rate >= 99 ? series(0) : PAL.deemphasis)
+    }]},
+    options: { ...BASE_OPTS, indexAxis: 'y',
+      plugins: { ...BASE_OPTS.plugins, legend: { display:false } },
+      scales: { x: axis('건', { beginAtZero:true }), y: { ticks: DARK_TEXT, grid: DARK_GRID } } }
+  });
+}
 
-  // Detail table
-  const ratio = (b.avg_ttr / Math.max(f.avg_ttr, 0.1));
-  const rows = [
-    ['평균 TTR (steps)', b.avg_ttr.toFixed(1), f.avg_ttr.toFixed(1), ratio > 1 ? `MAML ${ratio.toFixed(1)}x ↓` : `PPO ${(1/ratio).toFixed(1)}x ↓`],
-    ['평균 SLA 위반', b.avg_sla.toFixed(1), f.avg_sla.toFixed(1), b.avg_sla < f.avg_sla ? `PPO ${(f.avg_sla/Math.max(b.avg_sla,0.1)).toFixed(1)}x ↓` : `MAML ${(b.avg_sla/Math.max(f.avg_sla,0.1)).toFixed(1)}x ↓`],
-    ['평균 보상', b.avg_reward.toFixed(3), f.avg_reward.toFixed(3), b.avg_reward > f.avg_reward ? 'PPO 우세' : 'MAML 우세'],
-    ['성공률 (TTR<30)', bSuc.toFixed(1)+'%', fSuc.toFixed(1)+'%', bSuc > fSuc ? 'PPO 우세' : 'MAML 우세'],
-    ['평가 링크', (data.eval_links||[]).join(', ') || '—', '동일', '—'],
-    ['학습 링크', (data.train_links||[]).join(', ') || '—', '동일', '—'],
-  ];
-  document.getElementById('detail-tbody').innerHTML = rows.map(([label, bp, fp, diff]) => `
+function renderResultTables(d) {
+  const cl = d.closed_loop, ab = d.ablation, off = d.offline;
+  const best = Math.min(...ab.modes.map(m => m.avg_ttr));
+
+  document.getElementById('note-ttr').textContent =
+    `미학습 링크 평균 ${cl.test_avg_ttr.toFixed(2)}, 학습 링크 평균 ${cl.train_avg_ttr.toFixed(2)} — `
+  + `둘의 차이가 작다는 것은 복구를 이끄는 것이 학습된 정책이 아니라 규칙 기반 진단이기 때문입니다 (아래 절제 실험 참고).`;
+  document.getElementById('note-offline').textContent =
+    off.agents.map(a => `${a.label}: ${a.solved}/${a.n} 해결`
+      + (a.avg_ttr_solved != null ? ` (해결분 평균 ${a.avg_ttr_solved} steps)` : '')).join(' · ')
+  + ` — 평균 TTR은 미해결분이 ${off.timeout}으로 집계되어 있어 그대로 비교하면 오해를 부릅니다.`;
+
+  // ── 절제 표 ──
+  document.getElementById('abl-tbody').innerHTML = ab.modes.map(m => `
     <tr>
-      <td>${label}</td>
-      <td><span class="tag ppo">${bp}</span></td>
-      <td><span class="tag maml">${fp}</span></td>
-      <td>${diff}</td>
+      <td>${m.label}</td>
+      <td>${m.avg_ttr.toFixed(2)}${m.avg_ttr === best ? ' <span class="tag good">최저</span>' : ''}</td>
+      <td>${m.success_rate.toFixed(0)}%</td>
+      <td>${m.wasted_per_ep.toFixed(2)}</td>
+      <td>${m.rca_all_pct != null ? m.rca_all_pct.toFixed(0) + '%' : '—'}</td>
     </tr>`).join('');
+
+  // ── 오프라인 상세표 ──
+  const [b, f] = [off.agents.find(a => a.key === 'baseline'), off.agents.find(a => a.key === 'fewshot')];
+  const cell = (a, fn) => a ? fn(a) : '—';
+  const rows = [
+    ['평균 TTR (미해결=' + off.timeout + ')', cell(b, a => a.avg_ttr.toFixed(2)), cell(f, a => a.avg_ttr.toFixed(2))],
+    ['해결한 에피소드', cell(b, a => `${a.solved}/${a.n}`), cell(f, a => `${a.solved}/${a.n}`)],
+    ['해결분만의 평균 TTR', cell(b, a => a.avg_ttr_solved ?? '—'), cell(f, a => a.avg_ttr_solved ?? '—')],
+    ['성공률', cell(b, a => a.success_rate.toFixed(0) + '%'), cell(f, a => a.success_rate.toFixed(0) + '%')],
+    ['평균 보상', cell(b, a => a.avg_reward.toFixed(2)), cell(f, a => a.avg_reward.toFixed(2))],
+    ['학습 링크', off.train_links.join(', ') || '—', '동일'],
+    ['평가 링크', off.eval_links.join(', ') || '—', '동일'],
+  ];
+  document.getElementById('detail-tbody').innerHTML = rows.map(([label, bp, fp]) => `
+    <tr><td>${label}</td><td><span class="tag ppo">${bp}</span></td><td><span class="tag maml">${fp}</span></td></tr>`).join('');
+
+  document.getElementById('offline-caveat').innerHTML =
+    '오프라인 평가는 규칙 기반 진단(Analytics) 없이 <b>학습된 정책만</b> 환경에 놓고 재는 값입니다. '
+  + '위쪽 폐쇄 루프 수치(OODA 전체)와 직접 비교할 수 없습니다. '
+  + '또한 MAML 체크포인트는 붕괴 검사에서 상수 정책으로 판정되었으므로(학습 동역학 탭), '
+  + '이 표의 MAML 우세를 "메타학습이 작동했다"는 근거로 읽어서는 안 됩니다.';
 }
 
-// ═══════════════════ Efficiency Tab ═══════════════════
-async function loadEfficiency() {
-  renderEfficiency(EMBEDDED_EFFICIENCY);
+// ═══════════════════ Training Dynamics Tab ═══════════════════
+function loadTraining() {
+  if (!D) { document.getElementById('prov-training').textContent =
+    'dashboard_data.js를 찾을 수 없습니다 — python3 experiments/make_dashboard_data.py'; noData(['ckpt-tbody']); return; }
+  renderTraining(D);
 }
 
-function renderEfficiency(data) {
-  const ppo  = data.ppo  || [];
-  const maml = data.maml || [];
+function renderTrainingTables(d) {
+  const tr = d.training;
+  document.getElementById('note-collapse').textContent = tr.algos.map(a =>
+    a.first_collapse_pct == null
+      ? `${a.label}: 학습 내내 임계 미만`
+      : `${a.label}: ${a.first_collapse_progress.toLocaleString()} ${a.unit} (${a.first_collapse_pct}%)에서 처음 붕괴, `
+        + `학습 종료 시점 ${a.ends_collapsed ? '붕괴 상태' : '회복'}`
+  ).join(' · ') + ' — 붕괴가 학습 후반이 아니라 초반에 일어난다는 점이 중요합니다.';
 
-  // Combined efficiency chart
-  destroyChart('eff');
-  charts['eff'] = new Chart(document.getElementById('chart-eff'), {
+  // ── 체크포인트 표 ──
+  const ck = d.checkpoints || [];
+  document.getElementById('ckpt-tbody').innerHTML = ck.length ? ck.map(c => `
+    <tr>
+      <td>${c.checkpoint}</td>
+      <td><span class="tag ${c.collapsed ? 'bad' : 'good'}">${c.collapsed ? '붕괴' : '정상'}</span></td>
+      <td>${c.entropy_bits != null ? c.entropy_bits.toFixed(2) : '—'}</td>
+      <td>${c.top_action || '—'}${c.top_share != null ? ` (${(c.top_share*100).toFixed(0)}%)` : ''}</td>
+      <td>${c.distinct != null ? c.distinct : '—'}</td>
+      <td>${c.git_commit || '—'}</td>
+    </tr>`).join('') : '<tr><td colspan="6" class="no-data">체크포인트 메타데이터가 없습니다.</td></tr>';
+}
+
+function renderTraining(d) {
+  const tr = d.training, pc = d.policy, th = tr.threshold;
+
+  document.getElementById('prov-training').innerHTML =
+      tr.algos.map(a => stampHTML(`${a.label} 학습 곡선`, a.provenance, `${a.total} ${a.unit}`)).join('')
+    + stampHTML('체크포인트 붕괴 검사', pc.provenance, `임계 ${pc.threshold}`);
+
+  renderTrainingTables(d);
+
+  const line = (a, i, key) => ({
+    label: a.label,
+    data: a.points.map(p => ({ x: p.pct, y: p[key] })),
+    borderColor: series(i), backgroundColor: alpha(series(i), 0.12),
+    tension: 0.25, pointRadius: 2, borderWidth: 2
+  });
+
+  mkChart('entropy', {
     type: 'line',
-    data: {
-      datasets: [
-        {
-          label: 'PPO', data: ppo.map(d=>({x: d.samples, y: d.avg_ttr})),
-          borderColor: '#7eb6ff', backgroundColor: 'rgba(126,182,255,0.1)',
-          tension: 0.3, pointRadius: 5
-        },
-        {
-          label: 'MAML', data: maml.map(d=>({x: d.samples, y: d.avg_ttr})),
-          borderColor: '#c39bd3', backgroundColor: 'rgba(195,155,211,0.1)',
-          tension: 0.3, pointRadius: 5
-        }
-      ]
-    },
-    options: {
-      ...BASE_OPTS,
-      scales: {
-        x: { type:'linear', title:{ display:true, text:'학습 샘플 수', color:'#888' }, ticks: DARK_TEXT, grid: DARK_GRID },
-        y: { title:{ display:true, text:'평균 TTR (steps)', color:'#888' }, ticks: DARK_TEXT, grid: DARK_GRID }
-      }
-    }
+    data: { datasets: tr.algos.map((a, i) => line(a, i, 'entropy_bits')) },
+    options: { ...BASE_OPTS,
+      scales: { x: axis('학습 진행률 (%)', { type:'linear', min:0, max:100 }),
+                y: axis('행동 엔트로피 (bit)', { beginAtZero:true }) } }
   });
 
-  // PPO bar
-  destroyChart('ppo-eff');
-  charts['ppo-eff'] = new Chart(document.getElementById('chart-ppo-eff'), {
+  const thLine = {
+    label: `붕괴 임계 (최빈 점유율 ${th})`,
+    data: [{ x: 0, y: th }, { x: 100, y: th }],
+    borderColor: status('critical'), borderDash: [6, 4], borderWidth: 1.5,
+    pointRadius: 0, fill: false
+  };
+  mkChart('topshare', {
+    type: 'line',
+    data: { datasets: [...tr.algos.map((a, i) => line(a, i, 'top_share')), thLine] },
+    options: { ...BASE_OPTS,
+      scales: { x: axis('학습 진행률 (%)', { type:'linear', min:0, max:100 }),
+                y: axis('최빈 행동 점유율', { min:0, max:1 }) } }
+  });
+
+  // ── 최종 체크포인트 행동 분포 (누적 가로 막대) ──
+  const allActions = [];
+  pc.agents.forEach(a => a.actions.forEach(x => { if (!allActions.includes(x.action)) allActions.push(x.action); }));
+  const shown = allActions.slice(0, 8);
+  const datasets = shown.map((act, i) => ({
+    label: act,
+    data: pc.agents.map(a => {
+      const hit = a.actions.find(x => x.action === act);
+      return hit ? +(hit.share * 100).toFixed(1) : 0;
+    }),
+    backgroundColor: series(i), borderColor: '#1a1d27', borderWidth: 2
+  }));
+  mkChart('policy', {
     type: 'bar',
-    data: {
-      labels: ppo.map(d => `${d.samples}`),
-      datasets: [{ label: 'PPO avg TTR', data: ppo.map(d => d.avg_ttr), backgroundColor: 'rgba(126,182,255,0.7)' }]
-    },
-    options: { ...BASE_OPTS, plugins: { ...BASE_OPTS.plugins, legend: { display:false } } }
+    data: { labels: pc.agents.map(a => a.label + (a.collapsed ? '  ⚠ 붕괴' : '')), datasets },
+    options: { ...BASE_OPTS, indexAxis: 'y',
+      plugins: { ...BASE_OPTS.plugins, legend: { labels: { color:'#ccc', font:{size:10}, boxWidth:10 } },
+        tooltip: { callbacks: { label: (c) => `${c.dataset.label}: ${c.parsed.x}%` } } },
+      scales: { x: axis('프로브 행동 비율 (%)', { stacked:true, min:0, max:100 }),
+                y: { stacked:true, ticks: DARK_TEXT, grid: DARK_GRID } } }
   });
 
-  // MAML bar
-  destroyChart('maml-eff');
-  charts['maml-eff'] = new Chart(document.getElementById('chart-maml-eff'), {
-    type: 'bar',
-    data: {
-      labels: maml.map(d => `${d.iterations}iter`),
-      datasets: [{ label: 'MAML avg TTR', data: maml.map(d => d.avg_ttr), backgroundColor: 'rgba(195,155,211,0.7)' }]
-    },
-    options: { ...BASE_OPTS, plugins: { ...BASE_OPTS.plugins, legend: { display:false } } }
-  });
-
-  // Table
-  const ppoRows = ppo.map(d => `<tr>
-    <td><span class="tag ppo">PPO</span></td>
-    <td>${d.samples.toLocaleString()}</td>
-    <td>${d.samples} timesteps</td>
-    <td>${d.avg_ttr.toFixed(1)}</td>
-  </tr>`);
-  const mamlRows = maml.map(d => `<tr>
-    <td><span class="tag maml">MAML</span></td>
-    <td>${d.samples.toLocaleString()}</td>
-    <td>${d.iterations} iterations × 4 tasks</td>
-    <td>${d.avg_ttr.toFixed(1)}</td>
-  </tr>`);
-  document.getElementById('eff-tbody').innerHTML = [...ppoRows, ...mamlRows].join('');
 }
 
 // ═══════════════════ Init ═══════════════════
+applyPalette();
 checkAI();
 addLog('대시보드 시작', 'info');
 loop();

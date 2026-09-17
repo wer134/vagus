@@ -19,6 +19,7 @@ from metric_generator import (
     get_node_stress,
     get_link_stress,
     get_congested_links,
+    get_routing_state,
     get_security_metrics,
     get_attack_state,
     get_tick,
@@ -194,6 +195,7 @@ def debug_state():
         "congested_links": get_congested_links(),
         "ospf_costs":      get_ospf_costs(),
         "attack":          get_attack_state(),
+        "routing":         get_routing_state(),
     })
 
 
