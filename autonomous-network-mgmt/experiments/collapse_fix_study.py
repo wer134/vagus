@@ -48,6 +48,20 @@ VARIANTS = {
                       "수정 1+2"),
     "ppo_p0_base":   ("ppo",  dict(ent_coef=0.0),          "현행 재현 (ent_coef=0)"),
     "ppo_p1_ent":    ("ppo",  dict(ent_coef=ENTROPY_COEF), "수정 2 — ent_coef>0"),
+    # ── 재실험 (2026-10-06) ───────────────────────────────────────────────────
+    # 1차에서 V(s)를 켠 두 변종이 전부 붕괴했는데, critic을 meta-iteration당 gradient
+    # 1스텝만 굴려서 V(s)가 거의 상수였다. 그러면 r - V(s)는 산술적으로 원래의 스칼라
+    # baseline과 같아지므로, 그 두 칸은 수정 1을 테스트한 것이 아니다.
+    #
+    # value_steps=20은 critic_check.py가 "넉넉히 적합" **참고선**으로 쓴 값을 그대로
+    # 가져온 것이다. 그 값은 정책 결과를 보기 전에 정해졌고, critic 자신의 회귀 과제
+    # 기준으로만 고른 것이다 — 정책 성능이 좋아지는 값을 찾아 고른 것이 아니다.
+    # 이번 학습은 critic의 품질(보상과의 상관·예측 분산)을 스스로 기록하므로,
+    # 결과가 어느 쪽이든 "critic이 작동했는가"는 더 이상 추측거리가 아니다.
+    "maml_m2_vbase_fit": ("maml", dict(entropy_coef=0.0, value_baseline=True, value_steps=20),
+                          "재실험 — 수정 1만, critic을 제대로 적합"),
+    "maml_m3_both_fit":  ("maml", dict(entropy_coef=ENTROPY_COEF, value_baseline=True, value_steps=20),
+                          "재실험 — 수정 1+2, critic을 제대로 적합"),
 }
 
 
