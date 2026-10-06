@@ -1,0 +1,228 @@
+{
+  "schema_version": 1,
+  "timestamp": "2026-10-06T05:48:56.571267",
+  "git_commit": "ae91154-dirty",
+  "seed": 42,
+  "contract": {
+    "obs_version": 1,
+    "action_version": 1,
+    "reward_version": 1,
+    "sim_version": 3
+  },
+  "_condition": "학습 알고리즘을 돌리지 않고 설계만 측정한다. 균일 무작위 정책 — 붕괴가 학습 초반에 일어나므로 그 구간의 행동 분포다. D-B의 '제안' 설계는 측정만 했고 학습에 쓰지 않았다.",
+  "d_a_return_vs_immediate": {
+    "immediate": {
+      "correct_action_ranks": [
+        2,
+        6,
+        16,
+        20
+      ],
+      "mean_rank_of_correct": 11,
+      "best_ranked_correct": 2,
+      "top5": [
+        {
+          "action": "r2-r4@200",
+          "score": 0.0202
+        },
+        {
+          "action": "r1-r2@100",
+          "score": 0.0138
+        },
+        {
+          "action": "r2-r3@50",
+          "score": 0.0128
+        },
+        {
+          "action": "r1-r2@200",
+          "score": 0.0116
+        },
+        {
+          "action": "r1-r2@20",
+          "score": 0.0097
+        }
+      ],
+      "n_actions": 30
+    },
+    "discounted_return": {
+      "correct_action_ranks": [
+        6,
+        9,
+        11,
+        13
+      ],
+      "mean_rank_of_correct": 9.75,
+      "best_ranked_correct": 6,
+      "top5": [
+        {
+          "action": "r1-r2@200",
+          "score": 0.5388
+        },
+        {
+          "action": "r2-r3@50",
+          "score": 0.2875
+        },
+        {
+          "action": "r1-r3@50",
+          "score": 0.2649
+        },
+        {
+          "action": "r2-r3@20",
+          "score": 0.2557
+        },
+        {
+          "action": "r1-r2@20",
+          "score": 0.2523
+        }
+      ],
+      "n_actions": 30
+    },
+    "gamma": 0.99,
+    "n_episodes": 300,
+    "note": "무작위 정책이므로 '정답 행동이 상위'여야 학습 신호가 있다는 뜻이다. 30개 중 평균 15.5위면 무작위와 구별되지 않는다."
+  },
+  "d_a2_across_seeds": {
+    "per_seed": [
+      {
+        "seed": 42,
+        "immediate": 9.25,
+        "discounted_return": 12.25
+      },
+      {
+        "seed": 43,
+        "immediate": 13.75,
+        "discounted_return": 16.25
+      },
+      {
+        "seed": 44,
+        "immediate": 15.25,
+        "discounted_return": 14.75
+      },
+      {
+        "seed": 45,
+        "immediate": 25.25,
+        "discounted_return": 20.25
+      },
+      {
+        "seed": 46,
+        "immediate": 13.75,
+        "discounted_return": 14
+      }
+    ],
+    "paired_diffs_return_minus_immediate": [
+      3.0,
+      2.5,
+      -0.5,
+      -5.0,
+      0.25
+    ],
+    "mean_diff": 0.05,
+    "sd_diff": 3.18,
+    "same_sign_across_seeds": false,
+    "random_baseline_rank": 15.5,
+    "verdict": "방향이 일관되지 않다 — 어느 쪽이 낫다고 말할 수 없다",
+    "note": "순위가 낮을수록 좋다(1위=정답 행동이 최고 평가). 무작위면 15.5. 균일 무작위 정책에서 잰 주변 평균이라 조잡한 대리 지표다 — '학습이 실제로 나아진다'는 증거가 아니라 '신호가 있는가'를 볼 뿐이다."
+  },
+  "d_b_task_distribution_current": {
+    "design": "현행 — env.reset() 후 확률 0.03 무작위 주입",
+    "n_meta_iterations": 100,
+    "tasks_per_iter": 4,
+    "tasks_with_no_anomaly_pct": 41.0,
+    "iterations_where_all_4_tasks_identical_pct": 3.0,
+    "example_first_3_iterations": [
+      [
+        [],
+        [
+          "r1-r3"
+        ],
+        [],
+        []
+      ],
+      [
+        [
+          "r2-r3",
+          "r2-r4"
+        ],
+        [],
+        [
+          "r2-r3"
+        ],
+        [
+          "r2-r4"
+        ]
+      ],
+      [
+        [],
+        [
+          "r2-r3"
+        ],
+        [
+          "r2-r3"
+        ],
+        [
+          "r1-r3"
+        ]
+      ]
+    ],
+    "note": "태스크가 '어느 링크가 문제인가'로 구별되어야 inner-loop가 적응할 대상이 생긴다. 이상이 없는 태스크는 적응할 것이 아예 없다."
+  },
+  "d_b_task_distribution_proposed": {
+    "design": "제안 — 태스크 = TRAIN 링크 하나, reset 직후 주입",
+    "n_meta_iterations": 100,
+    "tasks_per_iter": 4,
+    "tasks_with_no_anomaly_pct": 0.0,
+    "example_first_3_iterations": [
+      [
+        [
+          "r1-r2"
+        ],
+        [
+          "r1-r3"
+        ],
+        [
+          "r2-r3"
+        ],
+        [
+          "r2-r4"
+        ]
+      ],
+      [
+        [
+          "r1-r2"
+        ],
+        [
+          "r1-r3"
+        ],
+        [
+          "r2-r3"
+        ],
+        [
+          "r2-r4"
+        ]
+      ],
+      [
+        [
+          "r1-r2"
+        ],
+        [
+          "r1-r3"
+        ],
+        [
+          "r2-r3"
+        ],
+        [
+          "r2-r4"
+        ]
+      ]
+    ]
+  },
+  "d_c_time_budget": {
+    "episode_steps": 30,
+    "episodes_without_anomaly_pct": 44.0,
+    "mean_first_anomaly_step": 13.73,
+    "mean_steps_left_after_onset": 16.27,
+    "ticks_to_recover_1sigma": 1,
+    "ticks_to_recover_5sigma": 8,
+    "note": "D4에 따르면 올바른 행동의 효과가 뚜렷해지는 데 8틱이 걸린다. 이상이 늦게 생기면 에피소드 안에서 결과를 볼 수 없다."
+  }
+}
