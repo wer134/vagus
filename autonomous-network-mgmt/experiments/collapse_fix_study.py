@@ -99,7 +99,7 @@ def evaluate(name: str, episodes: int, seed: int) -> dict:
     eps = evaluate_agent("fewshot" if algo == "maml" else "baseline",
                          n_episodes=episodes, max_steps=200,
                          test_links=TEST_LINKS, model_path=path, sim_seed=seed)
-    ttrs = [e.ttr for e in eps]
+    ttrs = [e.ttr_steps for e in eps]
     solved = [t for t in ttrs if t < 200]
     return {
         "trained": True, "loaded": True,

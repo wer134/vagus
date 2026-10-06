@@ -76,9 +76,15 @@ def run_episode_maml_only(link: str) -> dict:
     return _run_episode(link, disable_analytics=True, disable_maml=False)
 
 
-def run_ablation(n_per_mode: int = 50, output: str | None = None):
+def run_ablation(n_per_mode: int = 50, output: str | None = None, seed: int = 42):
+    """seed는 링크 시퀀스와 에피소드별 노이즈를 모두 정한다.
+
+    **모드 간에는 같은 seed를 쓴다** — 세 모드가 같은 장애 시퀀스를 같은 노이즈로 겪어야
+    차이를 모드 탓으로 돌릴 수 있다. seed를 바꾸는 것은 "이 비교 자체가 seed에 얼마나
+    흔들리는가"를 재기 위함이다 (T3, experiments/seed_variance.py).
+    """
     # 공통 링크 시퀀스 (재현성)
-    random.seed(42)
+    random.seed(seed)
     links = [random.choice(ALL_LINKS) for _ in range(n_per_mode)]
 
     modes = {
@@ -96,7 +102,7 @@ def run_ablation(n_per_mode: int = 50, output: str | None = None):
 
         for i, link in enumerate(links, 1):
             # 모드 간 동일 노이즈 시퀀스 (에피소드별 seed)
-            post(f"{SNMP}/debug/reset", {"seed": 42_000 + i})
+            post(f"{SNMP}/debug/reset", {"seed": seed * 1000 + i})
             post(f"{AI}/reset-buffer")
             post(f"{SNMP}/debug/congestion/{link}")
 
@@ -135,10 +141,10 @@ def run_ablation(n_per_mode: int = 50, output: str | None = None):
     with open(out, "w", encoding="utf-8") as f:
         json.dump({
             **result_meta(
-                seed=42,
+                seed=seed,
                 condition=(
                     "폐쇄 루프 /auto-step, 사이클당 시뮬레이터 1틱(lockstep), 검증 조회는 순수 조회, "
-                    "에피소드별 노이즈 seed 고정(42000+i). 2026-09-09 이전 결과는 사이클당 2틱."
+                    f"에피소드별 노이즈 seed 고정({seed}000+i). 2026-09-09 이전 결과는 사이클당 2틱."
                 ),
                 n_per_mode=n_per_mode,
             ),
@@ -152,5 +158,6 @@ if __name__ == "__main__":
     p = argparse.ArgumentParser()
     p.add_argument("--episodes", type=int, default=50)
     p.add_argument("--output",   type=str, default=None, help="results/ 아래 파일명")
+    p.add_argument("--seed",     type=int, default=42, help="링크 시퀀스·노이즈 seed (T3용)")
     a = p.parse_args()
-    run_ablation(n_per_mode=a.episodes, output=a.output)
+    run_ablation(n_per_mode=a.episodes, output=a.output, seed=a.seed)

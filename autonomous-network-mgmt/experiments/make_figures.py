@@ -10,6 +10,7 @@
 구현된 도판 (우선순위 순 — VISUALIZATION_PLAN §3 우선순위 표)
     T1  train_collapse      학습 중 붕괴 곡선     — 열린 질문(P8)에 답한다
     T2  checkpoint_history  체크포인트 이력       — Track A 스코어보드
+    T3  seed_variance       seed 분산             — 어떤 차이가 노이즈보다 큰가
     F2  ablation_pair       절제: TTR vs 부수피해 — 이중 축 금지, 패널 2개
     F3  policy_actions      정책 행동 분포        — 붕괴가 한눈에
     T5  reward_landscape    보상 지형             — 붕괴의 "왜": 신호가 있는가
@@ -402,7 +403,10 @@ def fig_fix_curves() -> bool:
 
     for ax, (algo, keys) in zip(axes, groups):
         keys = [k for k in keys if k in loaded]
-        colors = palette.categorical(max(len(keys), 1))
+        if not keys:            # 아직 그 알고리즘의 변종이 학습되지 않았다
+            ax.set_axis_off()
+            continue
+        colors = palette.categorical(len(keys))
         for color, k in zip(colors, keys):
             doc = loaded[k]
             xs = [s["progress"] / doc["total"] * 100 for s in doc["samples"]]
@@ -422,7 +426,10 @@ def fig_fix_curves() -> bool:
         ax.grid(color=INK["axis"], linewidth=0.6, alpha=0.5)
         ax.set_axisbelow(True)
 
-    figspec.save(fig, "T7_fix_curves", source_doc=load("collapse_fix_study.json"))
+    # 조건 스탬프의 출처는 곡선 파일 자신이다 — 그림이 그리는 데이터가 거기서 나오므로.
+    # (요약 JSON은 평가까지 끝나야 생기는데, 곡선만으로도 이 그림은 완성된다.)
+    figspec.save(fig, "T7_fix_curves", source_doc=next(iter(loaded.values())),
+                 condition=f"{len(loaded)} variants")
     return True
 
 
@@ -477,9 +484,63 @@ def fig_fix_outcomes() -> bool:
     return True
 
 
+# ── T3. seed 분산: 어떤 차이가 노이즈보다 큰가 ────────────────────────────────
+
+def fig_seed_variance() -> bool:
+    """짝지어 낸 차이를 seed마다 점으로 찍고 0선을 긋는다.
+
+    평균에 오차막대를 그리는 대신 **원자료 점을 전부 보여주는** 이유는 n=5에서 평균±SD가
+    실제보다 깔끔해 보이기 때문이다. 점이 0선 한쪽에 모여 있으면 방향이 일관된 것이고,
+    0선을 가로지르면 그 차이는 seed 노이즈와 구별되지 않는다 — 그림이 그것만 말하게 둔다.
+
+    조건별 평균을 따로 그리지 않는 것도 의도다. 세 모드가 같은 seed에서 같은 장애 시퀀스를
+    겪으므로 짝지은 차이가 올바른 단위이고, 주변 평균을 나란히 두면 seed 노이즈가 양쪽에
+    남아 차이가 실제보다 불확실해 보인다.
+    """
+    doc = load("seed_variance.json")
+    if not doc or not doc.get("comparisons"):
+        return False
+    cmps = doc["comparisons"]
+    labels = [c["comparison"] for c in cmps]
+
+    fig, ax = figspec.new_figure(figsize=(10, 0.95 * len(cmps) + 2.0))
+    y = list(range(len(cmps)))[::-1]
+    consistent, mixed = palette.categorical(2)
+
+    for yi, c in zip(y, cmps):
+        diffs = c["paired_diffs"]
+        color = consistent if c["same_sign_across_seeds"] else palette.DEEMPHASIS["light"]
+        ax.plot(diffs, [yi] * len(diffs), "o", color=color, markersize=8,
+                alpha=0.75, zorder=3)
+        ax.plot([c["mean_diff"]], [yi], "|", color=INK["primary"], markersize=22,
+                markeredgewidth=2.2, zorder=4)
+        tag = "same sign" if c["same_sign_across_seeds"] else "straddles zero"
+        ax.annotate(f"mean {c['mean_diff']:+.3f}  SD {c['sd_diff']:.3f}  ({tag})",
+                    (max(diffs), yi), xytext=(12, -3), textcoords="offset points",
+                    fontsize=8.8, color=INK["secondary"])
+
+    ax.axvline(0, color=INK["primary"], linewidth=1.2)
+    ax.set_yticks(y)
+    # 이미지 안 라벨은 ASCII만 (리눅스 CI에 한글 폰트가 없다 — VISUALIZATION_PLAN §2.3)
+    ascii_labels = [c.get("comparison_ascii") or f"comparison {i+1}"
+                    for i, c in enumerate(cmps)]
+    figspec.assert_ascii(*ascii_labels)
+    ax.set_yticklabels(ascii_labels, fontsize=9.5)
+    ax.set_xlabel("paired difference per seed (same seed, two conditions)", fontsize=9.5)
+    ax.set_ylim(-0.7, len(cmps) - 0.3)
+    ax.grid(axis="x", color=INK["axis"], linewidth=0.6, alpha=0.5)
+    ax.set_axisbelow(True)
+
+    figspec.save(fig, "T3_seed_variance", source_doc=doc,
+                 condition=f"{len(doc.get('seeds', []))} seeds x "
+                           f"{doc.get('episodes', '?')} ep, evaluation seed only")
+    return True
+
+
 FIGURES = {
     "T1": ("train_collapse", fig_train_collapse),
     "T2": ("checkpoint_history", fig_checkpoint_history),
+    "T3": ("seed_variance", fig_seed_variance),
     "F2": ("ablation_pair", fig_ablation_pair),
     "F3": ("policy_actions", fig_policy_actions),
     "T5": ("reward_landscape", fig_reward_landscape),
