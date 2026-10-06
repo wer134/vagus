@@ -93,7 +93,7 @@ def _inner_update(model: "PolicyNet", params: dict, loss: torch.Tensor, lr: floa
 
 def _collect_episode(
     env: NetworkEnv, model: "PolicyNet", params: dict | None, steps: int = 20,
-    sample: bool = True,
+    sample: bool = True, task_link: str | None = None,
 ):
     """에피소드 롤아웃.
 
@@ -103,6 +103,12 @@ def _collect_episode(
     (cowork/AUDIT_2026-09-09.md P5). 추론(FewShotAgent.act/predict)은 여전히 argmax.
     """
     obs, _ = env.reset()
+    if task_link is not None:
+        # 태스크 = "이 링크에 장애가 났다". reset 직후 주입하므로 에피소드는 처음부터
+        # 고칠 것이 있는 상태에서 시작한다. 평가(run_experiment._run_episode)도
+        # ANOMALY_INJECT_STEP=0에 지정 링크로 주입한다 — 학습과 평가가 같은 프로토콜이 된다.
+        env.inject_anomaly(task_link)
+        obs = env._get_obs()
     transitions = []
     for _ in range(steps):
         with torch.no_grad():
@@ -193,6 +199,13 @@ def train(
     value_baseline: bool = False, # True: baseline을 스칼라 평균 → V(s) (수정 1)
     value_lr: float = 1e-3,
     value_steps: int = 1,         # 반복당 V(s) 회귀 gradient 스텝 수
+    # 태스크 정의 (experiments/training_design_audit.py D-B)
+    #   "v1" — 기존. env.reset() 후 확률 0.03 무작위 주입. 태스크의 41%에 장애가 아예 없어
+    #          inner-loop가 적응할 대상이 없었고, 평가 프로토콜과도 어긋났다.
+    #   "v2" — 태스크 = TRAIN 링크 하나, reset 직후 주입. 반복마다 링크 전체를 1회씩 덮는다.
+    #          평가(_run_episode)가 ANOMALY_INJECT_STEP=0에 지정 링크로 주입하는 것과 같다.
+    # 학습 데이터 분포가 달라지므로 v1 결과와 직접 비교할 수 없다. train_info에 남긴다.
+    task_protocol: str = "v1",
 ):
     if seed is not None:
         torch.manual_seed(seed)
@@ -215,27 +228,43 @@ def train(
     value_quality: dict = {}
     print(f"[MAML] entropy_coef={entropy_coef}  value_baseline={value_baseline}"
           + (f"  value_steps={value_steps} lr={value_lr}" if value_baseline else ""), flush=True)
+    if task_protocol not in ("v1", "v2"):
+        raise ValueError(f"task_protocol은 'v1' 또는 'v2' (받은 값: {task_protocol})")
+    links = list(train_links) if train_links else None
+    if task_protocol == "v2" and not links:
+        from topology import LINKS as _ALL
+        links = list(_ALL)
     env      = NetworkEnv(snmp_base_url=snmp_url, max_steps=50, fast_mode=True,
-                          local_mode=True, train_links=train_links, sim_seed=seed)
+                          local_mode=True, train_links=train_links, sim_seed=seed,
+                          # v2: 태스크가 장애를 정하므로 무작위 주입을 끈다
+                          inject_anomalies=(task_protocol == "v1"))
+    print(f"[MAML] task_protocol={task_protocol}"
+          + (f" (태스크 {len(links)}개 = {links})" if task_protocol == "v2" else ""), flush=True)
 
     for iteration in range(meta_iterations):
         meta_opt.zero_grad()
         task_losses = []
         episode_buffer: list = []   # V(s) 회귀용 (obs, action, reward)
 
-        for _ in range(tasks_per_iter):
+        # v2: 태스크는 TRAIN 링크 하나씩 — 반복마다 전체를 균등하게 덮는다.
+        # v1: 태스크 구분 없이 같은 분포에서 tasks_per_iter번 뽑는다 (기존 동작).
+        task_links = links if task_protocol == "v2" else [None] * tasks_per_iter
+
+        for task_link in task_links:
             params = _named_params_copy(model)
 
-            # inner-loop: adapt_steps번 적응
+            # inner-loop: adapt_steps번 적응 (같은 태스크의 support 에피소드들)
             for _ in range(adapt_steps):
-                support    = _collect_episode(env, model, params, episode_steps)
+                support    = _collect_episode(env, model, params, episode_steps,
+                                              task_link=task_link)
                 inner_loss = _reinforce_loss(model, support, params,
                                              entropy_coef, value_net)
                 params     = _inner_update(model, params, inner_loss, fast_lr)
                 episode_buffer.extend(support)
 
-            # outer-loop: 적응 후 query set 평가
-            query     = _collect_episode(env, model, params, episode_steps)
+            # outer-loop: 적응 후 **같은 태스크**의 query set으로 평가
+            query     = _collect_episode(env, model, params, episode_steps,
+                                         task_link=task_link)
             task_loss = _reinforce_loss(model, query, params, entropy_coef, value_net)
             task_losses.append(task_loss)
             episode_buffer.extend(query)
@@ -303,7 +332,8 @@ def train(
                         "train_links": train_links, "seed": seed, "rollout": "sampled",
                         "entropy_coef": entropy_coef, "value_baseline": value_baseline,
                         "value_steps": value_steps, "value_lr": value_lr,
-                        "value_quality": value_quality},
+                        "value_quality": value_quality,
+                        "task_protocol": task_protocol},
         )
 
     # ROADMAP A-5: 학습 직후 정책 붕괴 검사 → <name>.meta.json
@@ -319,6 +349,7 @@ def train(
                 "entropy_coef": entropy_coef, "value_baseline": value_baseline,
                 "value_steps": value_steps, "value_lr": value_lr,
                 "value_quality": value_quality,
+                "task_protocol": task_protocol,
             },
         )
     except Exception as e:  # 검사 실패가 학습을 무효화하지는 않는다

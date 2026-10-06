@@ -80,9 +80,18 @@ def train(
     # (수정 1(상태가치 baseline)은 PPO에 해당 없음 — PPO는 이미 V(s)를 학습한다. 기전이
     #  맞다면 그것이 PPO는 붕괴에서 회복하고 MAML은 갇히는 이유다.)
     ent_coef: float = 0.0,
+    # 태스크 프로토콜 (experiments/training_design_audit.py D-B).
+    # PPO에는 MAML 같은 태스크 구조가 없지만, **커리큘럼은 같아야 비교가 성립한다** —
+    # v2는 에피소드마다 TRAIN 링크 하나에 장애를 주입해 평가 프로토콜과 맞춘다.
+    task_protocol: str = "v1",
 ):
+    if task_protocol not in ("v1", "v2"):
+        raise ValueError(f"task_protocol은 'v1' 또는 'v2' (받은 값: {task_protocol})")
     env = NetworkEnv(snmp_base_url=snmp_url, fast_mode=True, local_mode=True,
-                     train_links=train_links, sim_seed=seed)
+                     train_links=train_links, sim_seed=seed,
+                     inject_anomalies=(task_protocol == "v1"),
+                     inject_on_reset=(task_protocol == "v2"))
+    print(f"[PPO] task_protocol={task_protocol}", flush=True)
     check_env(env, warn=True)
 
     model = PPO(
@@ -117,7 +126,7 @@ def train(
                 "experiments", "results", "train_curve_ppo.json")),
             train_info={"algo": "ppo", "total_timesteps": total_timesteps,
                         "train_links": train_links, "seed": seed,
-                        "ent_coef": ent_coef},
+                        "ent_coef": ent_coef, "task_protocol": task_protocol},
         )
 
     model.save(save_path)
@@ -132,7 +141,7 @@ def train(
             train_info={"algo": "ppo", "total_timesteps": total_timesteps,
                         "train_links": train_links, "seed": seed,
                         "net_arch": [128, 64], "learning_rate": 3e-4,
-                        "ent_coef": ent_coef},
+                        "ent_coef": ent_coef, "task_protocol": task_protocol},
         )
     except Exception as e:
         print(f"[policy-check] 건너뜀: {type(e).__name__}: {e}", flush=True)
