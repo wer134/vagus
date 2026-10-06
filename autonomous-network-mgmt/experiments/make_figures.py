@@ -14,6 +14,8 @@
     F3  policy_actions      정책 행동 분포        — 붕괴가 한눈에
     T5  reward_landscape    보상 지형             — 붕괴의 "왜": 신호가 있는가
     T6  advantage_decomposition 학습 신호 분해    — 붕괴의 기전: 무엇을 따라가는가
+    T7  fix_curves          수정 요인 실험(학습)  — 붕괴를 막는가
+    T8  fix_outcomes        수정 요인 실험(결과)  — 붕괴 면함 ≠ 문제 품
 """
 import glob
 import json
@@ -364,6 +366,117 @@ def fig_advantage_decomposition() -> bool:
     return True
 
 
+# ── T7. 수정 요인 실험: 붕괴가 막히는가 (학습 중) ─────────────────────────────
+
+VARIANT_LABEL = {
+    "maml_m0_base":  "MAML base (current)",
+    "maml_m1_ent":   "MAML + entropy",
+    "maml_m2_vbase": "MAML + V(s) baseline",
+    "maml_m3_both":  "MAML + both",
+    "ppo_p0_base":   "PPO base (ent_coef 0)",
+    "ppo_p1_ent":    "PPO + entropy",
+}
+
+
+def fig_fix_curves() -> bool:
+    """수정이 붕괴 자체를 막는지 — 학습 도중의 최빈 행동 점유율로 본다.
+
+    T1과 같은 형태지만 묻는 것이 다르다. T1은 "언제 붕괴하는가", 이쪽은 "수정하면 안 하는가".
+    MAML과 PPO를 패널로 나눈 것은 x축 단위(meta-iteration vs timestep)가 다르기 때문이며,
+    진행률(%)로 정규화해 패널 안에서는 나란히 읽히게 했다.
+    """
+    groups = [("maml", [k for k in VARIANT_LABEL if k.startswith("maml")]),
+              ("ppo", [k for k in VARIANT_LABEL if k.startswith("ppo")])]
+    loaded = {}
+    for _, keys in groups:
+        for k in keys:
+            d = load(f"train_curve_{k}.json")
+            if d and d.get("samples"):
+                loaded[k] = d
+    if not loaded:
+        return False
+
+    thr = next(iter(loaded.values())).get("collapse_threshold", 0.8)
+    fig, axes = figspec.new_figure(1, 2, figsize=(11, 4.0))
+    titles = {"maml": "MAML - meta-iterations", "ppo": "PPO - timesteps"}
+
+    for ax, (algo, keys) in zip(axes, groups):
+        keys = [k for k in keys if k in loaded]
+        colors = palette.categorical(max(len(keys), 1))
+        for color, k in zip(colors, keys):
+            doc = loaded[k]
+            xs = [s["progress"] / doc["total"] * 100 for s in doc["samples"]]
+            ys = [s["top_action_share"] for s in doc["samples"]]
+            figspec.assert_ascii(VARIANT_LABEL[k])
+            ax.plot(xs, ys, color=color, linewidth=2, label=VARIANT_LABEL[k])
+        ax.axhline(thr, color=palette.STATUS["critical"], linestyle="--", linewidth=1.3)
+        ax.annotate(f"collapse threshold {thr}", (1, thr), xytext=(2, 5),
+                    textcoords="offset points", fontsize=8.5,
+                    color=palette.STATUS["critical"])
+        ax.set_ylim(0, 1.05)
+        ax.set_xlim(0, 100)
+        ax.set_xlabel("training progress (%)", fontsize=9.5)
+        ax.set_ylabel("top-action share", fontsize=9.5)
+        ax.set_title(titles[algo], fontsize=10.5, loc="left", pad=10)
+        ax.legend(fontsize=8.5, frameon=False, loc="lower right")
+        ax.grid(color=INK["axis"], linewidth=0.6, alpha=0.5)
+        ax.set_axisbelow(True)
+
+    figspec.save(fig, "T7_fix_curves", source_doc=load("collapse_fix_study.json"))
+    return True
+
+
+# ── T8. 수정 요인 실험: 결과 ──────────────────────────────────────────────────
+
+def fig_fix_outcomes() -> bool:
+    """두 질문은 다르다 — "붕괴를 면했는가"와 "문제를 푸는가".
+
+    이 리포는 전에도 둘이 다르다는 것을 확인했다(붕괴하지 않은 PPO가 TEST 링크를 하나도
+    못 풀었다). 그래서 패널을 둘로 나누고 같은 순서로 둔다. 하나로 합치면 "붕괴 면함 =
+    좋아짐"으로 읽히는데 그건 측정이 지지하지 않는다.
+    """
+    doc = load("collapse_fix_study.json")
+    if not doc or not doc.get("variants"):
+        return False
+    rows = [(k, v) for k, v in doc["variants"].items() if v.get("loaded")]
+    if not rows:
+        return False
+    thr = 0.8
+    labels = [VARIANT_LABEL.get(k, k) for k, _ in rows]
+    figspec.assert_ascii(*labels)
+    shares = [v["top_action_share"] for _, v in rows]
+    success = [v["success_rate"] for _, v in rows]
+
+    fig, (ax_c, ax_s) = figspec.new_figure(1, 2, figsize=(11.5, 4.0))
+    y = list(range(len(rows)))[::-1]
+
+    cols = [palette.STATUS["critical"] if v["collapsed"] else palette.STATUS["good"]
+            for _, v in rows]
+    b1 = ax_c.barh(y, shares, color=cols, height=0.6)
+    figspec.label_bars(ax_c, b1, shares, "{:.2f}")
+    ax_c.axvline(thr, color=INK["secondary"], linestyle="--", linewidth=1.2)
+    ax_c.annotate(f"collapse threshold {thr}", (thr, len(rows) - 0.4), xytext=(4, 0),
+                  textcoords="offset points", fontsize=8.5, color=INK["secondary"])
+    ax_c.set_xlim(0, 1.18)
+    ax_c.set_title("Top-action share after training (red = collapsed)",
+                   fontsize=10.5, loc="left", pad=10)
+
+    b2 = ax_s.barh(y, success, color=palette.SEQUENTIAL_DEFAULT, height=0.6)
+    figspec.label_bars(ax_s, b2, success, "{:.0f}%")
+    ax_s.set_xlim(0, max(max(success) * 1.25, 10))
+    ax_s.set_title("Episodes solved on held-out links", fontsize=10.5, loc="left", pad=10)
+
+    for ax in (ax_c, ax_s):
+        ax.set_yticks(y)
+        ax.set_yticklabels(labels, fontsize=9.5)
+        ax.grid(axis="x", color=INK["axis"], linewidth=0.6, alpha=0.5)
+        ax.set_axisbelow(True)
+
+    figspec.save(fig, "T8_fix_outcomes", source_doc=doc,
+                 condition=f"{doc.get('eval_episodes', '?')} ep on held-out links")
+    return True
+
+
 FIGURES = {
     "T1": ("train_collapse", fig_train_collapse),
     "T2": ("checkpoint_history", fig_checkpoint_history),
@@ -371,6 +484,8 @@ FIGURES = {
     "F3": ("policy_actions", fig_policy_actions),
     "T5": ("reward_landscape", fig_reward_landscape),
     "T6": ("advantage_decomposition", fig_advantage_decomposition),
+    "T7": ("fix_curves", fig_fix_curves),
+    "T8": ("fix_outcomes", fig_fix_outcomes),
 }
 
 

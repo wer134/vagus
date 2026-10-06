@@ -50,6 +50,32 @@ class PolicyNet(nn.Module):
         return F.linear(x, params["fc3.weight"], params["fc3.bias"])
 
 
+class ValueNet(nn.Module):
+    """상태가치 baseline V(s) — 붕괴 원인 수정 1번 (cowork/ROADMAP.md §7).
+
+    REINFORCE의 baseline이 **에피소드 보상 평균이라는 스칼라 하나**라는 것이 붕괴의 핵심
+    기전이었다. 보상은 상태에 따라 0.681(정상)/0.323(혼잡)로 갈리는데 행동이 만드는 차이는
+    최대 0.0134 — 28배다. 스칼라는 그 상태 오프셋을 제거하지 못하므로 advantage가 행동이
+    아니라 상태를 23.8배 더 반영했고, 보상이 높은 정상 상태에서 **우연히 뽑힌 행동**이
+    강화됐다. 그것이 상수 정책의 정체다.
+
+    V(s)는 메타 파라미터가 아니다 — inner-loop로 적응시키지 않고 모든 태스크가 공유하는
+    보통의 회귀 모델로 둔다. 태스크(링크)가 달라도 "이 관측이면 보상이 이쯤"이라는 관계는
+    같기 때문이고, 측정(D5)이 보여준 것도 상태 조건부 baseline이면 충분하다는 것이었다.
+
+    정책 체크포인트(PolicyNet)와 **별도 모듈**이라 기존 체크포인트 포맷·policy_check·
+    FewShotAgent.act는 그대로다.
+    """
+
+    def __init__(self):
+        super().__init__()
+        self.fc1 = nn.Linear(OBS_DIM, 64)
+        self.fc2 = nn.Linear(64, 1)
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        return self.fc2(F.relu(self.fc1(x))).squeeze(-1)
+
+
 # ── MAML 헬퍼 ─────────────────────────────────────────────────────────────────
 
 def _named_params_copy(model: nn.Module) -> dict:
@@ -98,30 +124,52 @@ def _reinforce_loss(
     model: "PolicyNet",
     transitions: list,
     params: dict | None,
+    entropy_coef: float = 0.0,
+    value_net: "ValueNet | None" = None,
 ) -> torch.Tensor:
-    """REINFORCE + baseline: log-prob × advantage (분산 감소)."""
+    """REINFORCE + baseline: log-prob × advantage (분산 감소).
+
+    entropy_coef > 0 : 정책 엔트로피 보너스 (붕괴 원인 수정 2번). 기존 손실에는 엔트로피 항이
+        없었고 PPO도 `ent_coef` 기본값 0.0이었다 — 양쪽 다 조기 수렴을 막는 힘이 없었다.
+    value_net 지정   : baseline을 스칼라 평균 대신 **V(s)**로 (수정 1번). 이때는 분산 정규화를
+        하지 않는다. 정규화는 스칼라 baseline이 중심을 제대로 못 잡는 것을 보완하려던 장치인데,
+        V(s)가 이미 상태별로 중심을 잡으므로 다시 정규화하면 스케일만 부풀린다. 특히 고칠 것이
+        없어 보상이 노이즈뿐인 에피소드(전체의 40%)에서 그 노이즈를 단위 분산으로 **증폭**해
+        신호가 있는 에피소드와 같은 크기의 gradient를 만든다 (ROADMAP §7 기전 5).
+
+    기본값은 둘 다 꺼짐 — 인자를 주지 않으면 이전과 **같은 손실**이다.
+    """
     if not transitions:
         return torch.tensor(0.0, requires_grad=True)
 
     rewards = [r for _, _, r in transitions]
-    baseline = float(np.mean(rewards))
 
     log_probs  = []
-    advantages = []
+    entropies  = []
     for obs, action, r in transitions:
         t = torch.FloatTensor(obs).unsqueeze(0)
         logits = model.forward_with_params(t, params) if params is not None else model(t)
-        log_prob = F.log_softmax(logits, dim=-1)[0, action]
-        log_probs.append(log_prob)
-        advantages.append(r - baseline)
+        logp_all = F.log_softmax(logits, dim=-1)
+        log_probs.append(logp_all[0, action])
+        if entropy_coef:
+            entropies.append(-(logp_all.exp() * logp_all).sum())
 
-    adv_tensor  = torch.tensor(advantages, dtype=torch.float32)
-    # 분산 정규화 (분산이 0이면 skip)
-    if adv_tensor.std() > 1e-8:
-        adv_tensor = (adv_tensor - adv_tensor.mean()) / (adv_tensor.std() + 1e-8)
+    if value_net is not None:
+        obs_batch = torch.FloatTensor(np.array([o for o, _, _ in transitions]))
+        with torch.no_grad():
+            values = value_net(obs_batch)
+        adv_tensor = torch.tensor(rewards, dtype=torch.float32) - values
+    else:
+        baseline = float(np.mean(rewards))
+        adv_tensor = torch.tensor([r - baseline for r in rewards], dtype=torch.float32)
+        # 분산 정규화 (분산이 0이면 skip)
+        if adv_tensor.std() > 1e-8:
+            adv_tensor = (adv_tensor - adv_tensor.mean()) / (adv_tensor.std() + 1e-8)
 
-    log_prob_stack = torch.stack(log_probs)
-    return -(log_prob_stack * adv_tensor).mean()
+    loss = -(torch.stack(log_probs) * adv_tensor).mean()
+    if entropy_coef:
+        loss = loss - entropy_coef * torch.stack(entropies).mean()
+    return loss
 
 
 # ── 학습 ─────────────────────────────────────────────────────────────────────
@@ -139,6 +187,11 @@ def train(
     seed: int | None = None,
     probe_every: int = 20,        # 0이면 학습 중 프로브 생략
     curve_path: str | None = None,
+    # ── 붕괴 원인 수정 (cowork/ROADMAP.md §7). 기본값은 **이전 동작 그대로**다 —
+    #    끄고 켜서 두 수정의 기여를 따로 잴 수 있게 둔다.
+    entropy_coef: float = 0.0,    # >0: 엔트로피 보너스 (수정 2)
+    value_baseline: bool = False, # True: baseline을 스칼라 평균 → V(s) (수정 1)
+    value_lr: float = 1e-3,
 ):
     if seed is not None:
         torch.manual_seed(seed)
@@ -156,12 +209,16 @@ def train(
 
     model    = PolicyNet()
     meta_opt = torch.optim.Adam(model.parameters(), lr=meta_lr)
+    value_net = ValueNet() if value_baseline else None
+    value_opt = torch.optim.Adam(value_net.parameters(), lr=value_lr) if value_net else None
+    print(f"[MAML] entropy_coef={entropy_coef}  value_baseline={value_baseline}", flush=True)
     env      = NetworkEnv(snmp_base_url=snmp_url, max_steps=50, fast_mode=True,
                           local_mode=True, train_links=train_links, sim_seed=seed)
 
     for iteration in range(meta_iterations):
         meta_opt.zero_grad()
         task_losses = []
+        episode_buffer: list = []   # V(s) 회귀용 (obs, action, reward)
 
         for _ in range(tasks_per_iter):
             params = _named_params_copy(model)
@@ -169,18 +226,31 @@ def train(
             # inner-loop: adapt_steps번 적응
             for _ in range(adapt_steps):
                 support    = _collect_episode(env, model, params, episode_steps)
-                inner_loss = _reinforce_loss(model, support, params)
+                inner_loss = _reinforce_loss(model, support, params,
+                                             entropy_coef, value_net)
                 params     = _inner_update(model, params, inner_loss, fast_lr)
+                episode_buffer.extend(support)
 
             # outer-loop: 적응 후 query set 평가
             query     = _collect_episode(env, model, params, episode_steps)
-            task_loss = _reinforce_loss(model, query, params)
+            task_loss = _reinforce_loss(model, query, params, entropy_coef, value_net)
             task_losses.append(task_loss)
+            episode_buffer.extend(query)
 
         meta_loss = torch.stack(task_losses).mean()
         meta_loss.backward()
         torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
         meta_opt.step()
+
+        # V(s)를 이번 반복에서 모은 (관측, 보상)으로 회귀 학습한다. 정책 gradient와 분리돼
+        # 있으므로 메타 파라미터에 영향을 주지 않는다.
+        if value_net is not None and episode_buffer:
+            ob = torch.FloatTensor(np.array([o for o, _, _ in episode_buffer]))
+            rw = torch.FloatTensor([r for _, _, r in episode_buffer])
+            value_opt.zero_grad()
+            v_loss = F.mse_loss(value_net(ob), rw)
+            v_loss.backward()
+            value_opt.step()
 
         done = iteration + 1
         if probe is not None and (done % probe_every == 0 or done == 1):
@@ -205,7 +275,8 @@ def train(
                 "experiments", "results", "train_curve_maml.json")),
             train_info={"algo": "maml", "meta_iterations": meta_iterations,
                         "meta_lr": meta_lr, "fast_lr": fast_lr,
-                        "train_links": train_links, "seed": seed, "rollout": "sampled"},
+                        "train_links": train_links, "seed": seed, "rollout": "sampled",
+                        "entropy_coef": entropy_coef, "value_baseline": value_baseline},
         )
 
     # ROADMAP A-5: 학습 직후 정책 붕괴 검사 → <name>.meta.json
@@ -218,6 +289,7 @@ def train(
                 "fast_lr": fast_lr, "tasks_per_iter": tasks_per_iter,
                 "adapt_steps": adapt_steps, "episode_steps": episode_steps,
                 "train_links": train_links, "seed": seed, "rollout": "sampled",
+                "entropy_coef": entropy_coef, "value_baseline": value_baseline,
             },
         )
     except Exception as e:  # 검사 실패가 학습을 무효화하지는 않는다
