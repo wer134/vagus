@@ -192,6 +192,7 @@ def train(
     entropy_coef: float = 0.0,    # >0: 엔트로피 보너스 (수정 2)
     value_baseline: bool = False, # True: baseline을 스칼라 평균 → V(s) (수정 1)
     value_lr: float = 1e-3,
+    value_steps: int = 1,         # 반복당 V(s) 회귀 gradient 스텝 수
 ):
     if seed is not None:
         torch.manual_seed(seed)
@@ -211,7 +212,9 @@ def train(
     meta_opt = torch.optim.Adam(model.parameters(), lr=meta_lr)
     value_net = ValueNet() if value_baseline else None
     value_opt = torch.optim.Adam(value_net.parameters(), lr=value_lr) if value_net else None
-    print(f"[MAML] entropy_coef={entropy_coef}  value_baseline={value_baseline}", flush=True)
+    value_quality: dict = {}
+    print(f"[MAML] entropy_coef={entropy_coef}  value_baseline={value_baseline}"
+          + (f"  value_steps={value_steps} lr={value_lr}" if value_baseline else ""), flush=True)
     env      = NetworkEnv(snmp_base_url=snmp_url, max_steps=50, fast_mode=True,
                           local_mode=True, train_links=train_links, sim_seed=seed)
 
@@ -247,10 +250,27 @@ def train(
         if value_net is not None and episode_buffer:
             ob = torch.FloatTensor(np.array([o for o, _, _ in episode_buffer]))
             rw = torch.FloatTensor([r for _, _, r in episode_buffer])
-            value_opt.zero_grad()
-            v_loss = F.mse_loss(value_net(ob), rw)
-            v_loss.backward()
-            value_opt.step()
+            for _ in range(value_steps):
+                value_opt.zero_grad()
+                v_loss = F.mse_loss(value_net(ob), rw)
+                v_loss.backward()
+                value_opt.step()
+            # critic이 실제로 작동했는지를 **학습이 스스로 기록한다.** 첫 요인 실험에서는
+            # critic을 저장하지도 측정하지도 않아서, 붕괴가 "수정 1이 틀려서"인지 "V(s)가
+            # 거의 상수라 사실상 스칼라 baseline이어서"인지 사후에 구별할 수 없었다.
+            # 보상과의 상관이 낮거나 예측 분산이 0에 가까우면 critic은 아무 일도 하지 않은 것이다.
+            with torch.no_grad():
+                pred = value_net(ob)
+                sd_p, sd_r = pred.std().item(), rw.std().item()
+                value_quality = {
+                    "mse": round(float(v_loss.item()), 6),
+                    "pred_sd": round(sd_p, 5),
+                    "reward_sd": round(sd_r, 5),
+                    "corr_with_reward": (
+                        round(float(((pred - pred.mean()) * (rw - rw.mean())).mean()
+                                    / (sd_p * sd_r + 1e-12)), 4)
+                        if sd_p > 1e-8 and sd_r > 1e-8 else 0.0),
+                }
 
         done = iteration + 1
         if probe is not None and (done % probe_every == 0 or done == 1):
@@ -266,6 +286,11 @@ def train(
 
     torch.save(model.state_dict(), save_path)
     print(f"MAML model saved → {save_path}")
+    if value_net is not None:
+        # critic을 버리면 "수정 1이 실제로 적용됐는가"를 나중에 확인할 수 없다 (2026-10-06 교훈)
+        vpath = os.path.splitext(save_path)[0] + ".value.pt"
+        torch.save(value_net.state_dict(), vpath)
+        print(f"MAML critic saved → {vpath}  품질 {value_quality}", flush=True)
     env.close()
 
     if probe is not None and probe.samples:
@@ -276,7 +301,9 @@ def train(
             train_info={"algo": "maml", "meta_iterations": meta_iterations,
                         "meta_lr": meta_lr, "fast_lr": fast_lr,
                         "train_links": train_links, "seed": seed, "rollout": "sampled",
-                        "entropy_coef": entropy_coef, "value_baseline": value_baseline},
+                        "entropy_coef": entropy_coef, "value_baseline": value_baseline,
+                        "value_steps": value_steps, "value_lr": value_lr,
+                        "value_quality": value_quality},
         )
 
     # ROADMAP A-5: 학습 직후 정책 붕괴 검사 → <name>.meta.json
@@ -290,6 +317,8 @@ def train(
                 "adapt_steps": adapt_steps, "episode_steps": episode_steps,
                 "train_links": train_links, "seed": seed, "rollout": "sampled",
                 "entropy_coef": entropy_coef, "value_baseline": value_baseline,
+                "value_steps": value_steps, "value_lr": value_lr,
+                "value_quality": value_quality,
             },
         )
     except Exception as e:  # 검사 실패가 학습을 무효화하지는 않는다
