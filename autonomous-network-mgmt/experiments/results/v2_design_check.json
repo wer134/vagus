@@ -1,0 +1,289 @@
+{
+  "schema_version": 1,
+  "timestamp": "2026-10-06T05:58:29.127338",
+  "git_commit": "62ed458-dirty",
+  "seed": 42,
+  "contract": {
+    "obs_version": 1,
+    "action_version": 1,
+    "reward_version": 1,
+    "sim_version": 3
+  },
+  "_condition": "태스크 프로토콜 v2 설계 검증. 학습 알고리즘을 돌리지 않고 환경과 손으로 쓴 정책만 측정한다. V-1은 같은 noise_seed로 상태를 재구성해 행동을 짝지어 비교하고, 12틱 누적 보상으로 잰다(즉시 보상은 노이즈에 묻힌다).",
+  "repeats": 8,
+  "episodes": 5,
+  "episode_steps": 30,
+  "v1_link_matters": {
+    "per_fault_link": {
+      "r1-r2": {
+        "mean_reward_over_horizon": {
+          "correct (faulty link) @100": 0.50894,
+          "other TRAIN link @100": 0.32186,
+          "TEST link r3-r4 @100": 0.31794,
+          "TEST link r1-r4 @100": 0.32157,
+          "faulty link @10 (no bypass)": 0.32073
+        },
+        "sd": {
+          "correct (faulty link) @100": 0.01783,
+          "other TRAIN link @100": 0.00268,
+          "TEST link r3-r4 @100": 0.00358,
+          "TEST link r1-r4 @100": 0.00287,
+          "faulty link @10 (no bypass)": 0.00289
+        },
+        "best": "correct (faulty link) @100",
+        "correct_minus_test_link": 0.18736,
+        "correct_minus_nobypass": 0.18821
+      },
+      "r1-r3": {
+        "mean_reward_over_horizon": {
+          "correct (faulty link) @100": 0.51541,
+          "other TRAIN link @100": 0.3227,
+          "TEST link r3-r4 @100": 0.32177,
+          "TEST link r1-r4 @100": 0.32281,
+          "faulty link @10 (no bypass)": 0.32196
+        },
+        "sd": {
+          "correct (faulty link) @100": 0.0202,
+          "other TRAIN link @100": 0.00346,
+          "TEST link r3-r4 @100": 0.00387,
+          "TEST link r1-r4 @100": 0.00427,
+          "faulty link @10 (no bypass)": 0.00384
+        },
+        "best": "correct (faulty link) @100",
+        "correct_minus_test_link": 0.1926,
+        "correct_minus_nobypass": 0.19345
+      },
+      "r2-r3": {
+        "mean_reward_over_horizon": {
+          "correct (faulty link) @100": 0.50901,
+          "other TRAIN link @100": 0.32253,
+          "TEST link r3-r4 @100": 0.32162,
+          "TEST link r1-r4 @100": 0.32001,
+          "faulty link @10 (no bypass)": 0.32179
+        },
+        "sd": {
+          "correct (faulty link) @100": 0.02056,
+          "other TRAIN link @100": 0.00208,
+          "TEST link r3-r4 @100": 0.00328,
+          "TEST link r1-r4 @100": 0.00295,
+          "faulty link @10 (no bypass)": 0.0025
+        },
+        "best": "correct (faulty link) @100",
+        "correct_minus_test_link": 0.18901,
+        "correct_minus_nobypass": 0.18722
+      },
+      "r2-r4": {
+        "mean_reward_over_horizon": {
+          "correct (faulty link) @100": 0.51336,
+          "other TRAIN link @100": 0.32007,
+          "TEST link r3-r4 @100": 0.31914,
+          "TEST link r1-r4 @100": 0.32017,
+          "faulty link @10 (no bypass)": 0.31933
+        },
+        "sd": {
+          "correct (faulty link) @100": 0.01728,
+          "other TRAIN link @100": 0.00202,
+          "TEST link r3-r4 @100": 0.00167,
+          "TEST link r1-r4 @100": 0.00231,
+          "faulty link @10 (no bypass)": 0.00196
+        },
+        "best": "correct (faulty link) @100",
+        "correct_minus_test_link": 0.1932,
+        "correct_minus_nobypass": 0.19404
+      }
+    },
+    "mean_correct_minus_wrong_link": 0.19054,
+    "mean_noise_sd": 0.00611,
+    "verdict": "조치 링크가 상관있다 — 정답 링크가 유의하게 낫다",
+    "horizon_ticks": 12,
+    "repeats": 8
+  },
+  "v2a_single_policy": {
+    "policies": {
+      "oracle (knows faulty link)": {
+        "r1-r2": {
+          "success_rate": 100.0,
+          "avg_ttr": 5.2
+        },
+        "r1-r3": {
+          "success_rate": 100.0,
+          "avg_ttr": 5
+        },
+        "r2-r3": {
+          "success_rate": 100.0,
+          "avg_ttr": 4.6
+        },
+        "r2-r4": {
+          "success_rate": 100.0,
+          "avg_ttr": 4.2
+        },
+        "r3-r4": {
+          "success_rate": 100.0,
+          "avg_ttr": 4.4
+        },
+        "r1-r4": {
+          "success_rate": 100.0,
+          "avg_ttr": 5
+        }
+      },
+      "latency heuristic (obs only)": {
+        "r1-r2": {
+          "success_rate": 100.0,
+          "avg_ttr": 4
+        },
+        "r1-r3": {
+          "success_rate": 100.0,
+          "avg_ttr": 4
+        },
+        "r2-r3": {
+          "success_rate": 100.0,
+          "avg_ttr": 4.8
+        },
+        "r2-r4": {
+          "success_rate": 100.0,
+          "avg_ttr": 5.2
+        },
+        "r3-r4": {
+          "success_rate": 100.0,
+          "avg_ttr": 4.8
+        },
+        "r1-r4": {
+          "success_rate": 100.0,
+          "avg_ttr": 4
+        }
+      }
+    },
+    "constant_actions": {
+      "r1-r2@100": {
+        "r1-r2": 100.0,
+        "r1-r3": 0.0,
+        "r2-r3": 0.0,
+        "r2-r4": 0.0
+      },
+      "r1-r3@100": {
+        "r1-r2": 0.0,
+        "r1-r3": 100.0,
+        "r2-r3": 0.0,
+        "r2-r4": 0.0
+      },
+      "r2-r3@100": {
+        "r1-r2": 0.0,
+        "r1-r3": 0.0,
+        "r2-r3": 100.0,
+        "r2-r4": 0.0
+      },
+      "r2-r4@100": {
+        "r1-r2": 0.0,
+        "r1-r3": 0.0,
+        "r2-r3": 0.0,
+        "r2-r4": 100.0
+      },
+      "r3-r4@100": {
+        "r1-r2": 0.0,
+        "r1-r3": 0.0,
+        "r2-r3": 0.0,
+        "r2-r4": 0.0
+      },
+      "r1-r4@100": {
+        "r1-r2": 0.0,
+        "r1-r3": 0.0,
+        "r2-r3": 0.0,
+        "r2-r4": 0.0
+      }
+    },
+    "best_constant_action": "r1-r2@100",
+    "best_constant_mean_success": 25.0,
+    "episode_steps": 30,
+    "note": "관측만 쓰는 단일 정책이 네 태스크를 다 풀면 메타학습이 기여할 자리가 없다. 상수 행동 하나로도 풀린다면 더 심각하다 — 상태조차 볼 필요가 없다는 뜻이다."
+  },
+  "v2b_adaptation": {
+    "checkpoint": "maml_network.pt (v1 학습)",
+    "by_mode": {
+      "no_adapt": {
+        "r1-r2": {
+          "success_rate": 0.0,
+          "avg_ttr": null
+        },
+        "r1-r3": {
+          "success_rate": 0.0,
+          "avg_ttr": null
+        },
+        "r2-r3": {
+          "success_rate": 0.0,
+          "avg_ttr": null
+        },
+        "r2-r4": {
+          "success_rate": 0.0,
+          "avg_ttr": null
+        },
+        "r3-r4": {
+          "success_rate": 100.0,
+          "avg_ttr": 5.67
+        },
+        "r1-r4": {
+          "success_rate": 0.0,
+          "avg_ttr": null
+        }
+      },
+      "adapt_3": {
+        "r1-r2": {
+          "success_rate": 0.0,
+          "avg_ttr": null
+        },
+        "r1-r3": {
+          "success_rate": 0.0,
+          "avg_ttr": null
+        },
+        "r2-r3": {
+          "success_rate": 0.0,
+          "avg_ttr": null
+        },
+        "r2-r4": {
+          "success_rate": 0.0,
+          "avg_ttr": null
+        },
+        "r3-r4": {
+          "success_rate": 100.0,
+          "avg_ttr": 5
+        },
+        "r1-r4": {
+          "success_rate": 0.0,
+          "avg_ttr": null
+        }
+      }
+    },
+    "note": "붕괴한 체크포인트라 두 모드가 같아도 놀랍지 않다 — 그 사실 자체가 기록이다."
+  },
+  "v3_curriculum": {
+    "maml": {
+      "episode_steps": 30,
+      "fault_link": "태스크가 지정 (반복마다 TRAIN 4개를 1회씩)",
+      "faults_per_episode": 1,
+      "env_max_steps": 50
+    },
+    "ppo": {
+      "episode_steps": "NetworkEnv.max_steps = 200 (reset까지)",
+      "fault_link": "reset마다 train_links에서 무작위",
+      "faults_per_episode": 1,
+      "env_max_steps": 200
+    },
+    "differences": [
+      "에피소드 길이: MAML 30스텝 vs PPO 200스텝 — PPO 에피소드가 6배 이상 길다",
+      "링크 선택: MAML은 균등 순회(반복마다 4개 전부), PPO는 매 reset 무작위 — PPO는 링크 커버리지가 균등하지 않다"
+    ],
+    "verdict": "커리큘럼이 같지 않다 — 에피소드 길이와 링크 커버리지가 다르다"
+  },
+  "v4_episode_length": {
+    "oracle policy": {
+      "pct_steps_with_active_violation": 13.67,
+      "mean_violating_steps_per_episode": 4.1,
+      "episode_steps": 30
+    },
+    "random policy": {
+      "pct_steps_with_active_violation": 89.67,
+      "mean_violating_steps_per_episode": 26.9,
+      "episode_steps": 30
+    },
+    "note": "오라클 정책에서의 비율이 '최선을 다해도 남는 유효 스텝 비율'이다. 이 값이 낮으면 에피소드 뒤쪽이 v1의 앞쪽과 같은 역할을 한다 — 희석 문제가 사라진 게 아니라 자리를 옮긴 것이다."
+  }
+}
