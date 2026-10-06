@@ -74,6 +74,12 @@ def train(
     seed: int | None = None,
     probe_every: int = 1,          # rollout 몇 번마다 잴지 (0=끔)
     curve_path: str | None = None,
+    # 붕괴 원인 수정 2 (cowork/ROADMAP.md §7): SB3의 ent_coef 기본값은 0.0이라 엔트로피
+    # 보너스가 전혀 없었다 — 조기 수렴을 막는 힘이 없는 상태로 학습해 온 것이다. 여기 기본값도
+    # 이전 동작 그대로 두고, 켜고 끄며 기여를 따로 잰다.
+    # (수정 1(상태가치 baseline)은 PPO에 해당 없음 — PPO는 이미 V(s)를 학습한다. 기전이
+    #  맞다면 그것이 PPO는 붕괴에서 회복하고 MAML은 갇히는 이유다.)
+    ent_coef: float = 0.0,
 ):
     env = NetworkEnv(snmp_base_url=snmp_url, fast_mode=True, local_mode=True,
                      train_links=train_links, sim_seed=seed)
@@ -87,10 +93,12 @@ def train(
         batch_size=64,
         n_epochs=10,
         gamma=0.99,
+        ent_coef=ent_coef,
         policy_kwargs={"net_arch": [128, 64]},
         verbose=1,
         seed=seed,
     )
+    print(f"[PPO] ent_coef={ent_coef}", flush=True)
     probe, callback = None, None
     if probe_every:
         try:
@@ -108,7 +116,8 @@ def train(
                 os.path.dirname(os.path.abspath(__file__)), "..", "..",
                 "experiments", "results", "train_curve_ppo.json")),
             train_info={"algo": "ppo", "total_timesteps": total_timesteps,
-                        "train_links": train_links, "seed": seed},
+                        "train_links": train_links, "seed": seed,
+                        "ent_coef": ent_coef},
         )
 
     model.save(save_path)
@@ -122,7 +131,8 @@ def train(
             BaselineAgent(save_path), save_path,
             train_info={"algo": "ppo", "total_timesteps": total_timesteps,
                         "train_links": train_links, "seed": seed,
-                        "net_arch": [128, 64], "learning_rate": 3e-4},
+                        "net_arch": [128, 64], "learning_rate": 3e-4,
+                        "ent_coef": ent_coef},
         )
     except Exception as e:
         print(f"[policy-check] 건너뜀: {type(e).__name__}: {e}", flush=True)

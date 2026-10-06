@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "timestamp": "2026-09-13T09:20:36.712535",
+  "git_commit": "74300b6-dirty",
+  "seed": 42,
+  "contract": {
+    "obs_version": 1,
+    "action_version": 1,
+    "reward_version": 1,
+    "sim_version": 3
+  },
+  "_condition": "학습 직후 정책 붕괴 검사 (ROADMAP A-5)",
+  "checkpoint": "ppo_network.zip",
+  "train": {
+    "algo": "ppo",
+    "total_timesteps": 50000,
+    "train_links": [
+      "r1-r2",
+      "r1-r3",
+      "r2-r3",
+      "r2-r4"
+    ],
+    "seed": 42,
+    "net_arch": [
+      128,
+      64
+    ],
+    "learning_rate": 0.0003
+  },
+  "policy_check": {
+    "top_action": "r1-r4@20",
+    "top_action_share": 0.4583,
+    "action_entropy_bits": 1.6513,
+    "distinct_actions": 5,
+    "collapsed": false,
+    "collapse_threshold": 0.8,
+    "on_policy_counts": {
+      "r1-r4@20": 22,
+      "r1-r3@200": 19,
+      "r2-r3@200": 4,
+      "r1-r2@100": 2,
+      "r2-r4@200": 1
+    },
+    "random_obs_counts": {
+      "r1-r3@200": 160,
+      "r1-r2@100": 29,
+      "r2-r3@200": 10,
+      "r1-r4@20": 1
+    },
+    "probe": {
+      "links": 6,
+      "steps_per_link": 8,
+      "n_random_obs": 200,
+      "seed": 0
+    }
+  }
+}
