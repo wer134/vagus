@@ -97,6 +97,12 @@ step "지속 버퍼 ($PERSIST_EPISODES ep)"
 (cd "$ROOT/experiments" && "$PY" persistent_buffer_test.py \
     --episodes "$PERSIST_EPISODES" --seed "$SEED") || exit 1
 
+# ── 4b) 붕괴 원인 진단 (환경만 측정 — 학습을 돌리지 않으므로 빠르다) ──────────
+# T1이 "언제 붕괴하는가"를 재고, 이쪽이 "왜"를 잰다 (cowork/ROADMAP.md §7).
+step "붕괴 원인 진단"
+(cd "$ROOT/experiments" && "$PY" collapse_diagnosis.py --seed "$SEED" \
+    --out "$RESULTS/collapse_diagnosis${SUFFIX}.json") || exit 1
+
 # ── 5) 도판 ───────────────────────────────────────────────────────────────────
 # 결과가 갱신되면 그림도 같은 실행에서 갱신된다 — 둘이 어긋날 수 없게
 # (cowork/VISUALIZATION_PLAN.md §2.2).

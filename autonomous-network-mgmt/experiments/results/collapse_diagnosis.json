@@ -1,0 +1,401 @@
+{
+  "schema_version": 1,
+  "timestamp": "2026-10-06T03:45:12.811584",
+  "git_commit": "49a0d44-dirty",
+  "seed": 42,
+  "contract": {
+    "obs_version": 1,
+    "action_version": 1,
+    "reward_version": 1,
+    "sim_version": 3
+  },
+  "_condition": "환경만 측정 — 학습 알고리즘을 돌리지 않는다. 각 상태를 같은 noise_seed로 재구성해 행동끼리 짝지어 비교한다. D1은 network_env의 이상 주입 규칙(ANOMALY_PROB=0.03, episode_steps=30, reset 시 이상 없음)을 그대로 재현한 것이다. 혼잡 상태는 주입 후 5틱 경과 시점.",
+  "repeats": 24,
+  "d1_state_distribution": {
+    "n_episodes": 20000,
+    "episode_steps": 30,
+    "anomaly_prob_per_step": 0.03,
+    "steps_total": 600000,
+    "steps_with_active_anomaly": 199445,
+    "pct_steps_actionable": 33.24,
+    "pct_episodes_with_no_anomaly_at_all": 40.28,
+    "mean_first_anomaly_step": 13.3
+  },
+  "d2_reward_landscape": {
+    "healthy": {
+      "mean_reward": 0.67543,
+      "spread_across_actions": 0.00012,
+      "noise_sd_within_action": 0.01496,
+      "snr": 0.008,
+      "paired_max_minus_min_mean": 0.00013,
+      "best_action": "r1-r4@50",
+      "best_action_reward": 0.67546,
+      "worst_action": "r3-r4@50",
+      "worst_action_reward": 0.67534,
+      "top5": [
+        {
+          "action": "r1-r4@50",
+          "reward": 0.67546
+        },
+        {
+          "action": "r1-r4@100",
+          "reward": 0.67546
+        },
+        {
+          "action": "r1-r4@200",
+          "reward": 0.67546
+        },
+        {
+          "action": "r2-r4@50",
+          "reward": 0.67546
+        },
+        {
+          "action": "r2-r4@100",
+          "reward": 0.67546
+        }
+      ],
+      "correct_action": null,
+      "correct_action_rank": null
+    },
+    "r1-r2": {
+      "mean_reward": 0.32049,
+      "spread_across_actions": 0.01337,
+      "noise_sd_within_action": 0.00931,
+      "snr": 1.436,
+      "paired_max_minus_min_mean": 0.01337,
+      "best_action": "r1-r2@100",
+      "best_action_reward": 0.33162,
+      "worst_action": "r1-r2@50",
+      "worst_action_reward": 0.31825,
+      "top5": [
+        {
+          "action": "r1-r2@100",
+          "reward": 0.33162
+        },
+        {
+          "action": "r1-r2@200",
+          "reward": 0.33162
+        },
+        {
+          "action": "r1-r4@50",
+          "reward": 0.32
+        },
+        {
+          "action": "r1-r4@100",
+          "reward": 0.32
+        },
+        {
+          "action": "r1-r4@200",
+          "reward": 0.32
+        }
+      ],
+      "correct_action": "r1-r2@100",
+      "correct_action_rank": 1
+    },
+    "r1-r3": {
+      "mean_reward": 0.31935,
+      "spread_across_actions": 0.01418,
+      "noise_sd_within_action": 0.00896,
+      "snr": 1.583,
+      "paired_max_minus_min_mean": 0.01418,
+      "best_action": "r1-r3@100",
+      "best_action_reward": 0.33126,
+      "worst_action": "r1-r3@50",
+      "worst_action_reward": 0.31709,
+      "top5": [
+        {
+          "action": "r1-r3@100",
+          "reward": 0.33126
+        },
+        {
+          "action": "r1-r3@200",
+          "reward": 0.33126
+        },
+        {
+          "action": "r1-r4@50",
+          "reward": 0.31881
+        },
+        {
+          "action": "r1-r4@100",
+          "reward": 0.31881
+        },
+        {
+          "action": "r1-r4@200",
+          "reward": 0.31881
+        }
+      ],
+      "correct_action": "r1-r3@100",
+      "correct_action_rank": 1
+    },
+    "r2-r3": {
+      "mean_reward": 0.32029,
+      "spread_across_actions": 0.01409,
+      "noise_sd_within_action": 0.00832,
+      "snr": 1.694,
+      "paired_max_minus_min_mean": 0.01409,
+      "best_action": "r2-r3@100",
+      "best_action_reward": 0.33211,
+      "worst_action": "r2-r3@50",
+      "worst_action_reward": 0.31803,
+      "top5": [
+        {
+          "action": "r2-r3@100",
+          "reward": 0.33211
+        },
+        {
+          "action": "r2-r3@200",
+          "reward": 0.33211
+        },
+        {
+          "action": "r2-r4@50",
+          "reward": 0.31975
+        },
+        {
+          "action": "r2-r4@100",
+          "reward": 0.31975
+        },
+        {
+          "action": "r2-r4@200",
+          "reward": 0.31975
+        }
+      ],
+      "correct_action": "r2-r3@100",
+      "correct_action_rank": 1
+    },
+    "r2-r4": {
+      "mean_reward": 0.31978,
+      "spread_across_actions": 0.01365,
+      "noise_sd_within_action": 0.00874,
+      "snr": 1.562,
+      "paired_max_minus_min_mean": 0.01365,
+      "best_action": "r2-r4@100",
+      "best_action_reward": 0.3312,
+      "worst_action": "r2-r4@50",
+      "worst_action_reward": 0.31755,
+      "top5": [
+        {
+          "action": "r2-r4@100",
+          "reward": 0.3312
+        },
+        {
+          "action": "r2-r4@200",
+          "reward": 0.3312
+        },
+        {
+          "action": "r1-r4@50",
+          "reward": 0.31927
+        },
+        {
+          "action": "r1-r4@100",
+          "reward": 0.31927
+        },
+        {
+          "action": "r1-r4@200",
+          "reward": 0.31927
+        }
+      ],
+      "correct_action": "r2-r4@100",
+      "correct_action_rank": 1
+    }
+  },
+  "d3_optimal_action_distinct_count": 5,
+  "d3_optimal_actions": [
+    "r1-r2@100",
+    "r1-r3@100",
+    "r1-r4@50",
+    "r2-r3@100",
+    "r2-r4@100"
+  ],
+  "d4_delayed_credit": {
+    "congested_link": "r1-r2",
+    "correct_action": "r1-r2@100",
+    "wrong_action": "r1-r3@10",
+    "horizon_ticks": 15,
+    "repeats": 24,
+    "first_tick_separated_1sigma": 1,
+    "curve": [
+      {
+        "tick": 1,
+        "reward_correct": 0.3295,
+        "reward_wrong": 0.31779,
+        "diff": 0.01171,
+        "noise_sd": 0.00821,
+        "separation_sigma": 1.43
+      },
+      {
+        "tick": 2,
+        "reward_correct": 0.33933,
+        "reward_wrong": 0.31645,
+        "diff": 0.02287,
+        "noise_sd": 0.00692,
+        "separation_sigma": 3.3
+      },
+      {
+        "tick": 3,
+        "reward_correct": 0.34785,
+        "reward_wrong": 0.31452,
+        "diff": 0.03334,
+        "noise_sd": 0.00777,
+        "separation_sigma": 4.29
+      },
+      {
+        "tick": 4,
+        "reward_correct": 0.36202,
+        "reward_wrong": 0.31208,
+        "diff": 0.04994,
+        "noise_sd": 0.02592,
+        "separation_sigma": 1.93
+      },
+      {
+        "tick": 5,
+        "reward_correct": 0.37541,
+        "reward_wrong": 0.30892,
+        "diff": 0.06649,
+        "noise_sd": 0.03421,
+        "separation_sigma": 1.94
+      },
+      {
+        "tick": 6,
+        "reward_correct": 0.45911,
+        "reward_wrong": 0.30885,
+        "diff": 0.15026,
+        "noise_sd": 0.05841,
+        "separation_sigma": 2.57
+      },
+      {
+        "tick": 7,
+        "reward_correct": 0.52167,
+        "reward_wrong": 0.30575,
+        "diff": 0.21592,
+        "noise_sd": 0.05243,
+        "separation_sigma": 4.12
+      },
+      {
+        "tick": 8,
+        "reward_correct": 0.5433,
+        "reward_wrong": 0.30392,
+        "diff": 0.23939,
+        "noise_sd": 0.04415,
+        "separation_sigma": 5.42
+      },
+      {
+        "tick": 9,
+        "reward_correct": 0.57051,
+        "reward_wrong": 0.30044,
+        "diff": 0.27007,
+        "noise_sd": 0.02893,
+        "separation_sigma": 9.34
+      },
+      {
+        "tick": 10,
+        "reward_correct": 0.56767,
+        "reward_wrong": 0.30125,
+        "diff": 0.26643,
+        "noise_sd": 0.03539,
+        "separation_sigma": 7.53
+      },
+      {
+        "tick": 11,
+        "reward_correct": 0.56143,
+        "reward_wrong": 0.29897,
+        "diff": 0.26246,
+        "noise_sd": 0.04157,
+        "separation_sigma": 6.31
+      },
+      {
+        "tick": 12,
+        "reward_correct": 0.58007,
+        "reward_wrong": 0.29736,
+        "diff": 0.28271,
+        "noise_sd": 0.02662,
+        "separation_sigma": 10.62
+      },
+      {
+        "tick": 13,
+        "reward_correct": 0.58426,
+        "reward_wrong": 0.29763,
+        "diff": 0.28663,
+        "noise_sd": 0.02641,
+        "separation_sigma": 10.85
+      },
+      {
+        "tick": 14,
+        "reward_correct": 0.59231,
+        "reward_wrong": 0.29509,
+        "diff": 0.29722,
+        "noise_sd": 0.01135,
+        "separation_sigma": 26.18
+      },
+      {
+        "tick": 15,
+        "reward_correct": 0.5964,
+        "reward_wrong": 0.29558,
+        "diff": 0.30082,
+        "noise_sd": 0.01069,
+        "separation_sigma": 28.14
+      }
+    ]
+  },
+  "d5_advantage_decomposition": {
+    "episode_mean": {
+      "eta2_state": 0.21788,
+      "eta2_action_within_anomaly": 0.00915,
+      "ratio_state_over_action": 23.8,
+      "mean_adv_when_healthy": 0.3434,
+      "mean_adv_when_anomaly": -0.6344
+    },
+    "state_mean": {
+      "eta2_state": 0.0,
+      "eta2_action_within_anomaly": 0.00861,
+      "ratio_state_over_action": 0.0,
+      "mean_adv_when_healthy": 0.0,
+      "mean_adv_when_anomaly": -0.0
+    },
+    "most_reinforced": {
+      "top5": [
+        {
+          "action": "r1-r2@200",
+          "total_advantage": 43.76
+        },
+        {
+          "action": "r1-r4@100",
+          "total_advantage": 20.01
+        },
+        {
+          "action": "r3-r4@20",
+          "total_advantage": 19.97
+        },
+        {
+          "action": "r3-r4@200",
+          "total_advantage": 19.05
+        },
+        {
+          "action": "r2-r3@20",
+          "total_advantage": 16.47
+        }
+      ],
+      "correct_actions": [
+        "r1-r2@100",
+        "r1-r3@100",
+        "r2-r3@100",
+        "r2-r4@100"
+      ],
+      "correct_action_ranks": [
+        8,
+        15,
+        16,
+        18
+      ],
+      "n_actions": 30
+    },
+    "normalization_effect": {
+      "episodes_without_any_anomaly": 113,
+      "episodes_with_anomaly": 187,
+      "mean_abs_advantage_quiet_episodes": 0.8043,
+      "mean_abs_advantage_active_episodes": 0.8212,
+      "note": "정규화 후 두 값이 같으면, 고칠 것이 없어 보상이 노이즈뿐인 에피소드도 신호가 있는 에피소드와 같은 크기의 gradient를 만든다는 뜻이다."
+    },
+    "n_episodes": 300,
+    "policy": "uniform random (학습 초기의 탐색 분포)"
+  }
+}
