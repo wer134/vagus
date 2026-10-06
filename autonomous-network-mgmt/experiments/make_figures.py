@@ -12,6 +12,8 @@
     T2  checkpoint_history  체크포인트 이력       — Track A 스코어보드
     F2  ablation_pair       절제: TTR vs 부수피해 — 이중 축 금지, 패널 2개
     F3  policy_actions      정책 행동 분포        — 붕괴가 한눈에
+    T5  reward_landscape    보상 지형             — 붕괴의 "왜": 신호가 있는가
+    T6  advantage_decomposition 학습 신호 분해    — 붕괴의 기전: 무엇을 따라가는가
 """
 import glob
 import json
@@ -254,11 +256,121 @@ def fig_policy_actions() -> bool:
     return True
 
 
+# ── T5. 보상 지형: 행동이 보상을 움직이는가 ───────────────────────────────────
+
+def fig_reward_landscape() -> bool:
+    """붕괴의 "왜"에 답하는 그림 — 학습이 쓸 수 있는 신호가 상태마다 얼마나 있는가.
+
+    두 패널의 y축을 **각자의 노이즈**로 재는 것이 핵심이다. 절대값으로 맞추면 정상 상태의
+    보상(0.68)과 혼잡 상태(0.32)의 차이에 가려 정작 봐야 할 것 — 행동 간 차이 — 이 안 보인다.
+    각 패널을 평균 ±3σ(그 상태의 노이즈)로 잡으면 "행동 효과가 노이즈에 비해 얼마나 큰가"가
+    두 패널에서 같은 잣대로 읽힌다.
+    """
+    doc = load("collapse_diagnosis.json")
+    if not doc:
+        return False
+    land = doc["d2_reward_landscape"]
+    picks = [("healthy", "No anomaly - nothing to fix"),
+             ("r1-r2", "Congestion on r1-r2")]
+    picks = [(k, t) for k, t in picks if k in land]
+    if not picks:
+        return False
+
+    fig, axes = figspec.new_figure(1, len(picks), figsize=(10.5, 4.0))
+    axes = axes if hasattr(axes, "__len__") else [axes]
+
+    for ax, (key, title) in zip(axes, picks):
+        v = land[key]
+        mean, sd = v["mean_reward"], v["noise_sd_within_action"]
+        rewards = {d["action"]: d["reward"] for d in v["top5"]}
+        best, worst = v["best_action"], v["worst_action"]
+        correct = v.get("correct_action")
+
+        # 30개 행동의 평균 보상은 top5/best/worst만 저장돼 있으므로, 퍼짐을 막대 범위로 그린다
+        lo, hi = v["worst_action_reward"], v["best_action_reward"]
+        ax.axhspan(mean - sd, mean + sd, color=palette.SEQUENTIAL_BLUE[100],
+                   zorder=0, label="noise band (+/- 1 SD)")
+        ax.hlines(mean, 0, 1, color=INK["muted"], linewidth=1, linestyles=":")
+        ax.vlines(0.5, lo, hi, color=INK["secondary"], linewidth=2.5, zorder=3)
+        ax.plot([0.5], [hi], "o", color=palette.categorical(2)[1] if correct else INK["muted"],
+                markersize=9, zorder=4)
+        ax.plot([0.5], [lo], "o", color=palette.DEEMPHASIS["light"], markersize=9, zorder=4)
+
+        ax.annotate(f"best  {best}  {hi:.4f}", (0.5, hi), xytext=(14, 4),
+                    textcoords="offset points", fontsize=9, color=INK["primary"])
+        ax.annotate(f"worst {worst}  {lo:.4f}", (0.5, lo), xytext=(14, -12),
+                    textcoords="offset points", fontsize=9, color=INK["secondary"])
+
+        span = max(sd * 3.2, (hi - lo) * 0.8)
+        ax.set_ylim(mean - span, mean + span)
+        ax.set_xlim(0, 1)
+        ax.set_xticks([])
+        snr = v["snr"]
+        sub = (f"action spread {v['spread_across_actions']:.5f}   "
+               f"noise SD {sd:.5f}   SNR {snr:.2f}" if snr is not None else "")
+        figspec.assert_ascii(title, sub)
+        ax.set_title(title, fontsize=10.5, loc="left", pad=16)
+        ax.annotate(sub, (0, 1.015), xycoords="axes fraction", fontsize=8.6,
+                    color=INK["secondary"])
+        ax.set_ylabel("reward", fontsize=9.5)
+        ax.grid(axis="y", color=INK["axis"], linewidth=0.6, alpha=0.5)
+        ax.set_axisbelow(True)
+
+    axes[0].legend(loc="lower right", fontsize=8.5, frameon=False)
+    figspec.save(fig, "T5_reward_landscape", source_doc=doc,
+                 condition=f"{doc.get('repeats', '?')} paired repeats per action")
+    return True
+
+
+# ── T6. 학습 신호 분해: advantage는 무엇을 반영하는가 ─────────────────────────
+
+def fig_advantage_decomposition() -> bool:
+    """붕괴의 기전 — gradient가 행동이 아니라 상태를 따라간다는 것을 한 그림으로.
+
+    같은 롤아웃 데이터에 baseline만 바꿔 다시 계산한 값을 나란히 둔다. 조건이 하나만
+    다르므로 차이의 원인이 baseline이라는 것이 그림에서 바로 읽힌다.
+    """
+    doc = load("collapse_diagnosis.json")
+    if not doc or "d5_advantage_decomposition" not in doc:
+        return False
+    d5 = doc["d5_advantage_decomposition"]
+    modes = [("episode_mean", "Scalar episode-mean baseline (current)"),
+             ("state_mean", "State-conditioned baseline")]
+    modes = [(k, t) for k, t in modes if k in d5]
+    labels = ["Which state the agent was in", "Which action it took"]
+    figspec.assert_ascii(*labels, *[t for _, t in modes])
+
+    colors = palette.categorical(2)
+    fig, ax = figspec.new_figure(figsize=(9.5, 3.6))
+    h, y0 = 0.34, [1, 0]
+
+    for i, (key, title) in enumerate(modes):
+        v = d5[key]
+        vals = [v["eta2_state"], v["eta2_action_within_anomaly"]]
+        ys = [y + (h / 2 if i == 0 else -h / 2) for y in y0]
+        bars = ax.barh(ys, vals, color=colors[i], height=h, label=title)
+        figspec.label_bars(ax, bars, vals, "{:.4f}")
+
+    ax.set_yticks(y0)
+    ax.set_yticklabels(labels, fontsize=10)
+    ax.set_xlabel("share of advantage variance explained (eta squared)", fontsize=9.5)
+    ax.set_xlim(0, max(d5[k]["eta2_state"] for k, _ in modes) * 1.3 + 0.01)
+    ax.legend(loc="lower right", fontsize=9, frameon=False)
+    ax.grid(axis="x", color=INK["axis"], linewidth=0.6, alpha=0.5)
+    ax.set_axisbelow(True)
+
+    figspec.save(fig, "T6_advantage_decomposition", source_doc=doc,
+                 condition=f"{d5.get('n_episodes', '?')} episodes, uniform random policy")
+    return True
+
+
 FIGURES = {
     "T1": ("train_collapse", fig_train_collapse),
     "T2": ("checkpoint_history", fig_checkpoint_history),
     "F2": ("ablation_pair", fig_ablation_pair),
     "F3": ("policy_actions", fig_policy_actions),
+    "T5": ("reward_landscape", fig_reward_landscape),
+    "T6": ("advantage_decomposition", fig_advantage_decomposition),
 }
 
 
