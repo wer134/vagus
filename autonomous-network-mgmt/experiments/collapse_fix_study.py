@@ -58,11 +58,37 @@ VARIANTS = {
     # 기준으로만 고른 것이다 — 정책 성능이 좋아지는 값을 찾아 고른 것이 아니다.
     # 이번 학습은 critic의 품질(보상과의 상관·예측 분산)을 스스로 기록하므로,
     # 결과가 어느 쪽이든 "critic이 작동했는가"는 더 이상 추측거리가 아니다.
-    "maml_m2_vbase_fit": ("maml", dict(entropy_coef=0.0, value_baseline=True, value_steps=20),
-                          "재실험 — 수정 1만, critic을 제대로 적합"),
-    "maml_m3_both_fit":  ("maml", dict(entropy_coef=ENTROPY_COEF, value_baseline=True, value_steps=20),
-                          "재실험 — 수정 1+2, critic을 제대로 적합"),
+    # ── 재설계: 태스크 프로토콜 v2 위의 요인 실험 (2026-10-06) ───────────────
+    # 1차 요인 실험은 **망가진 태스크 분포 위에서** 돌았다. 태스크의 41%에 장애가 아예
+    # 없어 inner-loop가 적응할 대상이 없었고, 평가가 step 0에 지정 링크로 주입하는 것과도
+    # 어긋나 있었다 (training_design_audit.py D-B/D-C). 그 위에서 baseline이나 엔트로피를
+    # 바꿔 재는 것은 어느 쪽 결과가 나오든 아무것도 말하지 못한다.
+    #
+    # v2 = 태스크는 TRAIN 링크 하나, reset 직후 주입. 학습과 평가가 같은 프로토콜이 된다.
+    # 학습 데이터 분포가 달라지므로 **v1 결과와 직접 비교할 수 없다.** 그래서 v2 안에서
+    # 2×2를 새로 깔고, v1 대조군(maml_m0_base)을 비교 기준으로 남겨 둔다.
+    #
+    # critic은 value_steps=20 — critic_check.py가 정책 결과를 보기 전에 "넉넉히 적합"
+    # 참고선으로 적어 둔 값이다. 1스텝에서는 V(s)가 사실상 상수여서 수정 1이 적용되지 않았다.
+    "t2_maml_m0":    ("maml", dict(entropy_coef=0.0, value_baseline=False, task_protocol="v2"),
+                      "v2 기준선 — 두 수정 모두 끔 (태스크 정의만 바뀜)"),
+    "t2_maml_ent":   ("maml", dict(entropy_coef=ENTROPY_COEF, value_baseline=False, task_protocol="v2"),
+                      "v2 + 수정 2 (엔트로피)"),
+    "t2_maml_vbase": ("maml", dict(entropy_coef=0.0, value_baseline=True, value_steps=20,
+                                   task_protocol="v2"),
+                      "v2 + 수정 1 (상태가치 baseline, critic 적합)"),
+    "t2_maml_both":  ("maml", dict(entropy_coef=ENTROPY_COEF, value_baseline=True, value_steps=20,
+                                   task_protocol="v2"),
+                      "v2 + 수정 1+2"),
+    "t2_ppo_m0":     ("ppo",  dict(ent_coef=0.0, task_protocol="v2"),
+                      "v2 기준선 — PPO (커리큘럼만 바뀜)"),
+    "t2_ppo_ent":    ("ppo",  dict(ent_coef=ENTROPY_COEF, task_protocol="v2"),
+                      "v2 + 수정 2 — PPO"),
 }
+
+# 재설계 실험에서 돌릴 변종 (--only 없이 --redesign으로 고를 수 있게)
+REDESIGN = ["t2_maml_m0", "t2_maml_ent", "t2_maml_vbase", "t2_maml_both",
+            "t2_ppo_m0", "t2_ppo_ent"]
 
 
 def ckpt_path(name: str) -> str:
@@ -135,6 +161,8 @@ def main() -> int:
     ap.add_argument("--seed", type=int, default=42)
     ap.add_argument("--train-one")
     ap.add_argument("--only", help="쉼표로 구분한 변종 이름")
+    ap.add_argument("--redesign", action="store_true",
+                    help="태스크 프로토콜 v2 위의 재설계 요인 실험 6종")
     ap.add_argument("--no-train", action="store_true")
     ap.add_argument("--out", default=os.path.join(HERE, "results", "collapse_fix_study.json"))
     args = ap.parse_args()
@@ -147,7 +175,8 @@ def main() -> int:
         train_one(args.train_one, iters, steps, args.seed)
         return 0
 
-    names = args.only.split(",") if args.only else list(VARIANTS)
+    names = (REDESIGN if args.redesign else
+             args.only.split(",") if args.only else list(VARIANTS))
     for n in names:
         if n not in VARIANTS:
             print(f"알 수 없는 변종: {n}. 가능: {list(VARIANTS)}", file=sys.stderr)
@@ -169,6 +198,7 @@ def main() -> int:
     for n in names:
         print(f"\n── 평가 {n}", flush=True)
         rows[n] = {"description": VARIANTS[n][2], "algo": VARIANTS[n][0],
+                   "task_protocol": VARIANTS[n][1].get("task_protocol", "v1"),
                    "train_kwargs": VARIANTS[n][1], **evaluate(n, episodes, args.seed)}
         r = rows[n]
         if r.get("loaded"):
@@ -183,7 +213,8 @@ def main() -> int:
             f"붕괴 원인 수정 요인 실험. MAML {iters} iter / PPO {steps} steps, "
             f"TRAIN 링크만 학습, TEST 링크({episodes}ep)로 오프라인 평가. "
             f"엔트로피 계수 {ENTROPY_COEF}(관례값, 결과를 보고 고르지 않음). "
-            "환경 계약은 그대로라 기존 결과와 직접 비교 가능."
+            "환경 계약(OBS/ACTION/REWARD/SIM_VERSION)은 그대로다. 단 task_protocol=v2 변종은 "
+            "**학습 데이터 분포가 다르므로** v1 변종과 직접 비교할 수 없다 — v2끼리, v1끼리 비교할 것."
         ),
         entropy_coef=ENTROPY_COEF,
         meta_iterations=iters, ppo_timesteps=steps, eval_episodes=episodes,

@@ -63,12 +63,18 @@ class NetworkEnv(gym.Env):
         local_mode: bool = True,
         train_links: list[str] | None = None,  # None=전체, 지정 시 해당 링크만 이상 주입
         sim_seed: int | None = None,           # 시뮬레이터 노이즈 스트림 시드 (재현성)
+        inject_on_reset: bool = False,         # reset마다 train_links 중 하나에 장애 주입
     ):
         super().__init__()
         self.snmp_url        = snmp_base_url
         self.max_steps       = max_steps
         self._fast_mode      = fast_mode
         self._inject_anomalies = inject_anomalies
+        # 에피소드마다 반드시 "고칠 것"이 있게 한다 (태스크 프로토콜 v2).
+        # 기존 학습은 스텝마다 확률 0.03으로 주입해 에피소드의 41%에 장애가 아예 없었고,
+        # 평가(run_experiment._run_episode)가 step 0에 지정 링크로 주입하는 것과 어긋났다
+        # (experiments/training_design_audit.py D-B/D-C). 관측·행동·보상 계약은 그대로다.
+        self._inject_on_reset = inject_on_reset
         self._local_mode     = local_mode
         self._train_links    = train_links or LINKS
         self._step           = 0
@@ -103,6 +109,9 @@ class NetworkEnv(gym.Env):
         self._anomaly_timers = {}
         self._ospf_costs = {lk: 10 for lk in LINKS}
         self._reset_backend()
+        if self._inject_on_reset:
+            import random as _r
+            self.inject_anomaly(_r.choice(self._train_links))
         return self._get_obs(), {}
 
     def step(self, action: int):
