@@ -598,6 +598,7 @@ T1이 "언제 붕괴하는가"(MAML 24%, PPO 16% 지점)를 답했고, 이번에
 - `autonomous-network-mgmt/cowork/AUDIT_2026-09-09.md` — 코드 감사 보고서와 전/후 측정치
 - `autonomous-network-mgmt/cowork/ROADMAP.md` — 고도화 계획 (트랙별 과제, 단계, 완료 기준)
 - `autonomous-network-mgmt/cowork/VISUALIZATION_PLAN.md` — 시각화 계획 (도판 카탈로그, 대시보드 정리)
+- `autonomous-network-mgmt/cowork/EMULATION_PLAN.md` — 에뮬레이션·토폴로지 확장 계획 (실제 OSPF 랩, 8노드 토폴로지, 단계별 통과 조건)
 
 ## 관련 표준
 
