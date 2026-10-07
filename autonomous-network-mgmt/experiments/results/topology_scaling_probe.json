@@ -1,0 +1,127 @@
+{
+  "schema_version": 1,
+  "timestamp": "2026-10-07T01:20:44.471702",
+  "git_commit": "5953a32-dirty",
+  "seed": 42,
+  "contract": {
+    "obs_version": 1,
+    "action_version": 1,
+    "reward_version": 1,
+    "sim_version": 3
+  },
+  "_condition": "축소 모형. metric_generator의 식(감쇠 0.90, 혼잡 이득 0.5, 우회 임계 100, 노드 스트레스=인접 링크 평균)을 임의 토폴로지로 옮긴 것이며 운영 시뮬레이터가 아니다. ECMP 라우팅/트래픽 수요는 모형에 없다 — 토폴로지 구조가 '지연 상위 2개' 휴리스틱에 미치는 영향만 본다. 재측정이 아니라 설계 판단 근거.",
+  "trials": 40,
+  "steps": 12,
+  "configs": {
+    "K4 (현행)": {
+      "nodes": 4,
+      "links": 6,
+      "avg_degree": 3.0,
+      "concurrent_faults": 1,
+      "obs_dim": 14,
+      "action_dim": 30,
+      "heuristic_hit_rate": 0.998,
+      "resolved_pct": 100.0,
+      "faults_bypassable": 1.0
+    },
+    "K4 (현행), 동시 2건": {
+      "nodes": 4,
+      "links": 6,
+      "avg_degree": 3.0,
+      "concurrent_faults": 2,
+      "obs_dim": 14,
+      "action_dim": 30,
+      "heuristic_hit_rate": 0.856,
+      "resolved_pct": 95.0,
+      "faults_bypassable": 1.0
+    },
+    "6노드 완전그래프": {
+      "nodes": 6,
+      "links": 15,
+      "avg_degree": 5.0,
+      "concurrent_faults": 1,
+      "obs_dim": 27,
+      "action_dim": 75,
+      "heuristic_hit_rate": 0.998,
+      "resolved_pct": 100.0,
+      "faults_bypassable": 1.0
+    },
+    "6노드 링+현3": {
+      "nodes": 6,
+      "links": 9,
+      "avg_degree": 3.0,
+      "concurrent_faults": 1,
+      "obs_dim": 21,
+      "action_dim": 45,
+      "heuristic_hit_rate": 1.0,
+      "resolved_pct": 100.0,
+      "faults_bypassable": 1.0
+    },
+    "6노드 링+현3, 동시 2건": {
+      "nodes": 6,
+      "links": 9,
+      "avg_degree": 3.0,
+      "concurrent_faults": 2,
+      "obs_dim": 21,
+      "action_dim": 45,
+      "heuristic_hit_rate": 0.917,
+      "resolved_pct": 75.0,
+      "faults_bypassable": 1.0
+    },
+    "8노드 링+현4": {
+      "nodes": 8,
+      "links": 12,
+      "avg_degree": 3.0,
+      "concurrent_faults": 1,
+      "obs_dim": 28,
+      "action_dim": 60,
+      "heuristic_hit_rate": 1.0,
+      "resolved_pct": 100.0,
+      "faults_bypassable": 1.0
+    },
+    "8노드 링+현4, 동시 2건": {
+      "nodes": 8,
+      "links": 12,
+      "avg_degree": 3.0,
+      "concurrent_faults": 2,
+      "obs_dim": 28,
+      "action_dim": 60,
+      "heuristic_hit_rate": 0.675,
+      "resolved_pct": 57.5,
+      "faults_bypassable": 1.0
+    },
+    "8노드 링+현4, 동시 3건": {
+      "nodes": 8,
+      "links": 12,
+      "avg_degree": 3.0,
+      "concurrent_faults": 3,
+      "obs_dim": 28,
+      "action_dim": 60,
+      "heuristic_hit_rate": 0.695,
+      "resolved_pct": 20.0,
+      "faults_bypassable": 1.0
+    },
+    "10노드 링+현5, 동시 2건": {
+      "nodes": 10,
+      "links": 15,
+      "avg_degree": 3.0,
+      "concurrent_faults": 2,
+      "obs_dim": 35,
+      "action_dim": 75,
+      "heuristic_hit_rate": 0.588,
+      "resolved_pct": 47.5,
+      "faults_bypassable": 1.0
+    },
+    "12노드 링+현6, 동시 3건": {
+      "nodes": 12,
+      "links": 18,
+      "avg_degree": 3.0,
+      "concurrent_faults": 3,
+      "obs_dim": 42,
+      "action_dim": 90,
+      "heuristic_hit_rate": 0.524,
+      "resolved_pct": 20.0,
+      "faults_bypassable": 1.0
+    }
+  }
+}
