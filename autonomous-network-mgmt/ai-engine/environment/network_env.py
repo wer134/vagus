@@ -75,6 +75,10 @@ class NetworkEnv(gym.Env):
         # 평가(run_experiment._run_episode)가 step 0에 지정 링크로 주입하는 것과 어긋났다
         # (experiments/training_design_audit.py D-B/D-C). 관측·행동·보상 계약은 그대로다.
         self._inject_on_reset = inject_on_reset
+        # 링크를 무작위로 뽑으면 커버리지가 균등하지 않다. MAML은 반복마다 TRAIN 링크를
+        # 1회씩 순회하므로, 같은 커리큘럼이 되려면 이쪽도 순회여야 한다
+        # (experiments/v2_design_check.py V-3).
+        self._reset_link_idx = 0
         self._local_mode     = local_mode
         self._train_links    = train_links or LINKS
         self._step           = 0
@@ -110,8 +114,9 @@ class NetworkEnv(gym.Env):
         self._ospf_costs = {lk: 10 for lk in LINKS}
         self._reset_backend()
         if self._inject_on_reset:
-            import random as _r
-            self.inject_anomaly(_r.choice(self._train_links))
+            link = self._train_links[self._reset_link_idx % len(self._train_links)]
+            self._reset_link_idx += 1
+            self.inject_anomaly(link)
         return self._get_obs(), {}
 
     def step(self, action: int):

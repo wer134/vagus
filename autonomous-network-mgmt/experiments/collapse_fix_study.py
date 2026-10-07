@@ -70,19 +70,26 @@ VARIANTS = {
     #
     # critic은 value_steps=20 — critic_check.py가 정책 결과를 보기 전에 "넉넉히 적합"
     # 참고선으로 적어 둔 값이다. 1스텝에서는 V(s)가 사실상 상수여서 수정 1이 적용되지 않았다.
-    "t2_maml_m0":    ("maml", dict(entropy_coef=0.0, value_baseline=False, task_protocol="v2"),
+    # episode_steps=8은 v2_design_check.py V-5가 **측정으로** 고른 값이다. 길이 30에서는
+    # 오라클 기준 유효 스텝이 13.9%뿐이고(고친 뒤가 빈다), 6에서는 오라클 해결률이 83%로
+    # 떨어진다. 8은 해결률 100%를 유지하면서 유효 비율 51.0% — v1의 33.2%보다 높다.
+    # "성공하면 종료"로 고치지 않은 이유: 스텝마다 보상이 양수라 일찍 끝낼수록 총 보상이
+    # 줄어 **고치지 않는 쪽이 이득**이 된다. 길이를 줄이는 쪽은 그 병리를 만들지 않는다.
+    "t2_maml_m0":    ("maml", dict(entropy_coef=0.0, value_baseline=False, task_protocol="v2",
+                                   episode_steps=8),
                       "v2 기준선 — 두 수정 모두 끔 (태스크 정의만 바뀜)"),
-    "t2_maml_ent":   ("maml", dict(entropy_coef=ENTROPY_COEF, value_baseline=False, task_protocol="v2"),
+    "t2_maml_ent":   ("maml", dict(entropy_coef=ENTROPY_COEF, value_baseline=False, task_protocol="v2",
+                                   episode_steps=8),
                       "v2 + 수정 2 (엔트로피)"),
     "t2_maml_vbase": ("maml", dict(entropy_coef=0.0, value_baseline=True, value_steps=20,
-                                   task_protocol="v2"),
+                                   task_protocol="v2", episode_steps=8),
                       "v2 + 수정 1 (상태가치 baseline, critic 적합)"),
     "t2_maml_both":  ("maml", dict(entropy_coef=ENTROPY_COEF, value_baseline=True, value_steps=20,
-                                   task_protocol="v2"),
+                                   task_protocol="v2", episode_steps=8),
                       "v2 + 수정 1+2"),
-    "t2_ppo_m0":     ("ppo",  dict(ent_coef=0.0, task_protocol="v2"),
+    "t2_ppo_m0":     ("ppo",  dict(ent_coef=0.0, task_protocol="v2", episode_steps=8),
                       "v2 기준선 — PPO (커리큘럼만 바뀜)"),
-    "t2_ppo_ent":    ("ppo",  dict(ent_coef=ENTROPY_COEF, task_protocol="v2"),
+    "t2_ppo_ent":    ("ppo",  dict(ent_coef=ENTROPY_COEF, task_protocol="v2", episode_steps=8),
                       "v2 + 수정 2 — PPO"),
 }
 

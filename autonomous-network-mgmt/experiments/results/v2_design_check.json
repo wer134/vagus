@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "timestamp": "2026-10-06T05:58:29.127338",
-  "git_commit": "62ed458-dirty",
+  "timestamp": "2026-10-07T01:14:30.139786",
+  "git_commit": "cec2069-dirty",
   "seed": 42,
   "contract": {
     "obs_version": 1,
@@ -280,10 +280,100 @@
       "episode_steps": 30
     },
     "random policy": {
-      "pct_steps_with_active_violation": 89.67,
-      "mean_violating_steps_per_episode": 26.9,
+      "pct_steps_with_active_violation": 88.67,
+      "mean_violating_steps_per_episode": 26.6,
       "episode_steps": 30
     },
     "note": "오라클 정책에서의 비율이 '최선을 다해도 남는 유효 스텝 비율'이다. 이 값이 낮으면 에피소드 뒤쪽이 v1의 앞쪽과 같은 역할을 한다 — 희석 문제가 사라진 게 아니라 자리를 옮긴 것이다."
+  },
+  "v5_length_sweep": {
+    "by_length": {
+      "6": {
+        "oracle": {
+          "pct_actionable_steps": 70.8,
+          "resolved_pct": 83.3,
+          "avg_ttr": 4.5
+        },
+        "random": {
+          "pct_actionable_steps": 100.0,
+          "resolved_pct": 0.0,
+          "avg_ttr": null
+        }
+      },
+      "8": {
+        "oracle": {
+          "pct_actionable_steps": 51.0,
+          "resolved_pct": 100.0,
+          "avg_ttr": 4.83
+        },
+        "random": {
+          "pct_actionable_steps": 96.9,
+          "resolved_pct": 16.7,
+          "avg_ttr": 7.5
+        }
+      },
+      "10": {
+        "oracle": {
+          "pct_actionable_steps": 47.5,
+          "resolved_pct": 100.0,
+          "avg_ttr": 5.08
+        },
+        "random": {
+          "pct_actionable_steps": 100.0,
+          "resolved_pct": 0.0,
+          "avg_ttr": null
+        }
+      },
+      "12": {
+        "oracle": {
+          "pct_actionable_steps": 41.0,
+          "resolved_pct": 100.0,
+          "avg_ttr": 5.5
+        },
+        "random": {
+          "pct_actionable_steps": 98.6,
+          "resolved_pct": 16.7,
+          "avg_ttr": 9.5
+        }
+      },
+      "16": {
+        "oracle": {
+          "pct_actionable_steps": 26.6,
+          "resolved_pct": 100.0,
+          "avg_ttr": 5
+        },
+        "random": {
+          "pct_actionable_steps": 89.1,
+          "resolved_pct": 50.0,
+          "avg_ttr": 10.83
+        }
+      },
+      "20": {
+        "oracle": {
+          "pct_actionable_steps": 22.1,
+          "resolved_pct": 100.0,
+          "avg_ttr": 5.08
+        },
+        "random": {
+          "pct_actionable_steps": 93.3,
+          "resolved_pct": 25.0,
+          "avg_ttr": 7.67
+        }
+      },
+      "30": {
+        "oracle": {
+          "pct_actionable_steps": 13.9,
+          "resolved_pct": 100.0,
+          "avg_ttr": 4.92
+        },
+        "random": {
+          "pct_actionable_steps": 87.2,
+          "resolved_pct": 75.0,
+          "avg_ttr": 22.89
+        }
+      }
+    },
+    "recommended": 8,
+    "criterion": "오라클 해결률 95% 이상을 유지하는 길이 중 유효 스텝 비율이 가장 높은 것. 정책 성능이 아니라 환경 자체의 성질로만 고른 값이다."
   }
 }
