@@ -330,6 +330,68 @@ def v4_episode_length(episodes: int, steps: int, seed: int) -> dict:
     return rows
 
 
+# ── V-5. 에피소드 길이를 측정으로 고른다 ─────────────────────────────────────
+def v5_length_sweep(episodes: int, lengths: list[int], seed: int) -> dict:
+    """길이별로 "고칠 것이 살아 있는 스텝" 비율을 재고, 그 근거로 길이를 정한다.
+
+    V-4가 보여준 것은 30스텝이 너무 길다는 것이다 — 오라클 기준 15.2%만 유효하고 나머지는
+    고친 뒤의 빈 구간이다. 그런데 "성공하면 에피소드 종료"로 고치면 안 된다: 보상이 스텝마다
+    양수라 일찍 끝낼수록 **총 보상이 줄어들어 고치지 않는 쪽이 이득**이 된다. 길이를 줄이는
+    쪽이 그 병리를 만들지 않는다.
+
+    오라클 비율이 '최선을 다해도 남는 유효 비율'이고, 무작위 비율이 '학습 초기의 비율'이다.
+    둘 다 높게 유지되는 가장 긴 길이를 고른다 — 너무 짧으면 회복을 끝낼 시간이 없다.
+    """
+    env = NetworkEnv(max_steps=max(lengths) + 5, fast_mode=True, local_mode=True,
+                     inject_anomalies=False, train_links=TRAIN_LINKS, sim_seed=seed)
+
+    def oracle(obs, link_f):
+        return act_idx(link_f, 100)
+
+    rows = {}
+    for L in lengths:
+        stats = {}
+        for label, pol in (("oracle", oracle),
+                           ("random", lambda o, f: np.random.randint(N_ACTIONS))):
+            viol, resolved, ttrs = 0, 0, []
+            total = 0
+            for _ in range(episodes):
+                for link_f in TRAIN_LINKS:
+                    env.reset(); env.inject_anomaly(link_f)
+                    obs = env._get_obs()
+                    ttr = None
+                    for t in range(1, L + 1):
+                        a = pol(obs, link_f)
+                        obs, _, _, trunc, _ = env.step(a)
+                        total += 1
+                        if not sla_ok():
+                            viol += 1
+                        elif ttr is None:
+                            ttr = t
+                        if trunc:
+                            break
+                    if ttr is not None:
+                        resolved += 1; ttrs.append(ttr)
+            n_ep = episodes * len(TRAIN_LINKS)
+            stats[label] = {
+                "pct_actionable_steps": round(100.0 * viol / total, 1),
+                "resolved_pct": round(100.0 * resolved / n_ep, 1),
+                "avg_ttr": round(statistics.mean(ttrs), 2) if ttrs else None,
+            }
+        rows[L] = stats
+    env.close()
+
+    # 오라클이 거의 다 풀면서(>=95%) 유효 비율이 가장 높은 길이
+    ok = [L for L in lengths if rows[L]["oracle"]["resolved_pct"] >= 95.0]
+    pick = max(ok, key=lambda L: rows[L]["oracle"]["pct_actionable_steps"]) if ok else None
+    return {
+        "by_length": rows,
+        "recommended": pick,
+        "criterion": ("오라클 해결률 95% 이상을 유지하는 길이 중 유효 스텝 비율이 가장 높은 것. "
+                      "정책 성능이 아니라 환경 자체의 성질로만 고른 값이다."),
+    }
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--quick", action="store_true")
@@ -385,6 +447,15 @@ def main() -> int:
                   f"(에피소드 {v['episode_steps']}스텝 중 평균 "
                   f"{v['mean_violating_steps_per_episode']}스텝)")
 
+    print("\n── V-5. 에피소드 길이 — 측정으로 고른다")
+    v5 = v5_length_sweep(max(3, eps // 2), [6, 8, 10, 12, 16, 20, 30], args.seed)
+    print(f"   {'길이':>4s} {'오라클 유효%':>11s} {'오라클 해결%':>11s} {'오라클 TTR':>10s} {'무작위 유효%':>11s}")
+    for L, st in v5["by_length"].items():
+        o, r = st["oracle"], st["random"]
+        print(f"   {L:>4d} {o['pct_actionable_steps']:>11.1f} {o['resolved_pct']:>11.1f} "
+              f"{str(o['avg_ttr']):>10s} {r['pct_actionable_steps']:>11.1f}")
+    print(f"   → 권장 길이 {v5['recommended']}스텝")
+
     doc = result_meta(
         seed=args.seed,
         condition=("태스크 프로토콜 v2 설계 검증. 학습 알고리즘을 돌리지 않고 환경과 "
@@ -393,7 +464,8 @@ def main() -> int:
         repeats=reps, episodes=eps, episode_steps=steps,
     )
     doc.update({"v1_link_matters": v1, "v2a_single_policy": v2a,
-                "v2b_adaptation": v2b, "v3_curriculum": v3, "v4_episode_length": v4})
+                "v2b_adaptation": v2b, "v3_curriculum": v3, "v4_episode_length": v4,
+                "v5_length_sweep": v5})
     os.makedirs(os.path.dirname(args.out), exist_ok=True)
     with open(args.out, "w", encoding="utf-8") as f:
         json.dump(doc, f, ensure_ascii=False, indent=2)
