@@ -17,6 +17,7 @@
     T6  advantage_decomposition 학습 신호 분해    — 붕괴의 기전: 무엇을 따라가는가
     T7  fix_curves          수정 요인 실험(학습)  — 붕괴를 막는가
     T8  fix_outcomes        수정 요인 실험(결과)  — 붕괴 면함 ≠ 문제 품
+    F9  rule_vs_learned     규칙 vs 학습된 정책   — 학습이 필요 없다는 음성 결과
 """
 import glob
 import json
@@ -537,6 +538,75 @@ def fig_seed_variance() -> bool:
     return True
 
 
+# ── F9. 학습 없는 규칙 vs 학습된 정책 ─────────────────────────────────────────
+
+def fig_rule_vs_learned() -> bool:
+    """이 리포의 가장 중요한 음성 결과 — 학습이 기여할 자리가 없다는 것.
+
+    **학습된 정책을 옆에 같이 둔다.** 규칙만 그리면 "규칙이 잘한다"로 읽히는데, 요점은
+    "학습한 쪽이 못한다"가 아니라 **"학습이 필요 없다"**는 것이다. 둘을 나란히 둬야 그 차이가
+    보인다. 링크별로 쪼개는 것은 미학습 링크(회색 배경)까지 100%라는 것이 핵심이기 때문이다 —
+    평균 하나로 뭉치면 그게 사라진다.
+    """
+    doc = load("v2_design_check.json")
+    if not doc or "v2a_single_policy" not in doc:
+        return False
+    v2a = doc["v2a_single_policy"]
+    v2b = doc.get("v2b_adaptation", {})
+
+    series = []
+    for name, per in v2a["policies"].items():
+        label = ("Hand-written rule (no learning)" if "heuristic" in name
+                 else "Oracle (told the faulty link)")
+        series.append((label, {lk: v["success_rate"] for lk, v in per.items()}))
+    if v2b.get("by_mode"):
+        per = v2b["by_mode"].get("adapt_3") or next(iter(v2b["by_mode"].values()))
+        series.append(("Trained MAML (with adaptation)",
+                       {lk: v["success_rate"] for lk, v in per.items()}))
+
+    links = list(series[0][1])
+    train_n = 4                       # 앞 4개가 TRAIN, 뒤 2개가 미학습
+    figspec.assert_ascii(*[lbl for lbl, _ in series], *links)
+
+    fig, ax = figspec.new_figure(figsize=(10, 4.6))
+    colors = palette.categorical(len(series))
+    x = list(range(len(links)))
+    w = 0.8 / len(series)
+
+    # 미학습 링크 구간을 배경으로 표시 — 이 그림의 요점이 거기 있다
+    ax.axvspan(train_n - 0.5, len(links) - 0.5, color=palette.SEQUENTIAL_BLUE[100],
+               zorder=0, alpha=0.55)
+    ax.annotate("held-out links", ((train_n + len(links) - 1) / 2, 110),
+                ha="center", fontsize=9, color=INK["secondary"])
+
+    for i, (label, per) in enumerate(series):
+        xs = [xi + (i - (len(series) - 1) / 2) * w for xi in x]
+        vals = [per.get(lk, 0.0) for lk in links]
+        ax.bar(xs, vals, width=w * 0.92, color=colors[i], label=label, zorder=3)
+        # 0%는 막대 높이가 0이라 "없음"과 구별되지 않는다. 숫자를 직접 찍어 구별한다 —
+        # 이 그림에서 MAML의 0은 빠진 자리가 아니라 **측정된 0**이다.
+        for xi, v in zip(xs, vals):
+            ax.text(xi, v + 2, f"{v:.0f}", ha="center", va="bottom", fontsize=7.8,
+                    color=INK["primary"] if v > 0 else palette.STATUS["critical"],
+                    zorder=4)
+
+    ax.set_xticks(x)
+    ax.set_xticklabels(links, fontsize=9.5)
+    ax.set_ylabel("episodes resolved (%)", fontsize=9.5)
+    ax.set_ylim(0, 118)
+    ax.set_xlabel("link carrying the injected fault", fontsize=9.5)
+    # 막대가 100까지 차서 안쪽에 범례를 둘 자리가 없다 — 그림 위로 뺀다
+    ax.legend(fontsize=9, frameon=False, ncol=3, loc="lower center",
+              bbox_to_anchor=(0.5, 1.02))
+    ax.grid(axis="y", color=INK["axis"], linewidth=0.6, alpha=0.5)
+    ax.set_axisbelow(True)
+
+    figspec.save(fig, "F9_rule_vs_learned", source_doc=doc,
+                 condition=f"{doc.get('episodes', '?')} ep/link, "
+                           f"{doc.get('episode_steps', '?')}-step episodes")
+    return True
+
+
 FIGURES = {
     "T1": ("train_collapse", fig_train_collapse),
     "T2": ("checkpoint_history", fig_checkpoint_history),
@@ -547,6 +617,7 @@ FIGURES = {
     "T6": ("advantage_decomposition", fig_advantage_decomposition),
     "T7": ("fix_curves", fig_fix_curves),
     "T8": ("fix_outcomes", fig_fix_outcomes),
+    "F9": ("rule_vs_learned", fig_rule_vs_learned),
 }
 
 
