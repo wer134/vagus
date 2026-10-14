@@ -1,0 +1,2579 @@
+{
+  "schema_version": 1,
+  "timestamp": "2026-10-14T07:09:32.549053",
+  "git_commit": "21d398a-dirty",
+  "seed": 44,
+  "contract": {
+    "obs_version": 1,
+    "action_version": 1,
+    "reward_version": 1,
+    "sim_version": 3
+  },
+  "_condition": "폐쇄 루프 /auto-step, 사이클당 시뮬레이터 1틱(lockstep), 검증 조회는 순수 조회, 에피소드별 노이즈 seed 고정(44000+i). 2026-09-09 이전 결과는 사이클당 2틱.",
+  "n_per_mode": 50,
+  "results": {
+    "analytics_only": {
+      "avg_ttr": 6.86,
+      "success_rate": 100.0,
+      "wasted_actions_per_ep": 0.0,
+      "rca_all_cycles_ok_pct": 100.0,
+      "ttrs": [
+        7,
+        8,
+        6,
+        8,
+        6,
+        7,
+        8,
+        6,
+        6,
+        8,
+        7,
+        6,
+        6,
+        9,
+        6,
+        7,
+        6,
+        5,
+        6,
+        7,
+        9,
+        7,
+        7,
+        7,
+        6,
+        6,
+        7,
+        6,
+        9,
+        7,
+        6,
+        6,
+        6,
+        6,
+        8,
+        6,
+        6,
+        9,
+        8,
+        7,
+        7,
+        8,
+        7,
+        6,
+        7,
+        7,
+        9,
+        5,
+        7,
+        6
+      ],
+      "episodes": [
+        {
+          "link": "r2-r4",
+          "ttr": 7,
+          "resolved": true,
+          "wasted": 0,
+          "rca_all_ok": true,
+          "actions": [
+            "r2-r4@100"
+          ]
+        },
+        {
+          "link": "r3-r4",
+          "ttr": 8,
+          "resolved": true,
+          "wasted": 0,
+          "rca_all_ok": true,
+          "actions": [
+            "r3-r4@100"
+          ]
+        },
+        {
+          "link": "r3-r4",
+          "ttr": 6,
+          "resolved": true,
+          "wasted": 0,
+          "rca_all_ok": true,
+          "actions": [
+            "r3-r4@100"
+          ]
+        },
+        {
+          "link": "r1-r4",
+          "ttr": 8,
+          "resolved": true,
+          "wasted": 0,
+          "rca_all_ok": true,
+          "actions": [
+            "r1-r4@100"
+          ]
+        },
+        {
+          "link": "r1-r2",
+          "ttr": 6,
+          "resolved": true,
+          "wasted": 0,
+          "rca_all_ok": true,
+          "actions": [
+            "r1-r2@100"
+          ]
+        },
+        {
+          "link": "r1-r3",
+          "ttr": 7,
+          "resolved": true,
+          "wasted": 0,
+          "rca_all_ok": true,
+          "actions": [
+            "r1-r3@100"
+          ]
+        },
+        {
+          "link": "r2-r4",
+          "ttr": 8,
+          "resolved": true,
+          "wasted": 0,
+          "rca_all_ok": true,
+          "actions": [
+            "r2-r4@100"
+          ]
+        },
+        {
+          "link": "r1-r3",
+          "ttr": 6,
+          "resolved": true,
+          "wasted": 0,
+          "rca_all_ok": true,
+          "actions": [
+            "r1-r3@100"
+          ]
+        },
+        {
+          "link": "r2-r3",
+          "ttr": 6,
+          "resolved": true,
+          "wasted": 0,
+          "rca_all_ok": true,
+          "actions": [
+            "r2-r3@100"
+          ]
+        },
+        {
+          "link": "r1-r2",
+          "ttr": 8,
+          "resolved": true,
+          "wasted": 0,
+          "rca_all_ok": true,
+          "actions": [
+            "r1-r2@100"
+          ]
+        },
+        {
+          "link": "r1-r3",
+          "ttr": 7,
+          "resolved": true,
+          "wasted": 0,
+          "rca_all_ok": true,
+          "actions": [
+            "r1-r3@100"
+          ]
+        },
+        {
+          "link": "r1-r2",
+          "ttr": 6,
+          "resolved": true,
+          "wasted": 0,
+          "rca_all_ok": true,
+          "actions": [
+            "r1-r2@100"
+          ]
+        },
+        {
+          "link": "r3-r4",
+          "ttr": 6,
+          "resolved": true,
+          "wasted": 0,
+          "rca_all_ok": true,
+          "actions": [
+            "r3-r4@100"
+          ]
+        },
+        {
+          "link": "r1-r2",
+          "ttr": 9,
+          "resolved": true,
+          "wasted": 0,
+          "rca_all_ok": true,
+          "actions": [
+            "r1-r2@100"
+          ]
+        },
+        {
+          "link": "r1-r2",
+          "ttr": 6,
+          "resolved": true,
+          "wasted": 0,
+          "rca_all_ok": true,
+          "actions": [
+            "r1-r2@100"
+          ]
+        },
+        {
+          "link": "r1-r3",
+          "ttr": 7,
+          "resolved": true,
+          "wasted": 0,
+          "rca_all_ok": true,
+          "actions": [
+            "r1-r3@100"
+          ]
+        },
+        {
+          "link": "r3-r4",
+          "ttr": 6,
+          "resolved": true,
+          "wasted": 0,
+          "rca_all_ok": true,
+          "actions": [
+            "r3-r4@100"
+          ]
+        },
+        {
+          "link": "r1-r4",
+          "ttr": 5,
+          "resolved": true,
+          "wasted": 0,
+          "rca_all_ok": true,
+          "actions": [
+            "r1-r4@100"
+          ]
+        },
+        {
+          "link": "r2-r3",
+          "ttr": 6,
+          "resolved": true,
+          "wasted": 0,
+          "rca_all_ok": true,
+          "actions": [
+            "r2-r3@100"
+          ]
+        },
+        {
+          "link": "r1-r4",
+          "ttr": 7,
+          "resolved": true,
+          "wasted": 0,
+          "rca_all_ok": true,
+          "actions": [
+            "r1-r4@100"
+          ]
+        },
+        {
+          "link": "r1-r4",
+          "ttr": 9,
+          "resolved": true,
+          "wasted": 0,
+          "rca_all_ok": true,
+          "actions": [
+            "r1-r4@100"
+          ]
+        },
+        {
+          "link": "r2-r4",
+          "ttr": 7,
+          "resolved": true,
+          "wasted": 0,
+          "rca_all_ok": true,
+          "actions": [
+            "r2-r4@100"
+          ]
+        },
+        {
+          "link": "r3-r4",
+          "ttr": 7,
+          "resolved": true,
+          "wasted": 0,
+          "rca_all_ok": true,
+          "actions": [
+            "r3-r4@100"
+          ]
+        },
+        {
+          "link": "r2-r4",
+          "ttr": 7,
+          "resolved": true,
+          "wasted": 0,
+          "rca_all_ok": true,
+          "actions": [
+            "r2-r4@100"
+          ]
+        },
+        {
+          "link": "r1-r4",
+          "ttr": 6,
+          "resolved": true,
+          "wasted": 0,
+          "rca_all_ok": true,
+          "actions": [
+            "r1-r4@100"
+          ]
+        },
+        {
+          "link": "r1-r4",
+          "ttr": 6,
+          "resolved": true,
+          "wasted": 0,
+          "rca_all_ok": true,
+          "actions": [
+            "r1-r4@100"
+          ]
+        },
+        {
+          "link": "r2-r3",
+          "ttr": 7,
+          "resolved": true,
+          "wasted": 0,
+          "rca_all_ok": true,
+          "actions": [
+            "r2-r3@100"
+          ]
+        },
+        {
+          "link": "r2-r3",
+          "ttr": 6,
+          "resolved": true,
+          "wasted": 0,
+          "rca_all_ok": true,
+          "actions": [
+            "r2-r3@100"
+          ]
+        },
+        {
+          "link": "r1-r2",
+          "ttr": 9,
+          "resolved": true,
+          "wasted": 0,
+          "rca_all_ok": true,
+          "actions": [
+            "r1-r2@100"
+          ]
+        },
+        {
+          "link": "r2-r3",
+          "ttr": 7,
+          "resolved": true,
+          "wasted": 0,
+          "rca_all_ok": true,
+          "actions": [
+            "r2-r3@100"
+          ]
+        },
+        {
+          "link": "r2-r3",
+          "ttr": 6,
+          "resolved": true,
+          "wasted": 0,
+          "rca_all_ok": true,
+          "actions": [
+            "r2-r3@100"
+          ]
+        },
+        {
+          "link": "r3-r4",
+          "ttr": 6,
+          "resolved": true,
+          "wasted": 0,
+          "rca_all_ok": true,
+          "actions": [
+            "r3-r4@100"
+          ]
+        },
+        {
+          "link": "r1-r3",
+          "ttr": 6,
+          "resolved": true,
+          "wasted": 0,
+          "rca_all_ok": true,
+          "actions": [
+            "r1-r3@100"
+          ]
+        },
+        {
+          "link": "r1-r2",
+          "ttr": 6,
+          "resolved": true,
+          "wasted": 0,
+          "rca_all_ok": true,
+          "actions": [
+            "r1-r2@100"
+          ]
+        },
+        {
+          "link": "r3-r4",
+          "ttr": 8,
+          "resolved": true,
+          "wasted": 0,
+          "rca_all_ok": true,
+          "actions": [
+            "r3-r4@100"
+          ]
+        },
+        {
+          "link": "r1-r2",
+          "ttr": 6,
+          "resolved": true,
+          "wasted": 0,
+          "rca_all_ok": true,
+          "actions": [
+            "r1-r2@100"
+          ]
+        },
+        {
+          "link": "r3-r4",
+          "ttr": 6,
+          "resolved": true,
+          "wasted": 0,
+          "rca_all_ok": true,
+          "actions": [
+            "r3-r4@100"
+          ]
+        },
+        {
+          "link": "r1-r2",
+          "ttr": 9,
+          "resolved": true,
+          "wasted": 0,
+          "rca_all_ok": true,
+          "actions": [
+            "r1-r2@100"
+          ]
+        },
+        {
+          "link": "r2-r3",
+          "ttr": 8,
+          "resolved": true,
+          "wasted": 0,
+          "rca_all_ok": true,
+          "actions": [
+            "r2-r3@100"
+          ]
+        },
+        {
+          "link": "r2-r3",
+          "ttr": 7,
+          "resolved": true,
+          "wasted": 0,
+          "rca_all_ok": true,
+          "actions": [
+            "r2-r3@100"
+          ]
+        },
+        {
+          "link": "r1-r2",
+          "ttr": 7,
+          "resolved": true,
+          "wasted": 0,
+          "rca_all_ok": true,
+          "actions": [
+            "r1-r2@100"
+          ]
+        },
+        {
+          "link": "r1-r4",
+          "ttr": 8,
+          "resolved": true,
+          "wasted": 0,
+          "rca_all_ok": true,
+          "actions": [
+            "r1-r4@100"
+          ]
+        },
+        {
+          "link": "r2-r3",
+          "ttr": 7,
+          "resolved": true,
+          "wasted": 0,
+          "rca_all_ok": true,
+          "actions": [
+            "r2-r3@100"
+          ]
+        },
+        {
+          "link": "r1-r2",
+          "ttr": 6,
+          "resolved": true,
+          "wasted": 0,
+          "rca_all_ok": true,
+          "actions": [
+            "r1-r2@100"
+          ]
+        },
+        {
+          "link": "r2-r3",
+          "ttr": 7,
+          "resolved": true,
+          "wasted": 0,
+          "rca_all_ok": true,
+          "actions": [
+            "r2-r3@100"
+          ]
+        },
+        {
+          "link": "r2-r4",
+          "ttr": 7,
+          "resolved": true,
+          "wasted": 0,
+          "rca_all_ok": true,
+          "actions": [
+            "r2-r4@100"
+          ]
+        },
+        {
+          "link": "r1-r2",
+          "ttr": 9,
+          "resolved": true,
+          "wasted": 0,
+          "rca_all_ok": true,
+          "actions": [
+            "r1-r2@100"
+          ]
+        },
+        {
+          "link": "r2-r4",
+          "ttr": 5,
+          "resolved": true,
+          "wasted": 0,
+          "rca_all_ok": true,
+          "actions": [
+            "r2-r4@100"
+          ]
+        },
+        {
+          "link": "r2-r4",
+          "ttr": 7,
+          "resolved": true,
+          "wasted": 0,
+          "rca_all_ok": true,
+          "actions": [
+            "r2-r4@100"
+          ]
+        },
+        {
+          "link": "r1-r3",
+          "ttr": 6,
+          "resolved": true,
+          "wasted": 0,
+          "rca_all_ok": true,
+          "actions": [
+            "r1-r3@100"
+          ]
+        }
+      ]
+    },
+    "maml_only": {
+      "avg_ttr": 13.66,
+      "success_rate": 16.0,
+      "wasted_actions_per_ep": 0.32,
+      "rca_all_cycles_ok_pct": 100.0,
+      "ttrs": [
+        15,
+        8,
+        6,
+        15,
+        15,
+        15,
+        15,
+        15,
+        15,
+        15,
+        15,
+        15,
+        6,
+        15,
+        15,
+        15,
+        6,
+        15,
+        15,
+        15,
+        15,
+        15,
+        7,
+        15,
+        15,
+        15,
+        15,
+        15,
+        15,
+        15,
+        15,
+        6,
+        15,
+        15,
+        8,
+        15,
+        6,
+        15,
+        15,
+        15,
+        15,
+        15,
+        15,
+        15,
+        15,
+        15,
+        15,
+        15,
+        15,
+        15
+      ],
+      "episodes": [
+        {
+          "link": "r2-r4",
+          "ttr": 15,
+          "resolved": false,
+          "wasted": 0,
+          "rca_all_ok": true,
+          "actions": [
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10"
+          ]
+        },
+        {
+          "link": "r3-r4",
+          "ttr": 8,
+          "resolved": true,
+          "wasted": 0,
+          "rca_all_ok": true,
+          "actions": [
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100"
+          ]
+        },
+        {
+          "link": "r3-r4",
+          "ttr": 6,
+          "resolved": true,
+          "wasted": 0,
+          "rca_all_ok": true,
+          "actions": [
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100"
+          ]
+        },
+        {
+          "link": "r1-r4",
+          "ttr": 15,
+          "resolved": false,
+          "wasted": 0,
+          "rca_all_ok": true,
+          "actions": [
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10"
+          ]
+        },
+        {
+          "link": "r1-r2",
+          "ttr": 15,
+          "resolved": false,
+          "wasted": 0,
+          "rca_all_ok": true,
+          "actions": [
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10"
+          ]
+        },
+        {
+          "link": "r1-r3",
+          "ttr": 15,
+          "resolved": false,
+          "wasted": 1,
+          "rca_all_ok": true,
+          "actions": [
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100"
+          ]
+        },
+        {
+          "link": "r2-r4",
+          "ttr": 15,
+          "resolved": false,
+          "wasted": 0,
+          "rca_all_ok": true,
+          "actions": [
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10"
+          ]
+        },
+        {
+          "link": "r1-r3",
+          "ttr": 15,
+          "resolved": false,
+          "wasted": 1,
+          "rca_all_ok": true,
+          "actions": [
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100"
+          ]
+        },
+        {
+          "link": "r2-r3",
+          "ttr": 15,
+          "resolved": false,
+          "wasted": 1,
+          "rca_all_ok": true,
+          "actions": [
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100"
+          ]
+        },
+        {
+          "link": "r1-r2",
+          "ttr": 15,
+          "resolved": false,
+          "wasted": 0,
+          "rca_all_ok": true,
+          "actions": [
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10"
+          ]
+        },
+        {
+          "link": "r1-r3",
+          "ttr": 15,
+          "resolved": false,
+          "wasted": 1,
+          "rca_all_ok": true,
+          "actions": [
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100"
+          ]
+        },
+        {
+          "link": "r1-r2",
+          "ttr": 15,
+          "resolved": false,
+          "wasted": 0,
+          "rca_all_ok": true,
+          "actions": [
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10"
+          ]
+        },
+        {
+          "link": "r3-r4",
+          "ttr": 6,
+          "resolved": true,
+          "wasted": 0,
+          "rca_all_ok": true,
+          "actions": [
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100"
+          ]
+        },
+        {
+          "link": "r1-r2",
+          "ttr": 15,
+          "resolved": false,
+          "wasted": 0,
+          "rca_all_ok": true,
+          "actions": [
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10"
+          ]
+        },
+        {
+          "link": "r1-r2",
+          "ttr": 15,
+          "resolved": false,
+          "wasted": 0,
+          "rca_all_ok": true,
+          "actions": [
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10"
+          ]
+        },
+        {
+          "link": "r1-r3",
+          "ttr": 15,
+          "resolved": false,
+          "wasted": 1,
+          "rca_all_ok": true,
+          "actions": [
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100"
+          ]
+        },
+        {
+          "link": "r3-r4",
+          "ttr": 6,
+          "resolved": true,
+          "wasted": 0,
+          "rca_all_ok": true,
+          "actions": [
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100"
+          ]
+        },
+        {
+          "link": "r1-r4",
+          "ttr": 15,
+          "resolved": false,
+          "wasted": 0,
+          "rca_all_ok": true,
+          "actions": [
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10"
+          ]
+        },
+        {
+          "link": "r2-r3",
+          "ttr": 15,
+          "resolved": false,
+          "wasted": 1,
+          "rca_all_ok": true,
+          "actions": [
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100"
+          ]
+        },
+        {
+          "link": "r1-r4",
+          "ttr": 15,
+          "resolved": false,
+          "wasted": 0,
+          "rca_all_ok": true,
+          "actions": [
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10"
+          ]
+        },
+        {
+          "link": "r1-r4",
+          "ttr": 15,
+          "resolved": false,
+          "wasted": 0,
+          "rca_all_ok": true,
+          "actions": [
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10"
+          ]
+        },
+        {
+          "link": "r2-r4",
+          "ttr": 15,
+          "resolved": false,
+          "wasted": 0,
+          "rca_all_ok": true,
+          "actions": [
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10"
+          ]
+        },
+        {
+          "link": "r3-r4",
+          "ttr": 7,
+          "resolved": true,
+          "wasted": 0,
+          "rca_all_ok": true,
+          "actions": [
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100"
+          ]
+        },
+        {
+          "link": "r2-r4",
+          "ttr": 15,
+          "resolved": false,
+          "wasted": 0,
+          "rca_all_ok": true,
+          "actions": [
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10"
+          ]
+        },
+        {
+          "link": "r1-r4",
+          "ttr": 15,
+          "resolved": false,
+          "wasted": 0,
+          "rca_all_ok": true,
+          "actions": [
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10"
+          ]
+        },
+        {
+          "link": "r1-r4",
+          "ttr": 15,
+          "resolved": false,
+          "wasted": 0,
+          "rca_all_ok": true,
+          "actions": [
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10"
+          ]
+        },
+        {
+          "link": "r2-r3",
+          "ttr": 15,
+          "resolved": false,
+          "wasted": 1,
+          "rca_all_ok": true,
+          "actions": [
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100"
+          ]
+        },
+        {
+          "link": "r2-r3",
+          "ttr": 15,
+          "resolved": false,
+          "wasted": 1,
+          "rca_all_ok": true,
+          "actions": [
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100"
+          ]
+        },
+        {
+          "link": "r1-r2",
+          "ttr": 15,
+          "resolved": false,
+          "wasted": 0,
+          "rca_all_ok": true,
+          "actions": [
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10"
+          ]
+        },
+        {
+          "link": "r2-r3",
+          "ttr": 15,
+          "resolved": false,
+          "wasted": 1,
+          "rca_all_ok": true,
+          "actions": [
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100"
+          ]
+        },
+        {
+          "link": "r2-r3",
+          "ttr": 15,
+          "resolved": false,
+          "wasted": 1,
+          "rca_all_ok": true,
+          "actions": [
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100"
+          ]
+        },
+        {
+          "link": "r3-r4",
+          "ttr": 6,
+          "resolved": true,
+          "wasted": 0,
+          "rca_all_ok": true,
+          "actions": [
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100"
+          ]
+        },
+        {
+          "link": "r1-r3",
+          "ttr": 15,
+          "resolved": false,
+          "wasted": 1,
+          "rca_all_ok": true,
+          "actions": [
+            "r2-r3@10",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100"
+          ]
+        },
+        {
+          "link": "r1-r2",
+          "ttr": 15,
+          "resolved": false,
+          "wasted": 0,
+          "rca_all_ok": true,
+          "actions": [
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10"
+          ]
+        },
+        {
+          "link": "r3-r4",
+          "ttr": 8,
+          "resolved": true,
+          "wasted": 0,
+          "rca_all_ok": true,
+          "actions": [
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100"
+          ]
+        },
+        {
+          "link": "r1-r2",
+          "ttr": 15,
+          "resolved": false,
+          "wasted": 0,
+          "rca_all_ok": true,
+          "actions": [
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10"
+          ]
+        },
+        {
+          "link": "r3-r4",
+          "ttr": 6,
+          "resolved": true,
+          "wasted": 0,
+          "rca_all_ok": true,
+          "actions": [
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100"
+          ]
+        },
+        {
+          "link": "r1-r2",
+          "ttr": 15,
+          "resolved": false,
+          "wasted": 0,
+          "rca_all_ok": true,
+          "actions": [
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10"
+          ]
+        },
+        {
+          "link": "r2-r3",
+          "ttr": 15,
+          "resolved": false,
+          "wasted": 1,
+          "rca_all_ok": true,
+          "actions": [
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100"
+          ]
+        },
+        {
+          "link": "r2-r3",
+          "ttr": 15,
+          "resolved": false,
+          "wasted": 1,
+          "rca_all_ok": true,
+          "actions": [
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100"
+          ]
+        },
+        {
+          "link": "r1-r2",
+          "ttr": 15,
+          "resolved": false,
+          "wasted": 0,
+          "rca_all_ok": true,
+          "actions": [
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10"
+          ]
+        },
+        {
+          "link": "r1-r4",
+          "ttr": 15,
+          "resolved": false,
+          "wasted": 0,
+          "rca_all_ok": true,
+          "actions": [
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10"
+          ]
+        },
+        {
+          "link": "r2-r3",
+          "ttr": 15,
+          "resolved": false,
+          "wasted": 1,
+          "rca_all_ok": true,
+          "actions": [
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100"
+          ]
+        },
+        {
+          "link": "r1-r2",
+          "ttr": 15,
+          "resolved": false,
+          "wasted": 0,
+          "rca_all_ok": true,
+          "actions": [
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10"
+          ]
+        },
+        {
+          "link": "r2-r3",
+          "ttr": 15,
+          "resolved": false,
+          "wasted": 1,
+          "rca_all_ok": true,
+          "actions": [
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100"
+          ]
+        },
+        {
+          "link": "r2-r4",
+          "ttr": 15,
+          "resolved": false,
+          "wasted": 0,
+          "rca_all_ok": true,
+          "actions": [
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10"
+          ]
+        },
+        {
+          "link": "r1-r2",
+          "ttr": 15,
+          "resolved": false,
+          "wasted": 0,
+          "rca_all_ok": true,
+          "actions": [
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10"
+          ]
+        },
+        {
+          "link": "r2-r4",
+          "ttr": 15,
+          "resolved": false,
+          "wasted": 0,
+          "rca_all_ok": true,
+          "actions": [
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10"
+          ]
+        },
+        {
+          "link": "r2-r4",
+          "ttr": 15,
+          "resolved": false,
+          "wasted": 0,
+          "rca_all_ok": true,
+          "actions": [
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10"
+          ]
+        },
+        {
+          "link": "r1-r3",
+          "ttr": 15,
+          "resolved": false,
+          "wasted": 1,
+          "rca_all_ok": true,
+          "actions": [
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100"
+          ]
+        }
+      ]
+    },
+    "combined": {
+      "avg_ttr": 7.06,
+      "success_rate": 100.0,
+      "wasted_actions_per_ep": 0.72,
+      "rca_all_cycles_ok_pct": 100.0,
+      "ttrs": [
+        7,
+        8,
+        6,
+        8,
+        9,
+        7,
+        8,
+        6,
+        6,
+        8,
+        7,
+        6,
+        6,
+        9,
+        6,
+        7,
+        6,
+        5,
+        6,
+        7,
+        9,
+        7,
+        7,
+        7,
+        6,
+        6,
+        7,
+        6,
+        9,
+        7,
+        6,
+        6,
+        6,
+        6,
+        8,
+        7,
+        6,
+        9,
+        6,
+        7,
+        9,
+        8,
+        14,
+        6,
+        6,
+        7,
+        9,
+        5,
+        7,
+        6
+      ],
+      "episodes": [
+        {
+          "link": "r2-r4",
+          "ttr": 7,
+          "resolved": true,
+          "wasted": 1,
+          "rca_all_ok": true,
+          "actions": [
+            "r2-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100"
+          ]
+        },
+        {
+          "link": "r3-r4",
+          "ttr": 8,
+          "resolved": true,
+          "wasted": 0,
+          "rca_all_ok": true,
+          "actions": [
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100"
+          ]
+        },
+        {
+          "link": "r3-r4",
+          "ttr": 6,
+          "resolved": true,
+          "wasted": 0,
+          "rca_all_ok": true,
+          "actions": [
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100"
+          ]
+        },
+        {
+          "link": "r1-r4",
+          "ttr": 8,
+          "resolved": true,
+          "wasted": 1,
+          "rca_all_ok": true,
+          "actions": [
+            "r1-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100"
+          ]
+        },
+        {
+          "link": "r1-r2",
+          "ttr": 9,
+          "resolved": true,
+          "wasted": 1,
+          "rca_all_ok": true,
+          "actions": [
+            "r1-r2@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100"
+          ]
+        },
+        {
+          "link": "r1-r3",
+          "ttr": 7,
+          "resolved": true,
+          "wasted": 0,
+          "rca_all_ok": true,
+          "actions": [
+            "r1-r3@100",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10"
+          ]
+        },
+        {
+          "link": "r2-r4",
+          "ttr": 8,
+          "resolved": true,
+          "wasted": 1,
+          "rca_all_ok": true,
+          "actions": [
+            "r2-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100"
+          ]
+        },
+        {
+          "link": "r1-r3",
+          "ttr": 6,
+          "resolved": true,
+          "wasted": 0,
+          "rca_all_ok": true,
+          "actions": [
+            "r1-r3@100",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10"
+          ]
+        },
+        {
+          "link": "r2-r3",
+          "ttr": 6,
+          "resolved": true,
+          "wasted": 1,
+          "rca_all_ok": true,
+          "actions": [
+            "r2-r3@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100"
+          ]
+        },
+        {
+          "link": "r1-r2",
+          "ttr": 8,
+          "resolved": true,
+          "wasted": 1,
+          "rca_all_ok": true,
+          "actions": [
+            "r1-r2@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100"
+          ]
+        },
+        {
+          "link": "r1-r3",
+          "ttr": 7,
+          "resolved": true,
+          "wasted": 0,
+          "rca_all_ok": true,
+          "actions": [
+            "r1-r3@100",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10"
+          ]
+        },
+        {
+          "link": "r1-r2",
+          "ttr": 6,
+          "resolved": true,
+          "wasted": 1,
+          "rca_all_ok": true,
+          "actions": [
+            "r1-r2@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100"
+          ]
+        },
+        {
+          "link": "r3-r4",
+          "ttr": 6,
+          "resolved": true,
+          "wasted": 0,
+          "rca_all_ok": true,
+          "actions": [
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100"
+          ]
+        },
+        {
+          "link": "r1-r2",
+          "ttr": 9,
+          "resolved": true,
+          "wasted": 1,
+          "rca_all_ok": true,
+          "actions": [
+            "r1-r2@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100"
+          ]
+        },
+        {
+          "link": "r1-r2",
+          "ttr": 6,
+          "resolved": true,
+          "wasted": 1,
+          "rca_all_ok": true,
+          "actions": [
+            "r1-r2@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100"
+          ]
+        },
+        {
+          "link": "r1-r3",
+          "ttr": 7,
+          "resolved": true,
+          "wasted": 0,
+          "rca_all_ok": true,
+          "actions": [
+            "r1-r3@100",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10"
+          ]
+        },
+        {
+          "link": "r3-r4",
+          "ttr": 6,
+          "resolved": true,
+          "wasted": 0,
+          "rca_all_ok": true,
+          "actions": [
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100"
+          ]
+        },
+        {
+          "link": "r1-r4",
+          "ttr": 5,
+          "resolved": true,
+          "wasted": 1,
+          "rca_all_ok": true,
+          "actions": [
+            "r1-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100"
+          ]
+        },
+        {
+          "link": "r2-r3",
+          "ttr": 6,
+          "resolved": true,
+          "wasted": 1,
+          "rca_all_ok": true,
+          "actions": [
+            "r2-r3@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100"
+          ]
+        },
+        {
+          "link": "r1-r4",
+          "ttr": 7,
+          "resolved": true,
+          "wasted": 1,
+          "rca_all_ok": true,
+          "actions": [
+            "r1-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100"
+          ]
+        },
+        {
+          "link": "r1-r4",
+          "ttr": 9,
+          "resolved": true,
+          "wasted": 1,
+          "rca_all_ok": true,
+          "actions": [
+            "r1-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100"
+          ]
+        },
+        {
+          "link": "r2-r4",
+          "ttr": 7,
+          "resolved": true,
+          "wasted": 1,
+          "rca_all_ok": true,
+          "actions": [
+            "r2-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100"
+          ]
+        },
+        {
+          "link": "r3-r4",
+          "ttr": 7,
+          "resolved": true,
+          "wasted": 0,
+          "rca_all_ok": true,
+          "actions": [
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100"
+          ]
+        },
+        {
+          "link": "r2-r4",
+          "ttr": 7,
+          "resolved": true,
+          "wasted": 1,
+          "rca_all_ok": true,
+          "actions": [
+            "r2-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100"
+          ]
+        },
+        {
+          "link": "r1-r4",
+          "ttr": 6,
+          "resolved": true,
+          "wasted": 1,
+          "rca_all_ok": true,
+          "actions": [
+            "r1-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100"
+          ]
+        },
+        {
+          "link": "r1-r4",
+          "ttr": 6,
+          "resolved": true,
+          "wasted": 1,
+          "rca_all_ok": true,
+          "actions": [
+            "r1-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100"
+          ]
+        },
+        {
+          "link": "r2-r3",
+          "ttr": 7,
+          "resolved": true,
+          "wasted": 1,
+          "rca_all_ok": true,
+          "actions": [
+            "r2-r3@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100"
+          ]
+        },
+        {
+          "link": "r2-r3",
+          "ttr": 6,
+          "resolved": true,
+          "wasted": 1,
+          "rca_all_ok": true,
+          "actions": [
+            "r2-r3@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100"
+          ]
+        },
+        {
+          "link": "r1-r2",
+          "ttr": 9,
+          "resolved": true,
+          "wasted": 1,
+          "rca_all_ok": true,
+          "actions": [
+            "r1-r2@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100"
+          ]
+        },
+        {
+          "link": "r2-r3",
+          "ttr": 7,
+          "resolved": true,
+          "wasted": 1,
+          "rca_all_ok": true,
+          "actions": [
+            "r2-r3@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100"
+          ]
+        },
+        {
+          "link": "r2-r3",
+          "ttr": 6,
+          "resolved": true,
+          "wasted": 1,
+          "rca_all_ok": true,
+          "actions": [
+            "r2-r3@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100"
+          ]
+        },
+        {
+          "link": "r3-r4",
+          "ttr": 6,
+          "resolved": true,
+          "wasted": 0,
+          "rca_all_ok": true,
+          "actions": [
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100"
+          ]
+        },
+        {
+          "link": "r1-r3",
+          "ttr": 6,
+          "resolved": true,
+          "wasted": 0,
+          "rca_all_ok": true,
+          "actions": [
+            "r1-r3@100",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10"
+          ]
+        },
+        {
+          "link": "r1-r2",
+          "ttr": 6,
+          "resolved": true,
+          "wasted": 1,
+          "rca_all_ok": true,
+          "actions": [
+            "r1-r2@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100"
+          ]
+        },
+        {
+          "link": "r3-r4",
+          "ttr": 8,
+          "resolved": true,
+          "wasted": 0,
+          "rca_all_ok": true,
+          "actions": [
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100"
+          ]
+        },
+        {
+          "link": "r1-r2",
+          "ttr": 7,
+          "resolved": true,
+          "wasted": 1,
+          "rca_all_ok": true,
+          "actions": [
+            "r1-r2@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100"
+          ]
+        },
+        {
+          "link": "r3-r4",
+          "ttr": 6,
+          "resolved": true,
+          "wasted": 0,
+          "rca_all_ok": true,
+          "actions": [
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100"
+          ]
+        },
+        {
+          "link": "r1-r2",
+          "ttr": 9,
+          "resolved": true,
+          "wasted": 1,
+          "rca_all_ok": true,
+          "actions": [
+            "r1-r2@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100"
+          ]
+        },
+        {
+          "link": "r2-r3",
+          "ttr": 6,
+          "resolved": true,
+          "wasted": 1,
+          "rca_all_ok": true,
+          "actions": [
+            "r2-r3@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100"
+          ]
+        },
+        {
+          "link": "r2-r3",
+          "ttr": 7,
+          "resolved": true,
+          "wasted": 1,
+          "rca_all_ok": true,
+          "actions": [
+            "r2-r3@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100"
+          ]
+        },
+        {
+          "link": "r1-r2",
+          "ttr": 9,
+          "resolved": true,
+          "wasted": 1,
+          "rca_all_ok": true,
+          "actions": [
+            "r1-r2@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100"
+          ]
+        },
+        {
+          "link": "r1-r4",
+          "ttr": 8,
+          "resolved": true,
+          "wasted": 1,
+          "rca_all_ok": true,
+          "actions": [
+            "r1-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100"
+          ]
+        },
+        {
+          "link": "r2-r3",
+          "ttr": 14,
+          "resolved": true,
+          "wasted": 1,
+          "rca_all_ok": true,
+          "actions": [
+            "r2-r3@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r2-r3@10",
+            "r2-r3@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100"
+          ]
+        },
+        {
+          "link": "r1-r2",
+          "ttr": 6,
+          "resolved": true,
+          "wasted": 1,
+          "rca_all_ok": true,
+          "actions": [
+            "r1-r2@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100"
+          ]
+        },
+        {
+          "link": "r2-r3",
+          "ttr": 6,
+          "resolved": true,
+          "wasted": 1,
+          "rca_all_ok": true,
+          "actions": [
+            "r2-r3@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100"
+          ]
+        },
+        {
+          "link": "r2-r4",
+          "ttr": 7,
+          "resolved": true,
+          "wasted": 1,
+          "rca_all_ok": true,
+          "actions": [
+            "r2-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100"
+          ]
+        },
+        {
+          "link": "r1-r2",
+          "ttr": 9,
+          "resolved": true,
+          "wasted": 1,
+          "rca_all_ok": true,
+          "actions": [
+            "r1-r2@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100"
+          ]
+        },
+        {
+          "link": "r2-r4",
+          "ttr": 5,
+          "resolved": true,
+          "wasted": 1,
+          "rca_all_ok": true,
+          "actions": [
+            "r2-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100"
+          ]
+        },
+        {
+          "link": "r2-r4",
+          "ttr": 7,
+          "resolved": true,
+          "wasted": 1,
+          "rca_all_ok": true,
+          "actions": [
+            "r2-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100",
+            "r3-r4@100"
+          ]
+        },
+        {
+          "link": "r1-r3",
+          "ttr": 6,
+          "resolved": true,
+          "wasted": 0,
+          "rca_all_ok": true,
+          "actions": [
+            "r1-r3@100",
+            "r2-r3@10",
+            "r2-r3@10",
+            "r2-r3@10"
+          ]
+        }
+      ]
+    }
+  }
+}
