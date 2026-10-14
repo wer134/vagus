@@ -488,55 +488,63 @@ def fig_fix_outcomes() -> bool:
 # ── T3. seed 분산: 어떤 차이가 노이즈보다 큰가 ────────────────────────────────
 
 def fig_seed_variance() -> bool:
-    """짝지어 낸 차이를 seed마다 점으로 찍고 0선을 긋는다.
+    """짝지어 낸 차이를 seed마다 점으로 찍고 0선을 긋는다. **비교마다 패널을 따로 둔다.**
 
-    평균에 오차막대를 그리는 대신 **원자료 점을 전부 보여주는** 이유는 n=5에서 평균±SD가
-    실제보다 깔끔해 보이기 때문이다. 점이 0선 한쪽에 모여 있으면 방향이 일관된 것이고,
-    0선을 가로지르면 그 차이는 seed 노이즈와 구별되지 않는다 — 그림이 그것만 말하게 둔다.
+    네 비교의 척도가 -98과 +-0.1로 천 배 가까이 달라서 한 축에 그리면 -98이 축을 독점하고
+    정작 보여줘야 할 두 행(combined-analytics, TEST-TRAIN)이 0 위의 점 하나로 뭉개진다 —
+    이 도판의 존재 이유가 seed별 흩어짐인데 그것이 가려진다 (첫 판에서 실제로 그랬다).
+    그래서 패널마다 자기 x축을 쓰고, **그 사실을 그림 안에 적는다**: 패널 사이의 길이는
+    비교할 수 없다.
 
-    조건별 평균을 따로 그리지 않는 것도 의도다. 세 모드가 같은 seed에서 같은 장애 시퀀스를
-    겪으므로 짝지은 차이가 올바른 단위이고, 주변 평균을 나란히 두면 seed 노이즈가 양쪽에
-    남아 차이가 실제보다 불확실해 보인다.
+    평균에 오차막대를 그리지 않고 원자료 점을 전부 보이는 이유는 n=5에서 평균+-SD가 근거보다
+    깔끔해 보이기 때문이다. 점이 0선 한쪽에 모이면 방향이 일관된 것이고 가로지르면 그 차이는
+    seed 노이즈와 구별되지 않는다. 같은 값이 겹칠 수 있어 점마다 seed 번호를 적고 세로로 어긋나게
+    놓는다.
     """
     doc = load("seed_variance.json")
     if not doc or not doc.get("comparisons"):
         return False
     cmps = doc["comparisons"]
-    labels = [c["comparison"] for c in cmps]
+    seeds = doc.get("seeds", [])
+    ascii_labels = [c.get("comparison_ascii") or f"comparison {i+1}" for i, c in enumerate(cmps)]
+    figspec.assert_ascii(*ascii_labels)
 
-    fig, ax = figspec.new_figure(figsize=(10, 0.95 * len(cmps) + 2.0))
-    y = list(range(len(cmps)))[::-1]
-    consistent, mixed = palette.categorical(2)
+    consistent, _ = palette.categorical(2)
+    fig, axes = figspec.new_figure(len(cmps), 1, figsize=(10, 1.9 * len(cmps) + 1.2))
+    axes = list(axes) if hasattr(axes, "__len__") else [axes]
 
-    for yi, c in zip(y, cmps):
+    for ax, c, label in zip(axes, cmps, ascii_labels):
         diffs = c["paired_diffs"]
         color = consistent if c["same_sign_across_seeds"] else palette.DEEMPHASIS["light"]
-        ax.plot(diffs, [yi] * len(diffs), "o", color=color, markersize=8,
-                alpha=0.75, zorder=3)
-        ax.plot([c["mean_diff"]], [yi], "|", color=INK["primary"], markersize=22,
+        n = len(diffs)
+        ys = [(i - (n - 1) / 2) * 0.22 for i in range(n)]     # 같은 값이 겹쳐도 보이게
+        ax.axvline(0, color=INK["primary"], linewidth=1.2, zorder=2)
+        ax.plot(diffs, ys, "o", color=color, markersize=8, alpha=0.8, zorder=3)
+        for d, y, sd in zip(diffs, ys, seeds):
+            ax.annotate(str(sd), (d, y), xytext=(8, -3), textcoords="offset points",
+                        fontsize=7.8, color=INK["secondary"])
+        ax.plot([c["mean_diff"]], [0], "|", color=INK["primary"], markersize=26,
                 markeredgewidth=2.2, zorder=4)
-        tag = "same sign" if c["same_sign_across_seeds"] else "straddles zero"
-        ax.annotate(f"mean {c['mean_diff']:+.3f}  SD {c['sd_diff']:.3f}  ({tag})",
-                    (max(diffs), yi), xytext=(12, -3), textcoords="offset points",
-                    fontsize=8.8, color=INK["secondary"])
 
-    ax.axvline(0, color=INK["primary"], linewidth=1.2)
-    ax.set_yticks(y)
-    # 이미지 안 라벨은 ASCII만 (리눅스 CI에 한글 폰트가 없다 — VISUALIZATION_PLAN §2.3)
-    ascii_labels = [c.get("comparison_ascii") or f"comparison {i+1}"
-                    for i, c in enumerate(cmps)]
-    figspec.assert_ascii(*ascii_labels)
-    ax.set_yticklabels(ascii_labels, fontsize=9.5)
-    ax.set_xlabel("paired difference per seed (same seed, two conditions)", fontsize=9.5)
-    ax.set_ylim(-0.7, len(cmps) - 0.3)
-    ax.grid(axis="x", color=INK["axis"], linewidth=0.6, alpha=0.5)
-    ax.set_axisbelow(True)
+        span = max(max(abs(d) for d in diffs), abs(c["mean_diff"]), 1e-9) * 1.5
+        ax.set_xlim(-span, span)
+        ax.set_ylim(-0.75, 0.75)
+        ax.set_yticks([])
+        tag = "same sign in all seeds" if c["same_sign_across_seeds"] else "straddles zero"
+        ax.set_title(label, fontsize=10, loc="left", pad=6)
+        ax.annotate(f"mean {c['mean_diff']:+.3f}   SD {c['sd_diff']:.3f}   ({tag})",
+                    (1.0, 1.02), xycoords="axes fraction", ha="right", fontsize=8.6,
+                    color=INK["secondary"])
+        ax.grid(axis="x", color=INK["axis"], linewidth=0.6, alpha=0.5)
+        ax.set_axisbelow(True)
+        ax.tick_params(axis="x", labelsize=8.5)
 
+    axes[-1].set_xlabel("paired difference per seed (same seed, two conditions)  -  "
+                        "each panel has its own scale; lengths are not comparable across panels",
+                        fontsize=8.8)
     figspec.save(fig, "T3_seed_variance", source_doc=doc,
-                 condition=f"{len(doc.get('seeds', []))} seeds x "
-                           f"{doc.get('episodes', '?')} ep, evaluation seed only")
+                 condition=f"{len(seeds)} seeds x {doc.get('episodes', '?')} ep, evaluation seed only")
     return True
-
 
 # ── F9. 학습 없는 규칙 vs 학습된 정책 ─────────────────────────────────────────
 
