@@ -1,0 +1,14 @@
+{
+  "include": ["autonomous-network-mgmt/experiments/recovery_control", "autonomous-network-mgmt/experiments/recovery_lifecycle", "autonomous-network-mgmt/experiments/recovery_completion", "autonomous-network-mgmt/experiments/recovery_research"],
+  "typeCheckingMode": "all",
+  "reportUnusedCallResult": "warning",
+  "reportUnannotatedClassAttribute": "warning",
+  "reportCallInDefaultInitializer": "warning",
+  "reportImplicitOverride": "warning",
+  "reportUnnecessaryComparison": "warning",
+  "reportUnusedParameter": "warning",
+  "reportUnsafeMultipleInheritance": "warning",
+  "reportAny": "warning",
+  "executionEnvironments": [{"root": "autonomous-network-mgmt/experiments"}],
+  "pythonVersion": "3.11"
+}

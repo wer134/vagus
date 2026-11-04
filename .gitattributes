@@ -1,0 +1,4 @@
+# 동결된 실험의 소스 SHA-256이 checkout 플랫폼에 따라 달라지지 않도록 한다.
+autonomous-network-mgmt/experiments/recovery_*/*.py text eol=lf
+autonomous-network-mgmt/scripts/*research* text eol=lf
+autonomous-network-mgmt/requirements-research.txt text eol=lf

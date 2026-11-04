@@ -11,6 +11,8 @@
 # 종료 코드: 하나라도 실패하면 1. 정책 붕괴는 실패가 아니라 경고다 (붕괴한 체크포인트도
 # "붕괴했다는 사실과 함께" 보존하는 것이 방침 — ROADMAP A-5).
 set -uo pipefail
+export PYTHONUTF8=1
+export PYTHONDONTWRITEBYTECODE=1
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"
@@ -50,6 +52,14 @@ run "cicddos_loader"    "$ROOT/experiments" "$PY" cicddos_loader.py
 run "result_meta"       "$ROOT/experiments" "$PY" _resultmeta.py
 run "figures/palette"   "$ROOT/experiments/figures" "$PY" palette.py
 run "figures/figspec"   "$ROOT/experiments/figures" "$PY" figspec.py
+
+# 복구 연구는 외부 서버·학습 없이 작은 fixture로 검증한다.
+for module in recovery_control.test_simulation recovery_research.test_calibration \
+  recovery_research.test_controllers recovery_research.test_cycle2 \
+  recovery_research.test_statistics recovery_research.test_runner; do
+  run "$module" "$ROOT/experiments" "$PY" -m "$module"
+done
+run "research_reporting" "$ROOT" "$PY" scripts/test_research_reporting.py
 
 # ── 2) 문법 검사 (자가 테스트가 없는 모듈까지 최소한 import 가능한지) ──────────
 run "py_compile(all)"   "$ROOT"             "$PY" -m compileall -q \
