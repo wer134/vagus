@@ -1,5 +1,26 @@
 # vagus
 
+## 복구 완료·원상복귀 연구 (2026-11-04)
+
+관측 편향·지연·누락과 라우팅 수렴 중 잔류 경로를 구분하는 독립 합성 실험을 추가했다. 제공된 후속 연구의 코드 조각을 기반으로 누락된 지원 코드를 새로 구현했으며, 과거 연구 원본의 복원이나 참조 논문의 정량 결과 재현을 주장하지 않는다.
+
+9개 정책을 사전 고정한 동일 시나리오에서 비교한다. 개발 seed 4개와 평가 seed 20개를 분리하며, 완료 오류·안전하지 않은 복귀·시간 초과·지연·부하 초과를 함께 보고한다.
+
+```bash
+cd autonomous-network-mgmt
+python3 -m pip install -r requirements-research.txt
+bash scripts/reproduce_research.sh
+```
+
+Windows에서도 `experiments`에서 `python -m recovery_research.runner freeze --output-dir <새 경로>`, `run --manifest <경로>/manifest.json --split dev`, `run --manifest <경로>/manifest.json --split test`를 차례로 실행할 수 있다. 보고서와 도판은 `scripts/research_cycle_report.py`, `scripts/research_findings_plot.py`가 결과 JSON에서 생성한다.
+
+- [측정 결과와 해석](FINDINGS.md)
+- [설계 변화와 구현 출처](docs/DESIGN_EVOLUTION.md)
+- [관련 문헌과 주장 범위](docs/RELATED_WORK_RESEARCH.md)
+- [연구 구성 초안](PAPER_OUTLINE.md), [진행 기록](PROGRESS.md)
+
+기존 MAML/PPO 데모의 결과는 아래에 별도로 유지한다.
+
 ## 사람을 거치지 않는 네트워크 폐쇄 루프 — ETSI ZSM/ENI 기반 위협 탐지·자율 복구
 
 > **vagus** — 미주신경. 자율신경계에서 의식적 판단을 거치지 않고 장기의 상태를 감지하고

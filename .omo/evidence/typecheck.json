@@ -1,0 +1,1902 @@
+﻿
+{
+    "version": "1.40.2",
+    "time": "1793782509930",
+    "generalDiagnostics": [
+        {
+            "file": "e:\\network\\vagus\\autonomous-network-mgmt\\experiments\\recovery_completion\\controller.py",
+            "severity": "warning",
+            "message": "Function calls and mutable objects not allowed within parameter default value expression",
+            "range": {
+                "start": {
+                    "line": 17,
+                    "character": 44
+                },
+                "end": {
+                    "line": 17,
+                    "character": 54
+                }
+            },
+            "rule": "reportCallInDefaultInitializer"
+        },
+        {
+            "file": "e:\\network\\vagus\\autonomous-network-mgmt\\experiments\\recovery_completion\\controller.py",
+            "severity": "warning",
+            "message": "Type annotation for attribute `require_settled` is required because this class is not decorated with `@final`",
+            "range": {
+                "start": {
+                    "line": 20,
+                    "character": 13
+                },
+                "end": {
+                    "line": 20,
+                    "character": 28
+                }
+            },
+            "rule": "reportUnannotatedClassAttribute"
+        },
+        {
+            "file": "e:\\network\\vagus\\autonomous-network-mgmt\\experiments\\recovery_completion\\controller.py",
+            "severity": "warning",
+            "message": "Method \"_safe\" is not marked as override but is overriding a method in class \"LifecycleController\"",
+            "range": {
+                "start": {
+                    "line": 22,
+                    "character": 8
+                },
+                "end": {
+                    "line": 22,
+                    "character": 13
+                }
+            },
+            "rule": "reportImplicitOverride"
+        },
+        {
+            "file": "e:\\network\\vagus\\autonomous-network-mgmt\\experiments\\recovery_control\\simulation.py",
+            "severity": "warning",
+            "message": "Type annotation for attribute `_scenario` is required because this class is not decorated with `@final`",
+            "range": {
+                "start": {
+                    "line": 20,
+                    "character": 13
+                },
+                "end": {
+                    "line": 20,
+                    "character": 22
+                }
+            },
+            "rule": "reportUnannotatedClassAttribute"
+        },
+        {
+            "file": "e:\\network\\vagus\\autonomous-network-mgmt\\experiments\\recovery_control\\simulation.py",
+            "severity": "warning",
+            "message": "Type annotation for attribute `_timeline` is required because this class is not decorated with `@final`",
+            "range": {
+                "start": {
+                    "line": 21,
+                    "character": 13
+                },
+                "end": {
+                    "line": 21,
+                    "character": 22
+                }
+            },
+            "rule": "reportUnannotatedClassAttribute"
+        },
+        {
+            "file": "e:\\network\\vagus\\autonomous-network-mgmt\\experiments\\recovery_control\\simulation.py",
+            "severity": "warning",
+            "message": "Type annotation for attribute `_tick` is required because this class is not decorated with `@final`",
+            "range": {
+                "start": {
+                    "line": 22,
+                    "character": 13
+                },
+                "end": {
+                    "line": 22,
+                    "character": 18
+                }
+            },
+            "rule": "reportUnannotatedClassAttribute"
+        },
+        {
+            "file": "e:\\network\\vagus\\autonomous-network-mgmt\\experiments\\recovery_control\\simulation.py",
+            "severity": "warning",
+            "message": "Type annotation for attribute `_costs` is required because this class is not decorated with `@final`",
+            "range": {
+                "start": {
+                    "line": 23,
+                    "character": 13
+                },
+                "end": {
+                    "line": 23,
+                    "character": 19
+                }
+            },
+            "rule": "reportUnannotatedClassAttribute"
+        },
+        {
+            "file": "e:\\network\\vagus\\autonomous-network-mgmt\\experiments\\recovery_control\\simulation.py",
+            "severity": "warning",
+            "message": "Type annotation for attribute `_forwarding` is required because this class is not decorated with `@final`",
+            "range": {
+                "start": {
+                    "line": 24,
+                    "character": 13
+                },
+                "end": {
+                    "line": 24,
+                    "character": 24
+                }
+            },
+            "rule": "reportUnannotatedClassAttribute"
+        },
+        {
+            "file": "e:\\network\\vagus\\autonomous-network-mgmt\\experiments\\recovery_control\\simulation.py",
+            "severity": "warning",
+            "message": "Type annotation for attribute `_residual_fraction` is required because this class is not decorated with `@final`",
+            "range": {
+                "start": {
+                    "line": 28,
+                    "character": 13
+                },
+                "end": {
+                    "line": 28,
+                    "character": 31
+                }
+            },
+            "rule": "reportUnannotatedClassAttribute"
+        },
+        {
+            "file": "e:\\network\\vagus\\autonomous-network-mgmt\\experiments\\recovery_control\\test_simulation.py",
+            "severity": "warning",
+            "message": "Result of call expression is of type \"tuple[Observation, ...]\" and is not used; assign to variable \"_\" if this is intentional",
+            "range": {
+                "start": {
+                    "line": 30,
+                    "character": 4
+                },
+                "end": {
+                    "line": 30,
+                    "character": 17
+                }
+            },
+            "rule": "reportUnusedCallResult"
+        },
+        {
+            "file": "e:\\network\\vagus\\autonomous-network-mgmt\\experiments\\recovery_control\\test_simulation.py",
+            "severity": "warning",
+            "message": "Result of call expression is of type \"tuple[Observation, ...]\" and is not used; assign to variable \"_\" if this is intentional",
+            "range": {
+                "start": {
+                    "line": 34,
+                    "character": 4
+                },
+                "end": {
+                    "line": 34,
+                    "character": 17
+                }
+            },
+            "rule": "reportUnusedCallResult"
+        },
+        {
+            "file": "e:\\network\\vagus\\autonomous-network-mgmt\\experiments\\recovery_control\\test_simulation.py",
+            "severity": "warning",
+            "message": "Result of call expression is of type \"tuple[Observation, ...]\" and is not used; assign to variable \"_\" if this is intentional",
+            "range": {
+                "start": {
+                    "line": 36,
+                    "character": 4
+                },
+                "end": {
+                    "line": 36,
+                    "character": 17
+                }
+            },
+            "rule": "reportUnusedCallResult"
+        },
+        {
+            "file": "e:\\network\\vagus\\autonomous-network-mgmt\\experiments\\recovery_control\\test_simulation.py",
+            "severity": "warning",
+            "message": "Result of call expression is of type \"tuple[Observation, ...]\" and is not used; assign to variable \"_\" if this is intentional",
+            "range": {
+                "start": {
+                    "line": 42,
+                    "character": 8
+                },
+                "end": {
+                    "line": 42,
+                    "character": 21
+                }
+            },
+            "rule": "reportUnusedCallResult"
+        },
+        {
+            "file": "e:\\network\\vagus\\autonomous-network-mgmt\\experiments\\recovery_control\\test_simulation.py",
+            "severity": "warning",
+            "message": "Result of call expression is of type \"CommandAck\" and is not used; assign to variable \"_\" if this is intentional",
+            "range": {
+                "start": {
+                    "line": 50,
+                    "character": 4
+                },
+                "end": {
+                    "line": 50,
+                    "character": 29
+                }
+            },
+            "rule": "reportUnusedCallResult"
+        },
+        {
+            "file": "e:\\network\\vagus\\autonomous-network-mgmt\\experiments\\recovery_control\\test_simulation.py",
+            "severity": "warning",
+            "message": "Result of call expression is of type \"tuple[Observation, ...]\" and is not used; assign to variable \"_\" if this is intentional",
+            "range": {
+                "start": {
+                    "line": 53,
+                    "character": 8
+                },
+                "end": {
+                    "line": 53,
+                    "character": 21
+                }
+            },
+            "rule": "reportUnusedCallResult"
+        },
+        {
+            "file": "e:\\network\\vagus\\autonomous-network-mgmt\\experiments\\recovery_control\\test_simulation.py",
+            "severity": "warning",
+            "message": "Result of call expression is of type \"CommandAck\" and is not used; assign to variable \"_\" if this is intentional",
+            "range": {
+                "start": {
+                    "line": 54,
+                    "character": 4
+                },
+                "end": {
+                    "line": 54,
+                    "character": 30
+                }
+            },
+            "rule": "reportUnusedCallResult"
+        },
+        {
+            "file": "e:\\network\\vagus\\autonomous-network-mgmt\\experiments\\recovery_control\\test_simulation.py",
+            "severity": "warning",
+            "message": "Result of call expression is of type \"tuple[Observation, ...]\" and is not used; assign to variable \"_\" if this is intentional",
+            "range": {
+                "start": {
+                    "line": 55,
+                    "character": 4
+                },
+                "end": {
+                    "line": 55,
+                    "character": 17
+                }
+            },
+            "rule": "reportUnusedCallResult"
+        },
+        {
+            "file": "e:\\network\\vagus\\autonomous-network-mgmt\\experiments\\recovery_control\\test_simulation.py",
+            "severity": "warning",
+            "message": "Result of call expression is of type \"tuple[Observation, ...]\" and is not used; assign to variable \"_\" if this is intentional",
+            "range": {
+                "start": {
+                    "line": 60,
+                    "character": 8
+                },
+                "end": {
+                    "line": 60,
+                    "character": 21
+                }
+            },
+            "rule": "reportUnusedCallResult"
+        },
+        {
+            "file": "e:\\network\\vagus\\autonomous-network-mgmt\\experiments\\recovery_control\\test_simulation.py",
+            "severity": "warning",
+            "message": "Result of call expression is of type \"CommandAck\" and is not used; assign to variable \"_\" if this is intentional",
+            "range": {
+                "start": {
+                    "line": 67,
+                    "character": 4
+                },
+                "end": {
+                    "line": 67,
+                    "character": 38
+                }
+            },
+            "rule": "reportUnusedCallResult"
+        },
+        {
+            "file": "e:\\network\\vagus\\autonomous-network-mgmt\\experiments\\recovery_control\\test_simulation.py",
+            "severity": "warning",
+            "message": "Result of call expression is of type \"CommandAck\" and is not used; assign to variable \"_\" if this is intentional",
+            "range": {
+                "start": {
+                    "line": 94,
+                    "character": 4
+                },
+                "end": {
+                    "line": 94,
+                    "character": 29
+                }
+            },
+            "rule": "reportUnusedCallResult"
+        },
+        {
+            "file": "e:\\network\\vagus\\autonomous-network-mgmt\\experiments\\recovery_control\\test_simulation.py",
+            "severity": "warning",
+            "message": "Result of call expression is of type \"tuple[Observation, ...]\" and is not used; assign to variable \"_\" if this is intentional",
+            "range": {
+                "start": {
+                    "line": 95,
+                    "character": 4
+                },
+                "end": {
+                    "line": 95,
+                    "character": 17
+                }
+            },
+            "rule": "reportUnusedCallResult"
+        },
+        {
+            "file": "e:\\network\\vagus\\autonomous-network-mgmt\\experiments\\recovery_control\\test_simulation.py",
+            "severity": "warning",
+            "message": "Result of call expression is of type \"CommandAck\" and is not used; assign to variable \"_\" if this is intentional",
+            "range": {
+                "start": {
+                    "line": 96,
+                    "character": 4
+                },
+                "end": {
+                    "line": 96,
+                    "character": 30
+                }
+            },
+            "rule": "reportUnusedCallResult"
+        },
+        {
+            "file": "e:\\network\\vagus\\autonomous-network-mgmt\\experiments\\recovery_control\\test_simulation.py",
+            "severity": "warning",
+            "message": "Result of call expression is of type \"tuple[Observation, ...]\" and is not used; assign to variable \"_\" if this is intentional",
+            "range": {
+                "start": {
+                    "line": 98,
+                    "character": 8
+                },
+                "end": {
+                    "line": 98,
+                    "character": 21
+                }
+            },
+            "rule": "reportUnusedCallResult"
+        },
+        {
+            "file": "e:\\network\\vagus\\autonomous-network-mgmt\\experiments\\recovery_control\\test_simulation.py",
+            "severity": "warning",
+            "message": "Result of call expression is of type \"tuple[Observation, ...]\" and is not used; assign to variable \"_\" if this is intentional",
+            "range": {
+                "start": {
+                    "line": 114,
+                    "character": 4
+                },
+                "end": {
+                    "line": 114,
+                    "character": 17
+                }
+            },
+            "rule": "reportUnusedCallResult"
+        },
+        {
+            "file": "e:\\network\\vagus\\autonomous-network-mgmt\\experiments\\recovery_control\\test_simulation.py",
+            "severity": "warning",
+            "message": "Result of call expression is of type \"tuple[Observation, ...]\" and is not used; assign to variable \"_\" if this is intentional",
+            "range": {
+                "start": {
+                    "line": 115,
+                    "character": 4
+                },
+                "end": {
+                    "line": 115,
+                    "character": 17
+                }
+            },
+            "rule": "reportUnusedCallResult"
+        },
+        {
+            "file": "e:\\network\\vagus\\autonomous-network-mgmt\\experiments\\recovery_control\\test_simulation.py",
+            "severity": "warning",
+            "message": "Result of call expression is of type \"CommandAck\" and is not used; assign to variable \"_\" if this is intentional",
+            "range": {
+                "start": {
+                    "line": 117,
+                    "character": 4
+                },
+                "end": {
+                    "line": 117,
+                    "character": 29
+                }
+            },
+            "rule": "reportUnusedCallResult"
+        },
+        {
+            "file": "e:\\network\\vagus\\autonomous-network-mgmt\\experiments\\recovery_control\\test_simulation.py",
+            "severity": "warning",
+            "message": "Result of call expression is of type \"tuple[Observation, ...]\" and is not used; assign to variable \"_\" if this is intentional",
+            "range": {
+                "start": {
+                    "line": 118,
+                    "character": 4
+                },
+                "end": {
+                    "line": 118,
+                    "character": 17
+                }
+            },
+            "rule": "reportUnusedCallResult"
+        },
+        {
+            "file": "e:\\network\\vagus\\autonomous-network-mgmt\\experiments\\recovery_control\\test_simulation.py",
+            "severity": "warning",
+            "message": "Result of call expression is of type \"tuple[Observation, ...]\" and is not used; assign to variable \"_\" if this is intentional",
+            "range": {
+                "start": {
+                    "line": 119,
+                    "character": 4
+                },
+                "end": {
+                    "line": 119,
+                    "character": 17
+                }
+            },
+            "rule": "reportUnusedCallResult"
+        },
+        {
+            "file": "e:\\network\\vagus\\autonomous-network-mgmt\\experiments\\recovery_control\\test_simulation.py",
+            "severity": "warning",
+            "message": "Result of call expression is of type \"WeightedPath\" and is not used; assign to variable \"_\" if this is intentional",
+            "range": {
+                "start": {
+                    "line": 130,
+                    "character": 8
+                },
+                "end": {
+                    "line": 130,
+                    "character": 52
+                }
+            },
+            "rule": "reportUnusedCallResult"
+        },
+        {
+            "file": "e:\\network\\vagus\\autonomous-network-mgmt\\experiments\\recovery_control\\test_simulation.py",
+            "severity": "warning",
+            "message": "Result of call expression is of type \"CostCommand\" and is not used; assign to variable \"_\" if this is intentional",
+            "range": {
+                "start": {
+                    "line": 136,
+                    "character": 8
+                },
+                "end": {
+                    "line": 136,
+                    "character": 31
+                }
+            },
+            "rule": "reportUnusedCallResult"
+        },
+        {
+            "file": "e:\\network\\vagus\\autonomous-network-mgmt\\experiments\\recovery_control\\test_simulation.py",
+            "severity": "warning",
+            "message": "Result of call expression is of type \"Demands\" and is not used; assign to variable \"_\" if this is intentional",
+            "range": {
+                "start": {
+                    "line": 142,
+                    "character": 8
+                },
+                "end": {
+                    "line": 142,
+                    "character": 26
+                }
+            },
+            "rule": "reportUnusedCallResult"
+        },
+        {
+            "file": "e:\\network\\vagus\\autonomous-network-mgmt\\experiments\\recovery_control\\types.py",
+            "severity": "warning",
+            "message": "Method \"__str__\" is not marked as override but is overriding a method in class \"BaseException\"",
+            "range": {
+                "start": {
+                    "line": 18,
+                    "character": 8
+                },
+                "end": {
+                    "line": 18,
+                    "character": 15
+                }
+            },
+            "rule": "reportImplicitOverride"
+        },
+        {
+            "file": "e:\\network\\vagus\\autonomous-network-mgmt\\experiments\\recovery_lifecycle\\controller.py",
+            "severity": "warning",
+            "message": "Function calls and mutable objects not allowed within parameter default value expression",
+            "range": {
+                "start": {
+                    "line": 18,
+                    "character": 44
+                },
+                "end": {
+                    "line": 18,
+                    "character": 54
+                }
+            },
+            "rule": "reportCallInDefaultInitializer"
+        },
+        {
+            "file": "e:\\network\\vagus\\autonomous-network-mgmt\\experiments\\recovery_lifecycle\\controller.py",
+            "severity": "warning",
+            "message": "Type annotation for attribute `settings` is required because this class is not decorated with `@final`",
+            "range": {
+                "start": {
+                    "line": 19,
+                    "character": 13
+                },
+                "end": {
+                    "line": 19,
+                    "character": 21
+                }
+            },
+            "rule": "reportUnannotatedClassAttribute"
+        },
+        {
+            "file": "e:\\network\\vagus\\autonomous-network-mgmt\\experiments\\recovery_lifecycle\\controller.py",
+            "severity": "warning",
+            "message": "Type annotation for attribute `phase` is required because this class is not decorated with `@final`",
+            "range": {
+                "start": {
+                    "line": 20,
+                    "character": 13
+                },
+                "end": {
+                    "line": 20,
+                    "character": 18
+                }
+            },
+            "rule": "reportUnannotatedClassAttribute"
+        },
+        {
+            "file": "e:\\network\\vagus\\autonomous-network-mgmt\\experiments\\recovery_lifecycle\\controller.py",
+            "severity": "warning",
+            "message": "Type annotation for attribute `phase_started` is required because this class is not decorated with `@final`",
+            "range": {
+                "start": {
+                    "line": 21,
+                    "character": 13
+                },
+                "end": {
+                    "line": 21,
+                    "character": 26
+                }
+            },
+            "rule": "reportUnannotatedClassAttribute"
+        },
+        {
+            "file": "e:\\network\\vagus\\autonomous-network-mgmt\\experiments\\recovery_lifecycle\\controller.py",
+            "severity": "warning",
+            "message": "Type annotation for attribute `command_at` is required because this class is not decorated with `@final`",
+            "range": {
+                "start": {
+                    "line": 22,
+                    "character": 13
+                },
+                "end": {
+                    "line": 22,
+                    "character": 23
+                }
+            },
+            "rule": "reportUnannotatedClassAttribute"
+        },
+        {
+            "file": "e:\\network\\vagus\\autonomous-network-mgmt\\experiments\\recovery_lifecycle\\controller.py",
+            "severity": "warning",
+            "message": "Type annotation for attribute `last_sample` is required because this class is not decorated with `@final`",
+            "range": {
+                "start": {
+                    "line": 23,
+                    "character": 13
+                },
+                "end": {
+                    "line": 23,
+                    "character": 24
+                }
+            },
+            "rule": "reportUnannotatedClassAttribute"
+        },
+        {
+            "file": "e:\\network\\vagus\\autonomous-network-mgmt\\experiments\\recovery_lifecycle\\controller.py",
+            "severity": "warning",
+            "message": "Type annotation for attribute `expected_costs` is required because this class is not decorated with `@final`",
+            "range": {
+                "start": {
+                    "line": 24,
+                    "character": 13
+                },
+                "end": {
+                    "line": 24,
+                    "character": 27
+                }
+            },
+            "rule": "reportUnannotatedClassAttribute"
+        },
+        {
+            "file": "e:\\network\\vagus\\autonomous-network-mgmt\\experiments\\recovery_lifecycle\\controller.py",
+            "severity": "warning",
+            "message": "Type annotation for attribute `calibration` is required because this class is not decorated with `@final`",
+            "range": {
+                "start": {
+                    "line": 27,
+                    "character": 13
+                },
+                "end": {
+                    "line": 27,
+                    "character": 24
+                }
+            },
+            "rule": "reportUnannotatedClassAttribute"
+        },
+        {
+            "file": "e:\\network\\vagus\\autonomous-network-mgmt\\experiments\\recovery_lifecycle\\controller.py",
+            "severity": "warning",
+            "message": "Pattern will never be matched for subject type \"Never\"",
+            "range": {
+                "start": {
+                    "line": 38,
+                    "character": 17
+                },
+                "end": {
+                    "line": 38,
+                    "character": 28
+                }
+            },
+            "rule": "reportUnnecessaryComparison"
+        },
+        {
+            "file": "e:\\network\\vagus\\autonomous-network-mgmt\\experiments\\recovery_lifecycle\\controller.py",
+            "severity": "warning",
+            "message": "\"now\" is not accessed",
+            "range": {
+                "start": {
+                    "line": 44,
+                    "character": 68
+                },
+                "end": {
+                    "line": 44,
+                    "character": 71
+                }
+            },
+            "rule": "reportUnusedParameter"
+        },
+        {
+            "file": "e:\\network\\vagus\\autonomous-network-mgmt\\experiments\\recovery_lifecycle\\controller.py",
+            "severity": "warning",
+            "message": "Pattern will never be matched for subject type \"Never\"",
+            "range": {
+                "start": {
+                    "line": 92,
+                    "character": 17
+                },
+                "end": {
+                    "line": 92,
+                    "character": 28
+                }
+            },
+            "rule": "reportUnnecessaryComparison"
+        },
+        {
+            "file": "e:\\network\\vagus\\autonomous-network-mgmt\\experiments\\recovery_lifecycle\\controller.py",
+            "severity": "warning",
+            "message": "Pattern will never be matched for subject type \"Never\"",
+            "range": {
+                "start": {
+                    "line": 124,
+                    "character": 17
+                },
+                "end": {
+                    "line": 124,
+                    "character": 28
+                }
+            },
+            "rule": "reportUnnecessaryComparison"
+        },
+        {
+            "file": "e:\\network\\vagus\\autonomous-network-mgmt\\experiments\\recovery_research\\aggregation.py",
+            "severity": "warning",
+            "message": "Pattern will never be matched for subject type \"Never\"",
+            "range": {
+                "start": {
+                    "line": 31,
+                    "character": 13
+                },
+                "end": {
+                    "line": 31,
+                    "character": 24
+                }
+            },
+            "rule": "reportUnnecessaryComparison"
+        },
+        {
+            "file": "e:\\network\\vagus\\autonomous-network-mgmt\\experiments\\recovery_research\\artifacts.py",
+            "severity": "warning",
+            "message": "Type annotation for attribute `model_config` is required because this class is not decorated with `@final`",
+            "range": {
+                "start": {
+                    "line": 12,
+                    "character": 4
+                },
+                "end": {
+                    "line": 12,
+                    "character": 16
+                }
+            },
+            "rule": "reportUnannotatedClassAttribute"
+        },
+        {
+            "file": "e:\\network\\vagus\\autonomous-network-mgmt\\experiments\\recovery_research\\artifacts.py",
+            "severity": "warning",
+            "message": "Result of call expression is of type \"int\" and is not used; assign to variable \"_\" if this is intentional",
+            "range": {
+                "start": {
+                    "line": 124,
+                    "character": 8
+                },
+                "end": {
+                    "line": 124,
+                    "character": 53
+                }
+            },
+            "rule": "reportUnusedCallResult"
+        },
+        {
+            "file": "e:\\network\\vagus\\autonomous-network-mgmt\\experiments\\recovery_research\\artifacts.py",
+            "severity": "warning",
+            "message": "Result of call expression is of type \"int\" and is not used; assign to variable \"_\" if this is intentional",
+            "range": {
+                "start": {
+                    "line": 125,
+                    "character": 8
+                },
+                "end": {
+                    "line": 125,
+                    "character": 26
+                }
+            },
+            "rule": "reportUnusedCallResult"
+        },
+        {
+            "file": "e:\\network\\vagus\\autonomous-network-mgmt\\experiments\\recovery_research\\calibrated_fixed.py",
+            "severity": "warning",
+            "message": "Function calls and mutable objects not allowed within parameter default value expression",
+            "range": {
+                "start": {
+                    "line": 9,
+                    "character": 44
+                },
+                "end": {
+                    "line": 9,
+                    "character": 54
+                }
+            },
+            "rule": "reportCallInDefaultInitializer"
+        },
+        {
+            "file": "e:\\network\\vagus\\autonomous-network-mgmt\\experiments\\recovery_research\\calibrated_hold10.py",
+            "severity": "warning",
+            "message": "Function calls and mutable objects not allowed within parameter default value expression",
+            "range": {
+                "start": {
+                    "line": 9,
+                    "character": 44
+                },
+                "end": {
+                    "line": 9,
+                    "character": 54
+                }
+            },
+            "rule": "reportCallInDefaultInitializer"
+        },
+        {
+            "file": "e:\\network\\vagus\\autonomous-network-mgmt\\experiments\\recovery_research\\calibrated_verified.py",
+            "severity": "warning",
+            "message": "Function calls and mutable objects not allowed within parameter default value expression",
+            "range": {
+                "start": {
+                    "line": 9,
+                    "character": 44
+                },
+                "end": {
+                    "line": 9,
+                    "character": 54
+                }
+            },
+            "rule": "reportCallInDefaultInitializer"
+        },
+        {
+            "file": "e:\\network\\vagus\\autonomous-network-mgmt\\experiments\\recovery_research\\calibration.py",
+            "severity": "warning",
+            "message": "Type annotation for attribute `max_age` is required because this class is not decorated with `@final`",
+            "range": {
+                "start": {
+                    "line": 19,
+                    "character": 13
+                },
+                "end": {
+                    "line": 19,
+                    "character": 20
+                }
+            },
+            "rule": "reportUnannotatedClassAttribute"
+        },
+        {
+            "file": "e:\\network\\vagus\\autonomous-network-mgmt\\experiments\\recovery_research\\calibration.py",
+            "severity": "warning",
+            "message": "Type annotation for attribute `last_sample` is required because this class is not decorated with `@final`",
+            "range": {
+                "start": {
+                    "line": 20,
+                    "character": 13
+                },
+                "end": {
+                    "line": 20,
+                    "character": 24
+                }
+            },
+            "rule": "reportUnannotatedClassAttribute"
+        },
+        {
+            "file": "e:\\network\\vagus\\autonomous-network-mgmt\\experiments\\recovery_research\\calibration.py",
+            "severity": "warning",
+            "message": "Type annotation for attribute `seen_initial` is required because this class is not decorated with `@final`",
+            "range": {
+                "start": {
+                    "line": 21,
+                    "character": 13
+                },
+                "end": {
+                    "line": 21,
+                    "character": 25
+                }
+            },
+            "rule": "reportUnannotatedClassAttribute"
+        },
+        {
+            "file": "e:\\network\\vagus\\autonomous-network-mgmt\\experiments\\recovery_research\\calibration.py",
+            "severity": "warning",
+            "message": "Type annotation for attribute `diagnostics` is required because this class is not decorated with `@final`",
+            "range": {
+                "start": {
+                    "line": 23,
+                    "character": 13
+                },
+                "end": {
+                    "line": 23,
+                    "character": 24
+                }
+            },
+            "rule": "reportUnannotatedClassAttribute"
+        },
+        {
+            "file": "e:\\network\\vagus\\autonomous-network-mgmt\\experiments\\recovery_research\\calibration.py",
+            "severity": "warning",
+            "message": "Function calls and mutable objects not allowed within parameter default value expression",
+            "range": {
+                "start": {
+                    "line": 62,
+                    "character": 44
+                },
+                "end": {
+                    "line": 62,
+                    "character": 54
+                }
+            },
+            "rule": "reportCallInDefaultInitializer"
+        },
+        {
+            "file": "e:\\network\\vagus\\autonomous-network-mgmt\\experiments\\recovery_research\\calibration.py",
+            "severity": "warning",
+            "message": "Type annotation for attribute `source_cut` is required because this class is not decorated with `@final`",
+            "range": {
+                "start": {
+                    "line": 64,
+                    "character": 13
+                },
+                "end": {
+                    "line": 64,
+                    "character": 23
+                }
+            },
+            "rule": "reportUnannotatedClassAttribute"
+        },
+        {
+            "file": "e:\\network\\vagus\\autonomous-network-mgmt\\experiments\\recovery_research\\calibration.py",
+            "severity": "warning",
+            "message": "Type annotation for attribute `calibration` is required because this class is not decorated with `@final`",
+            "range": {
+                "start": {
+                    "line": 65,
+                    "character": 13
+                },
+                "end": {
+                    "line": 65,
+                    "character": 24
+                }
+            },
+            "rule": "reportUnannotatedClassAttribute"
+        },
+        {
+            "file": "e:\\network\\vagus\\autonomous-network-mgmt\\experiments\\recovery_research\\calibration.py",
+            "severity": "warning",
+            "message": "Method \"_prepare_observation\" is not marked as override but is overriding a method in class \"LifecycleController\"",
+            "range": {
+                "start": {
+                    "line": 67,
+                    "character": 8
+                },
+                "end": {
+                    "line": 67,
+                    "character": 28
+                }
+            },
+            "rule": "reportImplicitOverride"
+        },
+        {
+            "file": "e:\\network\\vagus\\autonomous-network-mgmt\\experiments\\recovery_research\\cycle2.py",
+            "severity": "warning",
+            "message": "Multiple inheritance is not allowed because the following base classes contain `__init__` or `__new__` methods that may not get called: CompletionController",
+            "range": {
+                "start": {
+                    "line": 6,
+                    "character": 6
+                },
+                "end": {
+                    "line": 6,
+                    "character": 24
+                }
+            },
+            "rule": "reportUnsafeMultipleInheritance"
+        },
+        {
+            "file": "e:\\network\\vagus\\autonomous-network-mgmt\\experiments\\recovery_research\\cycle3.py",
+            "severity": "warning",
+            "message": "Function calls and mutable objects not allowed within parameter default value expression",
+            "range": {
+                "start": {
+                    "line": 9,
+                    "character": 44
+                },
+                "end": {
+                    "line": 9,
+                    "character": 54
+                }
+            },
+            "rule": "reportCallInDefaultInitializer"
+        },
+        {
+            "file": "e:\\network\\vagus\\autonomous-network-mgmt\\experiments\\recovery_research\\evaluation.py",
+            "severity": "warning",
+            "message": "Result of call expression is of type \"CommandAck\" and is not used; assign to variable \"_\" if this is intentional",
+            "range": {
+                "start": {
+                    "line": 47,
+                    "character": 12
+                },
+                "end": {
+                    "line": 47,
+                    "character": 36
+                }
+            },
+            "rule": "reportUnusedCallResult"
+        },
+        {
+            "file": "e:\\network\\vagus\\autonomous-network-mgmt\\experiments\\recovery_research\\manifest.py",
+            "severity": "warning",
+            "message": "Method \"__str__\" is not marked as override but is overriding a method in class \"BaseException\"",
+            "range": {
+                "start": {
+                    "line": 26,
+                    "character": 8
+                },
+                "end": {
+                    "line": 26,
+                    "character": 15
+                }
+            },
+            "rule": "reportImplicitOverride"
+        },
+        {
+            "file": "e:\\network\\vagus\\autonomous-network-mgmt\\experiments\\recovery_research\\policies.py",
+            "severity": "warning",
+            "message": "Pattern will never be matched for subject type \"Never\"",
+            "range": {
+                "start": {
+                    "line": 60,
+                    "character": 13
+                },
+                "end": {
+                    "line": 60,
+                    "character": 24
+                }
+            },
+            "rule": "reportUnnecessaryComparison"
+        },
+        {
+            "file": "e:\\network\\vagus\\autonomous-network-mgmt\\experiments\\recovery_research\\policies.py",
+            "severity": "warning",
+            "message": "Pattern will never be matched for subject type \"Never\"",
+            "range": {
+                "start": {
+                    "line": 72,
+                    "character": 13
+                },
+                "end": {
+                    "line": 72,
+                    "character": 24
+                }
+            },
+            "rule": "reportUnnecessaryComparison"
+        },
+        {
+            "file": "e:\\network\\vagus\\autonomous-network-mgmt\\experiments\\recovery_research\\runner.py",
+            "severity": "warning",
+            "message": "Result of call expression is of type \"Action\" and is not used; assign to variable \"_\" if this is intentional",
+            "range": {
+                "start": {
+                    "line": 66,
+                    "character": 4
+                },
+                "end": {
+                    "line": 66,
+                    "character": 72
+                }
+            },
+            "rule": "reportUnusedCallResult"
+        },
+        {
+            "file": "e:\\network\\vagus\\autonomous-network-mgmt\\experiments\\recovery_research\\runner.py",
+            "severity": "warning",
+            "message": "Result of call expression is of type \"Action\" and is not used; assign to variable \"_\" if this is intentional",
+            "range": {
+                "start": {
+                    "line": 68,
+                    "character": 4
+                },
+                "end": {
+                    "line": 68,
+                    "character": 67
+                }
+            },
+            "rule": "reportUnusedCallResult"
+        },
+        {
+            "file": "e:\\network\\vagus\\autonomous-network-mgmt\\experiments\\recovery_research\\runner.py",
+            "severity": "warning",
+            "message": "Result of call expression is of type \"Action\" and is not used; assign to variable \"_\" if this is intentional",
+            "range": {
+                "start": {
+                    "line": 69,
+                    "character": 4
+                },
+                "end": {
+                    "line": 69,
+                    "character": 100
+                }
+            },
+            "rule": "reportUnusedCallResult"
+        },
+        {
+            "file": "e:\\network\\vagus\\autonomous-network-mgmt\\experiments\\recovery_research\\runner.py",
+            "severity": "warning",
+            "message": "Result of call expression is of type \"Action\" and is not used; assign to variable \"_\" if this is intentional",
+            "range": {
+                "start": {
+                    "line": 70,
+                    "character": 4
+                },
+                "end": {
+                    "line": 70,
+                    "character": 84
+                }
+            },
+            "rule": "reportUnusedCallResult"
+        },
+        {
+            "file": "e:\\network\\vagus\\autonomous-network-mgmt\\experiments\\recovery_research\\runner.py",
+            "severity": "warning",
+            "message": "Pattern will never be matched for subject type \"Never\"",
+            "range": {
+                "start": {
+                    "line": 88,
+                    "character": 17
+                },
+                "end": {
+                    "line": 88,
+                    "character": 28
+                }
+            },
+            "rule": "reportUnnecessaryComparison"
+        },
+        {
+            "file": "e:\\network\\vagus\\autonomous-network-mgmt\\experiments\\recovery_research\\scenarios.py",
+            "severity": "warning",
+            "message": "Pattern will never be matched for subject type \"Never\"",
+            "range": {
+                "start": {
+                    "line": 53,
+                    "character": 13
+                },
+                "end": {
+                    "line": 53,
+                    "character": 24
+                }
+            },
+            "rule": "reportUnnecessaryComparison"
+        },
+        {
+            "file": "e:\\network\\vagus\\autonomous-network-mgmt\\experiments\\recovery_research\\scenarios.py",
+            "severity": "warning",
+            "message": "Pattern will never be matched for subject type \"Never\"",
+            "range": {
+                "start": {
+                    "line": 64,
+                    "character": 13
+                },
+                "end": {
+                    "line": 64,
+                    "character": 24
+                }
+            },
+            "rule": "reportUnnecessaryComparison"
+        },
+        {
+            "file": "e:\\network\\vagus\\autonomous-network-mgmt\\experiments\\recovery_research\\statistics.py",
+            "severity": "warning",
+            "message": "Type annotation for attribute `reason` is required because this class is not decorated with `@final`",
+            "range": {
+                "start": {
+                    "line": 22,
+                    "character": 13
+                },
+                "end": {
+                    "line": 22,
+                    "character": 19
+                }
+            },
+            "rule": "reportUnannotatedClassAttribute"
+        },
+        {
+            "file": "e:\\network\\vagus\\autonomous-network-mgmt\\experiments\\recovery_research\\statistics.py",
+            "severity": "warning",
+            "message": "Type annotation for attribute `model_config` is required because this class is not decorated with `@final`",
+            "range": {
+                "start": {
+                    "line": 40,
+                    "character": 4
+                },
+                "end": {
+                    "line": 40,
+                    "character": 16
+                }
+            },
+            "rule": "reportUnannotatedClassAttribute"
+        },
+        {
+            "file": "e:\\network\\vagus\\autonomous-network-mgmt\\experiments\\recovery_research\\test_calibration.py",
+            "severity": "warning",
+            "message": "Result of call expression is of type \"Observation | None\" and is not used; assign to variable \"_\" if this is intentional",
+            "range": {
+                "start": {
+                    "line": 47,
+                    "character": 8
+                },
+                "end": {
+                    "line": 47,
+                    "character": 50
+                }
+            },
+            "rule": "reportUnusedCallResult"
+        },
+        {
+            "file": "e:\\network\\vagus\\autonomous-network-mgmt\\experiments\\recovery_research\\test_calibration.py",
+            "severity": "warning",
+            "message": "Result of call expression is of type \"Observation | None\" and is not used; assign to variable \"_\" if this is intentional",
+            "range": {
+                "start": {
+                    "line": 59,
+                    "character": 4
+                },
+                "end": {
+                    "line": 59,
+                    "character": 34
+                }
+            },
+            "rule": "reportUnusedCallResult"
+        },
+        {
+            "file": "e:\\network\\vagus\\autonomous-network-mgmt\\experiments\\recovery_research\\test_calibration.py",
+            "severity": "warning",
+            "message": "Result of call expression is of type \"Observation | None\" and is not used; assign to variable \"_\" if this is intentional",
+            "range": {
+                "start": {
+                    "line": 74,
+                    "character": 4
+                },
+                "end": {
+                    "line": 74,
+                    "character": 34
+                }
+            },
+            "rule": "reportUnusedCallResult"
+        },
+        {
+            "file": "e:\\network\\vagus\\autonomous-network-mgmt\\experiments\\recovery_research\\test_calibration.py",
+            "severity": "warning",
+            "message": "Result of call expression is of type \"Observation | None\" and is not used; assign to variable \"_\" if this is intentional",
+            "range": {
+                "start": {
+                    "line": 76,
+                    "character": 4
+                },
+                "end": {
+                    "line": 76,
+                    "character": 38
+                }
+            },
+            "rule": "reportUnusedCallResult"
+        },
+        {
+            "file": "e:\\network\\vagus\\autonomous-network-mgmt\\experiments\\recovery_research\\test_calibration.py",
+            "severity": "warning",
+            "message": "Result of call expression is of type \"Observation | None\" and is not used; assign to variable \"_\" if this is intentional",
+            "range": {
+                "start": {
+                    "line": 88,
+                    "character": 4
+                },
+                "end": {
+                    "line": 88,
+                    "character": 34
+                }
+            },
+            "rule": "reportUnusedCallResult"
+        },
+        {
+            "file": "e:\\network\\vagus\\autonomous-network-mgmt\\experiments\\recovery_research\\test_controllers.py",
+            "severity": "warning",
+            "message": "Result of call expression is of type \"Decision\" and is not used; assign to variable \"_\" if this is intentional",
+            "range": {
+                "start": {
+                    "line": 31,
+                    "character": 4
+                },
+                "end": {
+                    "line": 31,
+                    "character": 34
+                }
+            },
+            "rule": "reportUnusedCallResult"
+        },
+        {
+            "file": "e:\\network\\vagus\\autonomous-network-mgmt\\experiments\\recovery_research\\test_controllers.py",
+            "severity": "warning",
+            "message": "Result of call expression is of type \"Decision\" and is not used; assign to variable \"_\" if this is intentional",
+            "range": {
+                "start": {
+                    "line": 32,
+                    "character": 4
+                },
+                "end": {
+                    "line": 32,
+                    "character": 30
+                }
+            },
+            "rule": "reportUnusedCallResult"
+        },
+        {
+            "file": "e:\\network\\vagus\\autonomous-network-mgmt\\experiments\\recovery_research\\test_controllers.py",
+            "severity": "warning",
+            "message": "Result of call expression is of type \"Decision\" and is not used; assign to variable \"_\" if this is intentional",
+            "range": {
+                "start": {
+                    "line": 34,
+                    "character": 4
+                },
+                "end": {
+                    "line": 34,
+                    "character": 30
+                }
+            },
+            "rule": "reportUnusedCallResult"
+        },
+        {
+            "file": "e:\\network\\vagus\\autonomous-network-mgmt\\experiments\\recovery_research\\test_controllers.py",
+            "severity": "warning",
+            "message": "Result of call expression is of type \"Decision\" and is not used; assign to variable \"_\" if this is intentional",
+            "range": {
+                "start": {
+                    "line": 35,
+                    "character": 4
+                },
+                "end": {
+                    "line": 35,
+                    "character": 30
+                }
+            },
+            "rule": "reportUnusedCallResult"
+        },
+        {
+            "file": "e:\\network\\vagus\\autonomous-network-mgmt\\experiments\\recovery_research\\test_controllers.py",
+            "severity": "warning",
+            "message": "Result of call expression is of type \"Decision\" and is not used; assign to variable \"_\" if this is intentional",
+            "range": {
+                "start": {
+                    "line": 36,
+                    "character": 4
+                },
+                "end": {
+                    "line": 36,
+                    "character": 30
+                }
+            },
+            "rule": "reportUnusedCallResult"
+        },
+        {
+            "file": "e:\\network\\vagus\\autonomous-network-mgmt\\experiments\\recovery_research\\test_controllers.py",
+            "severity": "warning",
+            "message": "Result of call expression is of type \"Decision\" and is not used; assign to variable \"_\" if this is intentional",
+            "range": {
+                "start": {
+                    "line": 46,
+                    "character": 4
+                },
+                "end": {
+                    "line": 46,
+                    "character": 60
+                }
+            },
+            "rule": "reportUnusedCallResult"
+        },
+        {
+            "file": "e:\\network\\vagus\\autonomous-network-mgmt\\experiments\\recovery_research\\test_controllers.py",
+            "severity": "warning",
+            "message": "Result of call expression is of type \"Decision\" and is not used; assign to variable \"_\" if this is intentional",
+            "range": {
+                "start": {
+                    "line": 47,
+                    "character": 4
+                },
+                "end": {
+                    "line": 47,
+                    "character": 31
+                }
+            },
+            "rule": "reportUnusedCallResult"
+        },
+        {
+            "file": "e:\\network\\vagus\\autonomous-network-mgmt\\experiments\\recovery_research\\test_controllers.py",
+            "severity": "warning",
+            "message": "Result of call expression is of type \"Decision\" and is not used; assign to variable \"_\" if this is intentional",
+            "range": {
+                "start": {
+                    "line": 58,
+                    "character": 4
+                },
+                "end": {
+                    "line": 58,
+                    "character": 34
+                }
+            },
+            "rule": "reportUnusedCallResult"
+        },
+        {
+            "file": "e:\\network\\vagus\\autonomous-network-mgmt\\experiments\\recovery_research\\test_controllers.py",
+            "severity": "warning",
+            "message": "Result of call expression is of type \"Decision\" and is not used; assign to variable \"_\" if this is intentional",
+            "range": {
+                "start": {
+                    "line": 59,
+                    "character": 4
+                },
+                "end": {
+                    "line": 59,
+                    "character": 30
+                }
+            },
+            "rule": "reportUnusedCallResult"
+        },
+        {
+            "file": "e:\\network\\vagus\\autonomous-network-mgmt\\experiments\\recovery_research\\test_controllers.py",
+            "severity": "warning",
+            "message": "Result of call expression is of type \"Decision\" and is not used; assign to variable \"_\" if this is intentional",
+            "range": {
+                "start": {
+                    "line": 62,
+                    "character": 8
+                },
+                "end": {
+                    "line": 62,
+                    "character": 44
+                }
+            },
+            "rule": "reportUnusedCallResult"
+        },
+        {
+            "file": "e:\\network\\vagus\\autonomous-network-mgmt\\experiments\\recovery_research\\test_controllers.py",
+            "severity": "warning",
+            "message": "Result of call expression is of type \"Decision\" and is not used; assign to variable \"_\" if this is intentional",
+            "range": {
+                "start": {
+                    "line": 74,
+                    "character": 4
+                },
+                "end": {
+                    "line": 74,
+                    "character": 34
+                }
+            },
+            "rule": "reportUnusedCallResult"
+        },
+        {
+            "file": "e:\\network\\vagus\\autonomous-network-mgmt\\experiments\\recovery_research\\test_controllers.py",
+            "severity": "warning",
+            "message": "Result of call expression is of type \"Decision\" and is not used; assign to variable \"_\" if this is intentional",
+            "range": {
+                "start": {
+                    "line": 75,
+                    "character": 4
+                },
+                "end": {
+                    "line": 75,
+                    "character": 30
+                }
+            },
+            "rule": "reportUnusedCallResult"
+        },
+        {
+            "file": "e:\\network\\vagus\\autonomous-network-mgmt\\experiments\\recovery_research\\test_controllers.py",
+            "severity": "warning",
+            "message": "Result of call expression is of type \"Decision\" and is not used; assign to variable \"_\" if this is intentional",
+            "range": {
+                "start": {
+                    "line": 86,
+                    "character": 4
+                },
+                "end": {
+                    "line": 86,
+                    "character": 30
+                }
+            },
+            "rule": "reportUnusedCallResult"
+        },
+        {
+            "file": "e:\\network\\vagus\\autonomous-network-mgmt\\experiments\\recovery_research\\test_controllers.py",
+            "severity": "warning",
+            "message": "Result of call expression is of type \"Decision\" and is not used; assign to variable \"_\" if this is intentional",
+            "range": {
+                "start": {
+                    "line": 88,
+                    "character": 8
+                },
+                "end": {
+                    "line": 88,
+                    "character": 102
+                }
+            },
+            "rule": "reportUnusedCallResult"
+        },
+        {
+            "file": "e:\\network\\vagus\\autonomous-network-mgmt\\experiments\\recovery_research\\test_controllers.py",
+            "severity": "warning",
+            "message": "Result of call expression is of type \"Decision\" and is not used; assign to variable \"_\" if this is intentional",
+            "range": {
+                "start": {
+                    "line": 99,
+                    "character": 4
+                },
+                "end": {
+                    "line": 99,
+                    "character": 34
+                }
+            },
+            "rule": "reportUnusedCallResult"
+        },
+        {
+            "file": "e:\\network\\vagus\\autonomous-network-mgmt\\experiments\\recovery_research\\test_controllers.py",
+            "severity": "warning",
+            "message": "Result of call expression is of type \"Decision\" and is not used; assign to variable \"_\" if this is intentional",
+            "range": {
+                "start": {
+                    "line": 100,
+                    "character": 4
+                },
+                "end": {
+                    "line": 100,
+                    "character": 30
+                }
+            },
+            "rule": "reportUnusedCallResult"
+        },
+        {
+            "file": "e:\\network\\vagus\\autonomous-network-mgmt\\experiments\\recovery_research\\test_cycle2.py",
+            "severity": "warning",
+            "message": "Result of call expression is of type \"Decision\" and is not used; assign to variable \"_\" if this is intentional",
+            "range": {
+                "start": {
+                    "line": 26,
+                    "character": 4
+                },
+                "end": {
+                    "line": 26,
+                    "character": 39
+                }
+            },
+            "rule": "reportUnusedCallResult"
+        },
+        {
+            "file": "e:\\network\\vagus\\autonomous-network-mgmt\\experiments\\recovery_research\\test_cycle2.py",
+            "severity": "warning",
+            "message": "Result of call expression is of type \"Decision\" and is not used; assign to variable \"_\" if this is intentional",
+            "range": {
+                "start": {
+                    "line": 27,
+                    "character": 4
+                },
+                "end": {
+                    "line": 27,
+                    "character": 35
+                }
+            },
+            "rule": "reportUnusedCallResult"
+        },
+        {
+            "file": "e:\\network\\vagus\\autonomous-network-mgmt\\experiments\\recovery_research\\test_cycle2.py",
+            "severity": "warning",
+            "message": "Result of call expression is of type \"Decision\" and is not used; assign to variable \"_\" if this is intentional",
+            "range": {
+                "start": {
+                    "line": 28,
+                    "character": 4
+                },
+                "end": {
+                    "line": 28,
+                    "character": 37
+                }
+            },
+            "rule": "reportUnusedCallResult"
+        },
+        {
+            "file": "e:\\network\\vagus\\autonomous-network-mgmt\\experiments\\recovery_research\\test_cycle2.py",
+            "severity": "warning",
+            "message": "Result of call expression is of type \"Decision\" and is not used; assign to variable \"_\" if this is intentional",
+            "range": {
+                "start": {
+                    "line": 29,
+                    "character": 4
+                },
+                "end": {
+                    "line": 29,
+                    "character": 37
+                }
+            },
+            "rule": "reportUnusedCallResult"
+        },
+        {
+            "file": "e:\\network\\vagus\\autonomous-network-mgmt\\experiments\\recovery_research\\test_cycle2.py",
+            "severity": "warning",
+            "message": "Result of call expression is of type \"Decision\" and is not used; assign to variable \"_\" if this is intentional",
+            "range": {
+                "start": {
+                    "line": 30,
+                    "character": 4
+                },
+                "end": {
+                    "line": 30,
+                    "character": 37
+                }
+            },
+            "rule": "reportUnusedCallResult"
+        },
+        {
+            "file": "e:\\network\\vagus\\autonomous-network-mgmt\\experiments\\recovery_research\\test_cycle2.py",
+            "severity": "warning",
+            "message": "Result of call expression is of type \"Decision\" and is not used; assign to variable \"_\" if this is intentional",
+            "range": {
+                "start": {
+                    "line": 62,
+                    "character": 4
+                },
+                "end": {
+                    "line": 62,
+                    "character": 39
+                }
+            },
+            "rule": "reportUnusedCallResult"
+        },
+        {
+            "file": "e:\\network\\vagus\\autonomous-network-mgmt\\experiments\\recovery_research\\test_cycle2.py",
+            "severity": "warning",
+            "message": "Result of call expression is of type \"Decision\" and is not used; assign to variable \"_\" if this is intentional",
+            "range": {
+                "start": {
+                    "line": 63,
+                    "character": 4
+                },
+                "end": {
+                    "line": 63,
+                    "character": 36
+                }
+            },
+            "rule": "reportUnusedCallResult"
+        },
+        {
+            "file": "e:\\network\\vagus\\autonomous-network-mgmt\\experiments\\recovery_research\\test_cycle2.py",
+            "severity": "warning",
+            "message": "Result of call expression is of type \"Decision\" and is not used; assign to variable \"_\" if this is intentional",
+            "range": {
+                "start": {
+                    "line": 64,
+                    "character": 4
+                },
+                "end": {
+                    "line": 64,
+                    "character": 43
+                }
+            },
+            "rule": "reportUnusedCallResult"
+        },
+        {
+            "file": "e:\\network\\vagus\\autonomous-network-mgmt\\experiments\\recovery_research\\test_cycle2.py",
+            "severity": "warning",
+            "message": "Result of call expression is of type \"Decision\" and is not used; assign to variable \"_\" if this is intentional",
+            "range": {
+                "start": {
+                    "line": 68,
+                    "character": 4
+                },
+                "end": {
+                    "line": 68,
+                    "character": 31
+                }
+            },
+            "rule": "reportUnusedCallResult"
+        },
+        {
+            "file": "e:\\network\\vagus\\autonomous-network-mgmt\\experiments\\recovery_research\\test_cycle2.py",
+            "severity": "warning",
+            "message": "Result of call expression is of type \"Decision\" and is not used; assign to variable \"_\" if this is intentional",
+            "range": {
+                "start": {
+                    "line": 73,
+                    "character": 4
+                },
+                "end": {
+                    "line": 73,
+                    "character": 41
+                }
+            },
+            "rule": "reportUnusedCallResult"
+        },
+        {
+            "file": "e:\\network\\vagus\\autonomous-network-mgmt\\experiments\\recovery_research\\test_cycle2.py",
+            "severity": "warning",
+            "message": "Result of call expression is of type \"Decision\" and is not used; assign to variable \"_\" if this is intentional",
+            "range": {
+                "start": {
+                    "line": 74,
+                    "character": 4
+                },
+                "end": {
+                    "line": 74,
+                    "character": 41
+                }
+            },
+            "rule": "reportUnusedCallResult"
+        },
+        {
+            "file": "e:\\network\\vagus\\autonomous-network-mgmt\\experiments\\recovery_research\\test_cycle2.py",
+            "severity": "warning",
+            "message": "Result of call expression is of type \"CommandAck\" and is not used; assign to variable \"_\" if this is intentional",
+            "range": {
+                "start": {
+                    "line": 93,
+                    "character": 12
+                },
+                "end": {
+                    "line": 93,
+                    "character": 36
+                }
+            },
+            "rule": "reportUnusedCallResult"
+        },
+        {
+            "file": "e:\\network\\vagus\\autonomous-network-mgmt\\experiments\\recovery_research\\test_runner.py",
+            "severity": "warning",
+            "message": "Result of call expression is of type \"int\" and is not used; assign to variable \"_\" if this is intentional",
+            "range": {
+                "start": {
+                    "line": 138,
+                    "character": 8
+                },
+                "end": {
+                    "line": 138,
+                    "character": 58
+                }
+            },
+            "rule": "reportUnusedCallResult"
+        },
+        {
+            "file": "e:\\network\\vagus\\autonomous-network-mgmt\\experiments\\recovery_research\\test_runner.py",
+            "severity": "warning",
+            "message": "Result of call expression is of type \"int\" and is not used; assign to variable \"_\" if this is intentional",
+            "range": {
+                "start": {
+                    "line": 142,
+                    "character": 8
+                },
+                "end": {
+                    "line": 142,
+                    "character": 58
+                }
+            },
+            "rule": "reportUnusedCallResult"
+        },
+        {
+            "file": "e:\\network\\vagus\\autonomous-network-mgmt\\experiments\\recovery_research\\test_runner.py",
+            "severity": "warning",
+            "message": "Result of call expression is of type \"ExperimentPayload\" and is not used; assign to variable \"_\" if this is intentional",
+            "range": {
+                "start": {
+                    "line": 173,
+                    "character": 8
+                },
+                "end": {
+                    "line": 173,
+                    "character": 51
+                }
+            },
+            "rule": "reportUnusedCallResult"
+        },
+        {
+            "file": "e:\\network\\vagus\\autonomous-network-mgmt\\experiments\\recovery_research\\test_runner.py",
+            "severity": "warning",
+            "message": "Result of call expression is of type \"Path\" and is not used; assign to variable \"_\" if this is intentional",
+            "range": {
+                "start": {
+                    "line": 190,
+                    "character": 12
+                },
+                "end": {
+                    "line": 190,
+                    "character": 59
+                }
+            },
+            "rule": "reportUnusedCallResult"
+        },
+        {
+            "file": "e:\\network\\vagus\\autonomous-network-mgmt\\experiments\\recovery_research\\test_runner.py",
+            "severity": "warning",
+            "message": "Result of call expression is of type \"int\" and is not used; assign to variable \"_\" if this is intentional",
+            "range": {
+                "start": {
+                    "line": 209,
+                    "character": 8
+                },
+                "end": {
+                    "line": 209,
+                    "character": 57
+                }
+            },
+            "rule": "reportUnusedCallResult"
+        },
+        {
+            "file": "e:\\network\\vagus\\autonomous-network-mgmt\\experiments\\recovery_research\\test_runner.py",
+            "severity": "warning",
+            "message": "Result of call expression is of type \"Path\" and is not used; assign to variable \"_\" if this is intentional",
+            "range": {
+                "start": {
+                    "line": 211,
+                    "character": 12
+                },
+                "end": {
+                    "line": 211,
+                    "character": 74
+                }
+            },
+            "rule": "reportUnusedCallResult"
+        },
+        {
+            "file": "e:\\network\\vagus\\autonomous-network-mgmt\\experiments\\recovery_research\\test_runner.py",
+            "severity": "warning",
+            "message": "Type of \"filename\" is Any",
+            "range": {
+                "start": {
+                    "line": 220,
+                    "character": 19
+                },
+                "end": {
+                    "line": 220,
+                    "character": 33
+                }
+            },
+            "rule": "reportAny"
+        },
+        {
+            "file": "e:\\network\\vagus\\autonomous-network-mgmt\\experiments\\recovery_research\\test_statistics.py",
+            "severity": "warning",
+            "message": "Result of call expression is of type \"PairedEstimate\" and is not used; assign to variable \"_\" if this is intentional",
+            "range": {
+                "start": {
+                    "line": 69,
+                    "character": 8
+                },
+                "end": {
+                    "line": 69,
+                    "character": 38
+                }
+            },
+            "rule": "reportUnusedCallResult"
+        },
+        {
+            "file": "e:\\network\\vagus\\autonomous-network-mgmt\\experiments\\recovery_research\\test_statistics.py",
+            "severity": "warning",
+            "message": "Result of call expression is of type \"PairedEstimate\" and is not used; assign to variable \"_\" if this is intentional",
+            "range": {
+                "start": {
+                    "line": 83,
+                    "character": 8
+                },
+                "end": {
+                    "line": 83,
+                    "character": 44
+                }
+            },
+            "rule": "reportUnusedCallResult"
+        },
+        {
+            "file": "e:\\network\\vagus\\autonomous-network-mgmt\\experiments\\recovery_research\\test_statistics.py",
+            "severity": "warning",
+            "message": "Result of call expression is of type \"PairedEstimate\" and is not used; assign to variable \"_\" if this is intentional",
+            "range": {
+                "start": {
+                    "line": 96,
+                    "character": 8
+                },
+                "end": {
+                    "line": 96,
+                    "character": 45
+                }
+            },
+            "rule": "reportUnusedCallResult"
+        },
+        {
+            "file": "e:\\network\\vagus\\autonomous-network-mgmt\\experiments\\recovery_research\\test_statistics.py",
+            "severity": "warning",
+            "message": "Result of call expression is of type \"PairedEstimate\" and is not used; assign to variable \"_\" if this is intentional",
+            "range": {
+                "start": {
+                    "line": 110,
+                    "character": 8
+                },
+                "end": {
+                    "line": 110,
+                    "character": 44
+                }
+            },
+            "rule": "reportUnusedCallResult"
+        }
+    ],
+    "summary": {
+        "filesAnalyzed": 33,
+        "errorCount": 0,
+        "warningCount": 118,
+        "informationCount": 0,
+        "timeInSec": 1.941
+    }
+}

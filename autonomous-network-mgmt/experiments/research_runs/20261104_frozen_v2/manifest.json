@@ -1,0 +1,4750 @@
+{
+  "schema_version": "recovery_research.manifest.v1",
+  "implementation_origin": "new_from_spec_snippet",
+  "contract": "observations_only_controller;paired_exogenous_v1;settled_safe_completion",
+  "git_base": "a8a6cabe387fea15e8563c139976fd6a39ec1039",
+  "git_dirty": true,
+  "python_version": "3.14.2 (tags/v3.14.2:df79316, Dec  5 2025, 17:18:21) [MSC v.1944 64 bit (AMD64)]",
+  "policies": [
+    {
+      "name": "fixed",
+      "family": "lifecycle",
+      "mode": "fixed",
+      "hold_samples": 3,
+      "phase_hold": 3,
+      "max_age": 2,
+      "margin": 1.0,
+      "calibration": false,
+      "causal": false,
+      "stability_tolerance": 0.02
+    },
+    {
+      "name": "verified",
+      "family": "lifecycle",
+      "mode": "verified",
+      "hold_samples": 3,
+      "phase_hold": 3,
+      "max_age": 2,
+      "margin": 1.0,
+      "calibration": false,
+      "causal": false,
+      "stability_tolerance": 0.02
+    },
+    {
+      "name": "hold10",
+      "family": "lifecycle",
+      "mode": "verified",
+      "hold_samples": 10,
+      "phase_hold": 3,
+      "max_age": 2,
+      "margin": 1.0,
+      "calibration": false,
+      "causal": false,
+      "stability_tolerance": 0.02
+    },
+    {
+      "name": "forecast",
+      "family": "forecast",
+      "mode": "verified",
+      "hold_samples": 3,
+      "phase_hold": 3,
+      "max_age": 2,
+      "margin": 1.0,
+      "calibration": false,
+      "causal": false,
+      "stability_tolerance": 0.02
+    },
+    {
+      "name": "calibrated_fixed",
+      "family": "lifecycle",
+      "mode": "fixed",
+      "hold_samples": 3,
+      "phase_hold": 3,
+      "max_age": 2,
+      "margin": 1.0,
+      "calibration": true,
+      "causal": false,
+      "stability_tolerance": 0.02
+    },
+    {
+      "name": "calibrated_verified",
+      "family": "lifecycle",
+      "mode": "verified",
+      "hold_samples": 3,
+      "phase_hold": 3,
+      "max_age": 2,
+      "margin": 1.0,
+      "calibration": true,
+      "causal": false,
+      "stability_tolerance": 0.02
+    },
+    {
+      "name": "calibrated_hold10",
+      "family": "lifecycle",
+      "mode": "verified",
+      "hold_samples": 10,
+      "phase_hold": 3,
+      "max_age": 2,
+      "margin": 1.0,
+      "calibration": true,
+      "causal": false,
+      "stability_tolerance": 0.02
+    },
+    {
+      "name": "calibrated_forecast",
+      "family": "forecast",
+      "mode": "verified",
+      "hold_samples": 3,
+      "phase_hold": 3,
+      "max_age": 2,
+      "margin": 1.0,
+      "calibration": true,
+      "causal": false,
+      "stability_tolerance": 0.02
+    },
+    {
+      "name": "causal_calibrated_forecast",
+      "family": "forecast",
+      "mode": "verified",
+      "hold_samples": 3,
+      "phase_hold": 3,
+      "max_age": 2,
+      "margin": 1.0,
+      "calibration": true,
+      "causal": true,
+      "stability_tolerance": 0.02
+    }
+  ],
+  "banks": [
+    {
+      "split": "dev",
+      "cases": [
+        {
+          "scenario_id": "seed0:clean",
+          "regime": "clean",
+          "scenario": {
+            "seed": 0,
+            "horizon": 120,
+            "incident_start": 8,
+            "incident_end": 28,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 1.0,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 0,
+            "delay_jitter": 0,
+            "missing_probability": 0.0,
+            "load_noise": 0.0,
+            "background_via_source": false,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed0:demand_bias",
+          "regime": "demand_bias",
+          "scenario": {
+            "seed": 0,
+            "horizon": 120,
+            "incident_start": 8,
+            "incident_end": 28,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 0.55,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 0,
+            "delay_jitter": 0,
+            "missing_probability": 0.0,
+            "load_noise": 0.0,
+            "background_via_source": false,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed0:delayed",
+          "regime": "delayed",
+          "scenario": {
+            "seed": 0,
+            "horizon": 120,
+            "incident_start": 8,
+            "incident_end": 28,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 1.0,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 1,
+            "delay_jitter": 2,
+            "missing_probability": 0.0,
+            "load_noise": 0.0,
+            "background_via_source": false,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed0:missing",
+          "regime": "missing",
+          "scenario": {
+            "seed": 0,
+            "horizon": 120,
+            "incident_start": 8,
+            "incident_end": 28,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 1.0,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 0,
+            "delay_jitter": 0,
+            "missing_probability": 0.35,
+            "load_noise": 0.0,
+            "background_via_source": false,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed0:noisy",
+          "regime": "noisy",
+          "scenario": {
+            "seed": 0,
+            "horizon": 120,
+            "incident_start": 8,
+            "incident_end": 28,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 1.0,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 0,
+            "delay_jitter": 0,
+            "missing_probability": 0.0,
+            "load_noise": 0.08,
+            "background_via_source": false,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed0:background_transit",
+          "regime": "background_transit",
+          "scenario": {
+            "seed": 0,
+            "horizon": 120,
+            "incident_start": 8,
+            "incident_end": 28,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 1.0,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 0,
+            "delay_jitter": 0,
+            "missing_probability": 0.0,
+            "load_noise": 0.0,
+            "background_via_source": true,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1:clean",
+          "regime": "clean",
+          "scenario": {
+            "seed": 1,
+            "horizon": 120,
+            "incident_start": 9,
+            "incident_end": 29,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 1.0,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 0,
+            "delay_jitter": 0,
+            "missing_probability": 0.0,
+            "load_noise": 0.0,
+            "background_via_source": false,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1:demand_bias",
+          "regime": "demand_bias",
+          "scenario": {
+            "seed": 1,
+            "horizon": 120,
+            "incident_start": 9,
+            "incident_end": 29,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 0.55,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 0,
+            "delay_jitter": 0,
+            "missing_probability": 0.0,
+            "load_noise": 0.0,
+            "background_via_source": false,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1:delayed",
+          "regime": "delayed",
+          "scenario": {
+            "seed": 1,
+            "horizon": 120,
+            "incident_start": 9,
+            "incident_end": 29,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 1.0,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 1,
+            "delay_jitter": 2,
+            "missing_probability": 0.0,
+            "load_noise": 0.0,
+            "background_via_source": false,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1:missing",
+          "regime": "missing",
+          "scenario": {
+            "seed": 1,
+            "horizon": 120,
+            "incident_start": 9,
+            "incident_end": 29,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 1.0,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 0,
+            "delay_jitter": 0,
+            "missing_probability": 0.35,
+            "load_noise": 0.0,
+            "background_via_source": false,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1:noisy",
+          "regime": "noisy",
+          "scenario": {
+            "seed": 1,
+            "horizon": 120,
+            "incident_start": 9,
+            "incident_end": 29,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 1.0,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 0,
+            "delay_jitter": 0,
+            "missing_probability": 0.0,
+            "load_noise": 0.08,
+            "background_via_source": false,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1:background_transit",
+          "regime": "background_transit",
+          "scenario": {
+            "seed": 1,
+            "horizon": 120,
+            "incident_start": 9,
+            "incident_end": 29,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 1.0,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 0,
+            "delay_jitter": 0,
+            "missing_probability": 0.0,
+            "load_noise": 0.0,
+            "background_via_source": true,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed2:clean",
+          "regime": "clean",
+          "scenario": {
+            "seed": 2,
+            "horizon": 120,
+            "incident_start": 10,
+            "incident_end": 30,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 1.0,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 0,
+            "delay_jitter": 0,
+            "missing_probability": 0.0,
+            "load_noise": 0.0,
+            "background_via_source": false,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed2:demand_bias",
+          "regime": "demand_bias",
+          "scenario": {
+            "seed": 2,
+            "horizon": 120,
+            "incident_start": 10,
+            "incident_end": 30,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 0.55,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 0,
+            "delay_jitter": 0,
+            "missing_probability": 0.0,
+            "load_noise": 0.0,
+            "background_via_source": false,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed2:delayed",
+          "regime": "delayed",
+          "scenario": {
+            "seed": 2,
+            "horizon": 120,
+            "incident_start": 10,
+            "incident_end": 30,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 1.0,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 1,
+            "delay_jitter": 2,
+            "missing_probability": 0.0,
+            "load_noise": 0.0,
+            "background_via_source": false,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed2:missing",
+          "regime": "missing",
+          "scenario": {
+            "seed": 2,
+            "horizon": 120,
+            "incident_start": 10,
+            "incident_end": 30,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 1.0,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 0,
+            "delay_jitter": 0,
+            "missing_probability": 0.35,
+            "load_noise": 0.0,
+            "background_via_source": false,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed2:noisy",
+          "regime": "noisy",
+          "scenario": {
+            "seed": 2,
+            "horizon": 120,
+            "incident_start": 10,
+            "incident_end": 30,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 1.0,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 0,
+            "delay_jitter": 0,
+            "missing_probability": 0.0,
+            "load_noise": 0.08,
+            "background_via_source": false,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed2:background_transit",
+          "regime": "background_transit",
+          "scenario": {
+            "seed": 2,
+            "horizon": 120,
+            "incident_start": 10,
+            "incident_end": 30,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 1.0,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 0,
+            "delay_jitter": 0,
+            "missing_probability": 0.0,
+            "load_noise": 0.0,
+            "background_via_source": true,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed3:clean",
+          "regime": "clean",
+          "scenario": {
+            "seed": 3,
+            "horizon": 120,
+            "incident_start": 8,
+            "incident_end": 31,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 1.0,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 0,
+            "delay_jitter": 0,
+            "missing_probability": 0.0,
+            "load_noise": 0.0,
+            "background_via_source": false,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed3:demand_bias",
+          "regime": "demand_bias",
+          "scenario": {
+            "seed": 3,
+            "horizon": 120,
+            "incident_start": 8,
+            "incident_end": 31,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 0.55,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 0,
+            "delay_jitter": 0,
+            "missing_probability": 0.0,
+            "load_noise": 0.0,
+            "background_via_source": false,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed3:delayed",
+          "regime": "delayed",
+          "scenario": {
+            "seed": 3,
+            "horizon": 120,
+            "incident_start": 8,
+            "incident_end": 31,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 1.0,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 1,
+            "delay_jitter": 2,
+            "missing_probability": 0.0,
+            "load_noise": 0.0,
+            "background_via_source": false,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed3:missing",
+          "regime": "missing",
+          "scenario": {
+            "seed": 3,
+            "horizon": 120,
+            "incident_start": 8,
+            "incident_end": 31,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 1.0,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 0,
+            "delay_jitter": 0,
+            "missing_probability": 0.35,
+            "load_noise": 0.0,
+            "background_via_source": false,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed3:noisy",
+          "regime": "noisy",
+          "scenario": {
+            "seed": 3,
+            "horizon": 120,
+            "incident_start": 8,
+            "incident_end": 31,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 1.0,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 0,
+            "delay_jitter": 0,
+            "missing_probability": 0.0,
+            "load_noise": 0.08,
+            "background_via_source": false,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed3:background_transit",
+          "regime": "background_transit",
+          "scenario": {
+            "seed": 3,
+            "horizon": 120,
+            "incident_start": 8,
+            "incident_end": 31,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 1.0,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 0,
+            "delay_jitter": 0,
+            "missing_probability": 0.0,
+            "load_noise": 0.0,
+            "background_via_source": true,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        }
+      ],
+      "schedule_digest": "7036bf753b7cc0a90e3ea0bec5e2ca4c7174e220a1fc5ba261e7dc1d2d83af22"
+    },
+    {
+      "split": "test",
+      "cases": [
+        {
+          "scenario_id": "seed1000:clean",
+          "regime": "clean",
+          "scenario": {
+            "seed": 1000,
+            "horizon": 120,
+            "incident_start": 9,
+            "incident_end": 34,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 1.0,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 0,
+            "delay_jitter": 0,
+            "missing_probability": 0.0,
+            "load_noise": 0.0,
+            "background_via_source": false,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1000:demand_bias",
+          "regime": "demand_bias",
+          "scenario": {
+            "seed": 1000,
+            "horizon": 120,
+            "incident_start": 9,
+            "incident_end": 34,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 0.55,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 0,
+            "delay_jitter": 0,
+            "missing_probability": 0.0,
+            "load_noise": 0.0,
+            "background_via_source": false,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1000:delayed",
+          "regime": "delayed",
+          "scenario": {
+            "seed": 1000,
+            "horizon": 120,
+            "incident_start": 9,
+            "incident_end": 34,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 1.0,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 1,
+            "delay_jitter": 2,
+            "missing_probability": 0.0,
+            "load_noise": 0.0,
+            "background_via_source": false,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1000:missing",
+          "regime": "missing",
+          "scenario": {
+            "seed": 1000,
+            "horizon": 120,
+            "incident_start": 9,
+            "incident_end": 34,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 1.0,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 0,
+            "delay_jitter": 0,
+            "missing_probability": 0.35,
+            "load_noise": 0.0,
+            "background_via_source": false,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1000:noisy",
+          "regime": "noisy",
+          "scenario": {
+            "seed": 1000,
+            "horizon": 120,
+            "incident_start": 9,
+            "incident_end": 34,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 1.0,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 0,
+            "delay_jitter": 0,
+            "missing_probability": 0.0,
+            "load_noise": 0.08,
+            "background_via_source": false,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1000:background_transit",
+          "regime": "background_transit",
+          "scenario": {
+            "seed": 1000,
+            "horizon": 120,
+            "incident_start": 9,
+            "incident_end": 34,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 1.0,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 0,
+            "delay_jitter": 0,
+            "missing_probability": 0.0,
+            "load_noise": 0.0,
+            "background_via_source": true,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1001:clean",
+          "regime": "clean",
+          "scenario": {
+            "seed": 1001,
+            "horizon": 120,
+            "incident_start": 10,
+            "incident_end": 28,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 1.0,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 0,
+            "delay_jitter": 0,
+            "missing_probability": 0.0,
+            "load_noise": 0.0,
+            "background_via_source": false,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1001:demand_bias",
+          "regime": "demand_bias",
+          "scenario": {
+            "seed": 1001,
+            "horizon": 120,
+            "incident_start": 10,
+            "incident_end": 28,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 0.55,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 0,
+            "delay_jitter": 0,
+            "missing_probability": 0.0,
+            "load_noise": 0.0,
+            "background_via_source": false,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1001:delayed",
+          "regime": "delayed",
+          "scenario": {
+            "seed": 1001,
+            "horizon": 120,
+            "incident_start": 10,
+            "incident_end": 28,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 1.0,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 1,
+            "delay_jitter": 2,
+            "missing_probability": 0.0,
+            "load_noise": 0.0,
+            "background_via_source": false,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1001:missing",
+          "regime": "missing",
+          "scenario": {
+            "seed": 1001,
+            "horizon": 120,
+            "incident_start": 10,
+            "incident_end": 28,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 1.0,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 0,
+            "delay_jitter": 0,
+            "missing_probability": 0.35,
+            "load_noise": 0.0,
+            "background_via_source": false,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1001:noisy",
+          "regime": "noisy",
+          "scenario": {
+            "seed": 1001,
+            "horizon": 120,
+            "incident_start": 10,
+            "incident_end": 28,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 1.0,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 0,
+            "delay_jitter": 0,
+            "missing_probability": 0.0,
+            "load_noise": 0.08,
+            "background_via_source": false,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1001:background_transit",
+          "regime": "background_transit",
+          "scenario": {
+            "seed": 1001,
+            "horizon": 120,
+            "incident_start": 10,
+            "incident_end": 28,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 1.0,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 0,
+            "delay_jitter": 0,
+            "missing_probability": 0.0,
+            "load_noise": 0.0,
+            "background_via_source": true,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1002:clean",
+          "regime": "clean",
+          "scenario": {
+            "seed": 1002,
+            "horizon": 120,
+            "incident_start": 8,
+            "incident_end": 29,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 1.0,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 0,
+            "delay_jitter": 0,
+            "missing_probability": 0.0,
+            "load_noise": 0.0,
+            "background_via_source": false,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1002:demand_bias",
+          "regime": "demand_bias",
+          "scenario": {
+            "seed": 1002,
+            "horizon": 120,
+            "incident_start": 8,
+            "incident_end": 29,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 0.55,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 0,
+            "delay_jitter": 0,
+            "missing_probability": 0.0,
+            "load_noise": 0.0,
+            "background_via_source": false,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1002:delayed",
+          "regime": "delayed",
+          "scenario": {
+            "seed": 1002,
+            "horizon": 120,
+            "incident_start": 8,
+            "incident_end": 29,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 1.0,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 1,
+            "delay_jitter": 2,
+            "missing_probability": 0.0,
+            "load_noise": 0.0,
+            "background_via_source": false,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1002:missing",
+          "regime": "missing",
+          "scenario": {
+            "seed": 1002,
+            "horizon": 120,
+            "incident_start": 8,
+            "incident_end": 29,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 1.0,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 0,
+            "delay_jitter": 0,
+            "missing_probability": 0.35,
+            "load_noise": 0.0,
+            "background_via_source": false,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1002:noisy",
+          "regime": "noisy",
+          "scenario": {
+            "seed": 1002,
+            "horizon": 120,
+            "incident_start": 8,
+            "incident_end": 29,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 1.0,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 0,
+            "delay_jitter": 0,
+            "missing_probability": 0.0,
+            "load_noise": 0.08,
+            "background_via_source": false,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1002:background_transit",
+          "regime": "background_transit",
+          "scenario": {
+            "seed": 1002,
+            "horizon": 120,
+            "incident_start": 8,
+            "incident_end": 29,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 1.0,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 0,
+            "delay_jitter": 0,
+            "missing_probability": 0.0,
+            "load_noise": 0.0,
+            "background_via_source": true,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1003:clean",
+          "regime": "clean",
+          "scenario": {
+            "seed": 1003,
+            "horizon": 120,
+            "incident_start": 9,
+            "incident_end": 30,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 1.0,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 0,
+            "delay_jitter": 0,
+            "missing_probability": 0.0,
+            "load_noise": 0.0,
+            "background_via_source": false,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1003:demand_bias",
+          "regime": "demand_bias",
+          "scenario": {
+            "seed": 1003,
+            "horizon": 120,
+            "incident_start": 9,
+            "incident_end": 30,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 0.55,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 0,
+            "delay_jitter": 0,
+            "missing_probability": 0.0,
+            "load_noise": 0.0,
+            "background_via_source": false,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1003:delayed",
+          "regime": "delayed",
+          "scenario": {
+            "seed": 1003,
+            "horizon": 120,
+            "incident_start": 9,
+            "incident_end": 30,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 1.0,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 1,
+            "delay_jitter": 2,
+            "missing_probability": 0.0,
+            "load_noise": 0.0,
+            "background_via_source": false,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1003:missing",
+          "regime": "missing",
+          "scenario": {
+            "seed": 1003,
+            "horizon": 120,
+            "incident_start": 9,
+            "incident_end": 30,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 1.0,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 0,
+            "delay_jitter": 0,
+            "missing_probability": 0.35,
+            "load_noise": 0.0,
+            "background_via_source": false,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1003:noisy",
+          "regime": "noisy",
+          "scenario": {
+            "seed": 1003,
+            "horizon": 120,
+            "incident_start": 9,
+            "incident_end": 30,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 1.0,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 0,
+            "delay_jitter": 0,
+            "missing_probability": 0.0,
+            "load_noise": 0.08,
+            "background_via_source": false,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1003:background_transit",
+          "regime": "background_transit",
+          "scenario": {
+            "seed": 1003,
+            "horizon": 120,
+            "incident_start": 9,
+            "incident_end": 30,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 1.0,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 0,
+            "delay_jitter": 0,
+            "missing_probability": 0.0,
+            "load_noise": 0.0,
+            "background_via_source": true,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1004:clean",
+          "regime": "clean",
+          "scenario": {
+            "seed": 1004,
+            "horizon": 120,
+            "incident_start": 10,
+            "incident_end": 31,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 1.0,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 0,
+            "delay_jitter": 0,
+            "missing_probability": 0.0,
+            "load_noise": 0.0,
+            "background_via_source": false,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1004:demand_bias",
+          "regime": "demand_bias",
+          "scenario": {
+            "seed": 1004,
+            "horizon": 120,
+            "incident_start": 10,
+            "incident_end": 31,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 0.55,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 0,
+            "delay_jitter": 0,
+            "missing_probability": 0.0,
+            "load_noise": 0.0,
+            "background_via_source": false,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1004:delayed",
+          "regime": "delayed",
+          "scenario": {
+            "seed": 1004,
+            "horizon": 120,
+            "incident_start": 10,
+            "incident_end": 31,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 1.0,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 1,
+            "delay_jitter": 2,
+            "missing_probability": 0.0,
+            "load_noise": 0.0,
+            "background_via_source": false,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1004:missing",
+          "regime": "missing",
+          "scenario": {
+            "seed": 1004,
+            "horizon": 120,
+            "incident_start": 10,
+            "incident_end": 31,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 1.0,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 0,
+            "delay_jitter": 0,
+            "missing_probability": 0.35,
+            "load_noise": 0.0,
+            "background_via_source": false,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1004:noisy",
+          "regime": "noisy",
+          "scenario": {
+            "seed": 1004,
+            "horizon": 120,
+            "incident_start": 10,
+            "incident_end": 31,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 1.0,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 0,
+            "delay_jitter": 0,
+            "missing_probability": 0.0,
+            "load_noise": 0.08,
+            "background_via_source": false,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1004:background_transit",
+          "regime": "background_transit",
+          "scenario": {
+            "seed": 1004,
+            "horizon": 120,
+            "incident_start": 10,
+            "incident_end": 31,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 1.0,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 0,
+            "delay_jitter": 0,
+            "missing_probability": 0.0,
+            "load_noise": 0.0,
+            "background_via_source": true,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1005:clean",
+          "regime": "clean",
+          "scenario": {
+            "seed": 1005,
+            "horizon": 120,
+            "incident_start": 8,
+            "incident_end": 32,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 1.0,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 0,
+            "delay_jitter": 0,
+            "missing_probability": 0.0,
+            "load_noise": 0.0,
+            "background_via_source": false,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1005:demand_bias",
+          "regime": "demand_bias",
+          "scenario": {
+            "seed": 1005,
+            "horizon": 120,
+            "incident_start": 8,
+            "incident_end": 32,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 0.55,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 0,
+            "delay_jitter": 0,
+            "missing_probability": 0.0,
+            "load_noise": 0.0,
+            "background_via_source": false,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1005:delayed",
+          "regime": "delayed",
+          "scenario": {
+            "seed": 1005,
+            "horizon": 120,
+            "incident_start": 8,
+            "incident_end": 32,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 1.0,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 1,
+            "delay_jitter": 2,
+            "missing_probability": 0.0,
+            "load_noise": 0.0,
+            "background_via_source": false,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1005:missing",
+          "regime": "missing",
+          "scenario": {
+            "seed": 1005,
+            "horizon": 120,
+            "incident_start": 8,
+            "incident_end": 32,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 1.0,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 0,
+            "delay_jitter": 0,
+            "missing_probability": 0.35,
+            "load_noise": 0.0,
+            "background_via_source": false,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1005:noisy",
+          "regime": "noisy",
+          "scenario": {
+            "seed": 1005,
+            "horizon": 120,
+            "incident_start": 8,
+            "incident_end": 32,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 1.0,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 0,
+            "delay_jitter": 0,
+            "missing_probability": 0.0,
+            "load_noise": 0.08,
+            "background_via_source": false,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1005:background_transit",
+          "regime": "background_transit",
+          "scenario": {
+            "seed": 1005,
+            "horizon": 120,
+            "incident_start": 8,
+            "incident_end": 32,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 1.0,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 0,
+            "delay_jitter": 0,
+            "missing_probability": 0.0,
+            "load_noise": 0.0,
+            "background_via_source": true,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1006:clean",
+          "regime": "clean",
+          "scenario": {
+            "seed": 1006,
+            "horizon": 120,
+            "incident_start": 9,
+            "incident_end": 33,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 1.0,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 0,
+            "delay_jitter": 0,
+            "missing_probability": 0.0,
+            "load_noise": 0.0,
+            "background_via_source": false,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1006:demand_bias",
+          "regime": "demand_bias",
+          "scenario": {
+            "seed": 1006,
+            "horizon": 120,
+            "incident_start": 9,
+            "incident_end": 33,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 0.55,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 0,
+            "delay_jitter": 0,
+            "missing_probability": 0.0,
+            "load_noise": 0.0,
+            "background_via_source": false,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1006:delayed",
+          "regime": "delayed",
+          "scenario": {
+            "seed": 1006,
+            "horizon": 120,
+            "incident_start": 9,
+            "incident_end": 33,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 1.0,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 1,
+            "delay_jitter": 2,
+            "missing_probability": 0.0,
+            "load_noise": 0.0,
+            "background_via_source": false,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1006:missing",
+          "regime": "missing",
+          "scenario": {
+            "seed": 1006,
+            "horizon": 120,
+            "incident_start": 9,
+            "incident_end": 33,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 1.0,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 0,
+            "delay_jitter": 0,
+            "missing_probability": 0.35,
+            "load_noise": 0.0,
+            "background_via_source": false,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1006:noisy",
+          "regime": "noisy",
+          "scenario": {
+            "seed": 1006,
+            "horizon": 120,
+            "incident_start": 9,
+            "incident_end": 33,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 1.0,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 0,
+            "delay_jitter": 0,
+            "missing_probability": 0.0,
+            "load_noise": 0.08,
+            "background_via_source": false,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1006:background_transit",
+          "regime": "background_transit",
+          "scenario": {
+            "seed": 1006,
+            "horizon": 120,
+            "incident_start": 9,
+            "incident_end": 33,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 1.0,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 0,
+            "delay_jitter": 0,
+            "missing_probability": 0.0,
+            "load_noise": 0.0,
+            "background_via_source": true,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1007:clean",
+          "regime": "clean",
+          "scenario": {
+            "seed": 1007,
+            "horizon": 120,
+            "incident_start": 10,
+            "incident_end": 34,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 1.0,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 0,
+            "delay_jitter": 0,
+            "missing_probability": 0.0,
+            "load_noise": 0.0,
+            "background_via_source": false,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1007:demand_bias",
+          "regime": "demand_bias",
+          "scenario": {
+            "seed": 1007,
+            "horizon": 120,
+            "incident_start": 10,
+            "incident_end": 34,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 0.55,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 0,
+            "delay_jitter": 0,
+            "missing_probability": 0.0,
+            "load_noise": 0.0,
+            "background_via_source": false,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1007:delayed",
+          "regime": "delayed",
+          "scenario": {
+            "seed": 1007,
+            "horizon": 120,
+            "incident_start": 10,
+            "incident_end": 34,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 1.0,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 1,
+            "delay_jitter": 2,
+            "missing_probability": 0.0,
+            "load_noise": 0.0,
+            "background_via_source": false,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1007:missing",
+          "regime": "missing",
+          "scenario": {
+            "seed": 1007,
+            "horizon": 120,
+            "incident_start": 10,
+            "incident_end": 34,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 1.0,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 0,
+            "delay_jitter": 0,
+            "missing_probability": 0.35,
+            "load_noise": 0.0,
+            "background_via_source": false,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1007:noisy",
+          "regime": "noisy",
+          "scenario": {
+            "seed": 1007,
+            "horizon": 120,
+            "incident_start": 10,
+            "incident_end": 34,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 1.0,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 0,
+            "delay_jitter": 0,
+            "missing_probability": 0.0,
+            "load_noise": 0.08,
+            "background_via_source": false,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1007:background_transit",
+          "regime": "background_transit",
+          "scenario": {
+            "seed": 1007,
+            "horizon": 120,
+            "incident_start": 10,
+            "incident_end": 34,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 1.0,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 0,
+            "delay_jitter": 0,
+            "missing_probability": 0.0,
+            "load_noise": 0.0,
+            "background_via_source": true,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1008:clean",
+          "regime": "clean",
+          "scenario": {
+            "seed": 1008,
+            "horizon": 120,
+            "incident_start": 8,
+            "incident_end": 28,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 1.0,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 0,
+            "delay_jitter": 0,
+            "missing_probability": 0.0,
+            "load_noise": 0.0,
+            "background_via_source": false,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1008:demand_bias",
+          "regime": "demand_bias",
+          "scenario": {
+            "seed": 1008,
+            "horizon": 120,
+            "incident_start": 8,
+            "incident_end": 28,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 0.55,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 0,
+            "delay_jitter": 0,
+            "missing_probability": 0.0,
+            "load_noise": 0.0,
+            "background_via_source": false,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1008:delayed",
+          "regime": "delayed",
+          "scenario": {
+            "seed": 1008,
+            "horizon": 120,
+            "incident_start": 8,
+            "incident_end": 28,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 1.0,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 1,
+            "delay_jitter": 2,
+            "missing_probability": 0.0,
+            "load_noise": 0.0,
+            "background_via_source": false,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1008:missing",
+          "regime": "missing",
+          "scenario": {
+            "seed": 1008,
+            "horizon": 120,
+            "incident_start": 8,
+            "incident_end": 28,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 1.0,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 0,
+            "delay_jitter": 0,
+            "missing_probability": 0.35,
+            "load_noise": 0.0,
+            "background_via_source": false,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1008:noisy",
+          "regime": "noisy",
+          "scenario": {
+            "seed": 1008,
+            "horizon": 120,
+            "incident_start": 8,
+            "incident_end": 28,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 1.0,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 0,
+            "delay_jitter": 0,
+            "missing_probability": 0.0,
+            "load_noise": 0.08,
+            "background_via_source": false,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1008:background_transit",
+          "regime": "background_transit",
+          "scenario": {
+            "seed": 1008,
+            "horizon": 120,
+            "incident_start": 8,
+            "incident_end": 28,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 1.0,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 0,
+            "delay_jitter": 0,
+            "missing_probability": 0.0,
+            "load_noise": 0.0,
+            "background_via_source": true,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1009:clean",
+          "regime": "clean",
+          "scenario": {
+            "seed": 1009,
+            "horizon": 120,
+            "incident_start": 9,
+            "incident_end": 29,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 1.0,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 0,
+            "delay_jitter": 0,
+            "missing_probability": 0.0,
+            "load_noise": 0.0,
+            "background_via_source": false,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1009:demand_bias",
+          "regime": "demand_bias",
+          "scenario": {
+            "seed": 1009,
+            "horizon": 120,
+            "incident_start": 9,
+            "incident_end": 29,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 0.55,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 0,
+            "delay_jitter": 0,
+            "missing_probability": 0.0,
+            "load_noise": 0.0,
+            "background_via_source": false,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1009:delayed",
+          "regime": "delayed",
+          "scenario": {
+            "seed": 1009,
+            "horizon": 120,
+            "incident_start": 9,
+            "incident_end": 29,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 1.0,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 1,
+            "delay_jitter": 2,
+            "missing_probability": 0.0,
+            "load_noise": 0.0,
+            "background_via_source": false,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1009:missing",
+          "regime": "missing",
+          "scenario": {
+            "seed": 1009,
+            "horizon": 120,
+            "incident_start": 9,
+            "incident_end": 29,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 1.0,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 0,
+            "delay_jitter": 0,
+            "missing_probability": 0.35,
+            "load_noise": 0.0,
+            "background_via_source": false,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1009:noisy",
+          "regime": "noisy",
+          "scenario": {
+            "seed": 1009,
+            "horizon": 120,
+            "incident_start": 9,
+            "incident_end": 29,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 1.0,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 0,
+            "delay_jitter": 0,
+            "missing_probability": 0.0,
+            "load_noise": 0.08,
+            "background_via_source": false,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1009:background_transit",
+          "regime": "background_transit",
+          "scenario": {
+            "seed": 1009,
+            "horizon": 120,
+            "incident_start": 9,
+            "incident_end": 29,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 1.0,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 0,
+            "delay_jitter": 0,
+            "missing_probability": 0.0,
+            "load_noise": 0.0,
+            "background_via_source": true,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1010:clean",
+          "regime": "clean",
+          "scenario": {
+            "seed": 1010,
+            "horizon": 120,
+            "incident_start": 10,
+            "incident_end": 30,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 1.0,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 0,
+            "delay_jitter": 0,
+            "missing_probability": 0.0,
+            "load_noise": 0.0,
+            "background_via_source": false,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1010:demand_bias",
+          "regime": "demand_bias",
+          "scenario": {
+            "seed": 1010,
+            "horizon": 120,
+            "incident_start": 10,
+            "incident_end": 30,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 0.55,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 0,
+            "delay_jitter": 0,
+            "missing_probability": 0.0,
+            "load_noise": 0.0,
+            "background_via_source": false,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1010:delayed",
+          "regime": "delayed",
+          "scenario": {
+            "seed": 1010,
+            "horizon": 120,
+            "incident_start": 10,
+            "incident_end": 30,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 1.0,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 1,
+            "delay_jitter": 2,
+            "missing_probability": 0.0,
+            "load_noise": 0.0,
+            "background_via_source": false,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1010:missing",
+          "regime": "missing",
+          "scenario": {
+            "seed": 1010,
+            "horizon": 120,
+            "incident_start": 10,
+            "incident_end": 30,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 1.0,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 0,
+            "delay_jitter": 0,
+            "missing_probability": 0.35,
+            "load_noise": 0.0,
+            "background_via_source": false,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1010:noisy",
+          "regime": "noisy",
+          "scenario": {
+            "seed": 1010,
+            "horizon": 120,
+            "incident_start": 10,
+            "incident_end": 30,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 1.0,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 0,
+            "delay_jitter": 0,
+            "missing_probability": 0.0,
+            "load_noise": 0.08,
+            "background_via_source": false,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1010:background_transit",
+          "regime": "background_transit",
+          "scenario": {
+            "seed": 1010,
+            "horizon": 120,
+            "incident_start": 10,
+            "incident_end": 30,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 1.0,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 0,
+            "delay_jitter": 0,
+            "missing_probability": 0.0,
+            "load_noise": 0.0,
+            "background_via_source": true,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1011:clean",
+          "regime": "clean",
+          "scenario": {
+            "seed": 1011,
+            "horizon": 120,
+            "incident_start": 8,
+            "incident_end": 31,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 1.0,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 0,
+            "delay_jitter": 0,
+            "missing_probability": 0.0,
+            "load_noise": 0.0,
+            "background_via_source": false,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1011:demand_bias",
+          "regime": "demand_bias",
+          "scenario": {
+            "seed": 1011,
+            "horizon": 120,
+            "incident_start": 8,
+            "incident_end": 31,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 0.55,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 0,
+            "delay_jitter": 0,
+            "missing_probability": 0.0,
+            "load_noise": 0.0,
+            "background_via_source": false,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1011:delayed",
+          "regime": "delayed",
+          "scenario": {
+            "seed": 1011,
+            "horizon": 120,
+            "incident_start": 8,
+            "incident_end": 31,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 1.0,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 1,
+            "delay_jitter": 2,
+            "missing_probability": 0.0,
+            "load_noise": 0.0,
+            "background_via_source": false,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1011:missing",
+          "regime": "missing",
+          "scenario": {
+            "seed": 1011,
+            "horizon": 120,
+            "incident_start": 8,
+            "incident_end": 31,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 1.0,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 0,
+            "delay_jitter": 0,
+            "missing_probability": 0.35,
+            "load_noise": 0.0,
+            "background_via_source": false,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1011:noisy",
+          "regime": "noisy",
+          "scenario": {
+            "seed": 1011,
+            "horizon": 120,
+            "incident_start": 8,
+            "incident_end": 31,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 1.0,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 0,
+            "delay_jitter": 0,
+            "missing_probability": 0.0,
+            "load_noise": 0.08,
+            "background_via_source": false,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1011:background_transit",
+          "regime": "background_transit",
+          "scenario": {
+            "seed": 1011,
+            "horizon": 120,
+            "incident_start": 8,
+            "incident_end": 31,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 1.0,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 0,
+            "delay_jitter": 0,
+            "missing_probability": 0.0,
+            "load_noise": 0.0,
+            "background_via_source": true,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1012:clean",
+          "regime": "clean",
+          "scenario": {
+            "seed": 1012,
+            "horizon": 120,
+            "incident_start": 9,
+            "incident_end": 32,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 1.0,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 0,
+            "delay_jitter": 0,
+            "missing_probability": 0.0,
+            "load_noise": 0.0,
+            "background_via_source": false,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1012:demand_bias",
+          "regime": "demand_bias",
+          "scenario": {
+            "seed": 1012,
+            "horizon": 120,
+            "incident_start": 9,
+            "incident_end": 32,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 0.55,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 0,
+            "delay_jitter": 0,
+            "missing_probability": 0.0,
+            "load_noise": 0.0,
+            "background_via_source": false,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1012:delayed",
+          "regime": "delayed",
+          "scenario": {
+            "seed": 1012,
+            "horizon": 120,
+            "incident_start": 9,
+            "incident_end": 32,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 1.0,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 1,
+            "delay_jitter": 2,
+            "missing_probability": 0.0,
+            "load_noise": 0.0,
+            "background_via_source": false,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1012:missing",
+          "regime": "missing",
+          "scenario": {
+            "seed": 1012,
+            "horizon": 120,
+            "incident_start": 9,
+            "incident_end": 32,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 1.0,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 0,
+            "delay_jitter": 0,
+            "missing_probability": 0.35,
+            "load_noise": 0.0,
+            "background_via_source": false,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1012:noisy",
+          "regime": "noisy",
+          "scenario": {
+            "seed": 1012,
+            "horizon": 120,
+            "incident_start": 9,
+            "incident_end": 32,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 1.0,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 0,
+            "delay_jitter": 0,
+            "missing_probability": 0.0,
+            "load_noise": 0.08,
+            "background_via_source": false,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1012:background_transit",
+          "regime": "background_transit",
+          "scenario": {
+            "seed": 1012,
+            "horizon": 120,
+            "incident_start": 9,
+            "incident_end": 32,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 1.0,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 0,
+            "delay_jitter": 0,
+            "missing_probability": 0.0,
+            "load_noise": 0.0,
+            "background_via_source": true,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1013:clean",
+          "regime": "clean",
+          "scenario": {
+            "seed": 1013,
+            "horizon": 120,
+            "incident_start": 10,
+            "incident_end": 33,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 1.0,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 0,
+            "delay_jitter": 0,
+            "missing_probability": 0.0,
+            "load_noise": 0.0,
+            "background_via_source": false,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1013:demand_bias",
+          "regime": "demand_bias",
+          "scenario": {
+            "seed": 1013,
+            "horizon": 120,
+            "incident_start": 10,
+            "incident_end": 33,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 0.55,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 0,
+            "delay_jitter": 0,
+            "missing_probability": 0.0,
+            "load_noise": 0.0,
+            "background_via_source": false,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1013:delayed",
+          "regime": "delayed",
+          "scenario": {
+            "seed": 1013,
+            "horizon": 120,
+            "incident_start": 10,
+            "incident_end": 33,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 1.0,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 1,
+            "delay_jitter": 2,
+            "missing_probability": 0.0,
+            "load_noise": 0.0,
+            "background_via_source": false,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1013:missing",
+          "regime": "missing",
+          "scenario": {
+            "seed": 1013,
+            "horizon": 120,
+            "incident_start": 10,
+            "incident_end": 33,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 1.0,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 0,
+            "delay_jitter": 0,
+            "missing_probability": 0.35,
+            "load_noise": 0.0,
+            "background_via_source": false,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1013:noisy",
+          "regime": "noisy",
+          "scenario": {
+            "seed": 1013,
+            "horizon": 120,
+            "incident_start": 10,
+            "incident_end": 33,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 1.0,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 0,
+            "delay_jitter": 0,
+            "missing_probability": 0.0,
+            "load_noise": 0.08,
+            "background_via_source": false,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1013:background_transit",
+          "regime": "background_transit",
+          "scenario": {
+            "seed": 1013,
+            "horizon": 120,
+            "incident_start": 10,
+            "incident_end": 33,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 1.0,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 0,
+            "delay_jitter": 0,
+            "missing_probability": 0.0,
+            "load_noise": 0.0,
+            "background_via_source": true,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1014:clean",
+          "regime": "clean",
+          "scenario": {
+            "seed": 1014,
+            "horizon": 120,
+            "incident_start": 8,
+            "incident_end": 34,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 1.0,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 0,
+            "delay_jitter": 0,
+            "missing_probability": 0.0,
+            "load_noise": 0.0,
+            "background_via_source": false,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1014:demand_bias",
+          "regime": "demand_bias",
+          "scenario": {
+            "seed": 1014,
+            "horizon": 120,
+            "incident_start": 8,
+            "incident_end": 34,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 0.55,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 0,
+            "delay_jitter": 0,
+            "missing_probability": 0.0,
+            "load_noise": 0.0,
+            "background_via_source": false,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1014:delayed",
+          "regime": "delayed",
+          "scenario": {
+            "seed": 1014,
+            "horizon": 120,
+            "incident_start": 8,
+            "incident_end": 34,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 1.0,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 1,
+            "delay_jitter": 2,
+            "missing_probability": 0.0,
+            "load_noise": 0.0,
+            "background_via_source": false,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1014:missing",
+          "regime": "missing",
+          "scenario": {
+            "seed": 1014,
+            "horizon": 120,
+            "incident_start": 8,
+            "incident_end": 34,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 1.0,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 0,
+            "delay_jitter": 0,
+            "missing_probability": 0.35,
+            "load_noise": 0.0,
+            "background_via_source": false,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1014:noisy",
+          "regime": "noisy",
+          "scenario": {
+            "seed": 1014,
+            "horizon": 120,
+            "incident_start": 8,
+            "incident_end": 34,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 1.0,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 0,
+            "delay_jitter": 0,
+            "missing_probability": 0.0,
+            "load_noise": 0.08,
+            "background_via_source": false,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1014:background_transit",
+          "regime": "background_transit",
+          "scenario": {
+            "seed": 1014,
+            "horizon": 120,
+            "incident_start": 8,
+            "incident_end": 34,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 1.0,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 0,
+            "delay_jitter": 0,
+            "missing_probability": 0.0,
+            "load_noise": 0.0,
+            "background_via_source": true,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1015:clean",
+          "regime": "clean",
+          "scenario": {
+            "seed": 1015,
+            "horizon": 120,
+            "incident_start": 9,
+            "incident_end": 28,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 1.0,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 0,
+            "delay_jitter": 0,
+            "missing_probability": 0.0,
+            "load_noise": 0.0,
+            "background_via_source": false,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1015:demand_bias",
+          "regime": "demand_bias",
+          "scenario": {
+            "seed": 1015,
+            "horizon": 120,
+            "incident_start": 9,
+            "incident_end": 28,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 0.55,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 0,
+            "delay_jitter": 0,
+            "missing_probability": 0.0,
+            "load_noise": 0.0,
+            "background_via_source": false,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1015:delayed",
+          "regime": "delayed",
+          "scenario": {
+            "seed": 1015,
+            "horizon": 120,
+            "incident_start": 9,
+            "incident_end": 28,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 1.0,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 1,
+            "delay_jitter": 2,
+            "missing_probability": 0.0,
+            "load_noise": 0.0,
+            "background_via_source": false,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1015:missing",
+          "regime": "missing",
+          "scenario": {
+            "seed": 1015,
+            "horizon": 120,
+            "incident_start": 9,
+            "incident_end": 28,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 1.0,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 0,
+            "delay_jitter": 0,
+            "missing_probability": 0.35,
+            "load_noise": 0.0,
+            "background_via_source": false,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1015:noisy",
+          "regime": "noisy",
+          "scenario": {
+            "seed": 1015,
+            "horizon": 120,
+            "incident_start": 9,
+            "incident_end": 28,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 1.0,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 0,
+            "delay_jitter": 0,
+            "missing_probability": 0.0,
+            "load_noise": 0.08,
+            "background_via_source": false,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1015:background_transit",
+          "regime": "background_transit",
+          "scenario": {
+            "seed": 1015,
+            "horizon": 120,
+            "incident_start": 9,
+            "incident_end": 28,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 1.0,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 0,
+            "delay_jitter": 0,
+            "missing_probability": 0.0,
+            "load_noise": 0.0,
+            "background_via_source": true,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1016:clean",
+          "regime": "clean",
+          "scenario": {
+            "seed": 1016,
+            "horizon": 120,
+            "incident_start": 10,
+            "incident_end": 29,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 1.0,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 0,
+            "delay_jitter": 0,
+            "missing_probability": 0.0,
+            "load_noise": 0.0,
+            "background_via_source": false,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1016:demand_bias",
+          "regime": "demand_bias",
+          "scenario": {
+            "seed": 1016,
+            "horizon": 120,
+            "incident_start": 10,
+            "incident_end": 29,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 0.55,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 0,
+            "delay_jitter": 0,
+            "missing_probability": 0.0,
+            "load_noise": 0.0,
+            "background_via_source": false,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1016:delayed",
+          "regime": "delayed",
+          "scenario": {
+            "seed": 1016,
+            "horizon": 120,
+            "incident_start": 10,
+            "incident_end": 29,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 1.0,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 1,
+            "delay_jitter": 2,
+            "missing_probability": 0.0,
+            "load_noise": 0.0,
+            "background_via_source": false,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1016:missing",
+          "regime": "missing",
+          "scenario": {
+            "seed": 1016,
+            "horizon": 120,
+            "incident_start": 10,
+            "incident_end": 29,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 1.0,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 0,
+            "delay_jitter": 0,
+            "missing_probability": 0.35,
+            "load_noise": 0.0,
+            "background_via_source": false,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1016:noisy",
+          "regime": "noisy",
+          "scenario": {
+            "seed": 1016,
+            "horizon": 120,
+            "incident_start": 10,
+            "incident_end": 29,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 1.0,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 0,
+            "delay_jitter": 0,
+            "missing_probability": 0.0,
+            "load_noise": 0.08,
+            "background_via_source": false,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1016:background_transit",
+          "regime": "background_transit",
+          "scenario": {
+            "seed": 1016,
+            "horizon": 120,
+            "incident_start": 10,
+            "incident_end": 29,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 1.0,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 0,
+            "delay_jitter": 0,
+            "missing_probability": 0.0,
+            "load_noise": 0.0,
+            "background_via_source": true,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1017:clean",
+          "regime": "clean",
+          "scenario": {
+            "seed": 1017,
+            "horizon": 120,
+            "incident_start": 8,
+            "incident_end": 30,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 1.0,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 0,
+            "delay_jitter": 0,
+            "missing_probability": 0.0,
+            "load_noise": 0.0,
+            "background_via_source": false,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1017:demand_bias",
+          "regime": "demand_bias",
+          "scenario": {
+            "seed": 1017,
+            "horizon": 120,
+            "incident_start": 8,
+            "incident_end": 30,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 0.55,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 0,
+            "delay_jitter": 0,
+            "missing_probability": 0.0,
+            "load_noise": 0.0,
+            "background_via_source": false,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1017:delayed",
+          "regime": "delayed",
+          "scenario": {
+            "seed": 1017,
+            "horizon": 120,
+            "incident_start": 8,
+            "incident_end": 30,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 1.0,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 1,
+            "delay_jitter": 2,
+            "missing_probability": 0.0,
+            "load_noise": 0.0,
+            "background_via_source": false,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1017:missing",
+          "regime": "missing",
+          "scenario": {
+            "seed": 1017,
+            "horizon": 120,
+            "incident_start": 8,
+            "incident_end": 30,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 1.0,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 0,
+            "delay_jitter": 0,
+            "missing_probability": 0.35,
+            "load_noise": 0.0,
+            "background_via_source": false,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1017:noisy",
+          "regime": "noisy",
+          "scenario": {
+            "seed": 1017,
+            "horizon": 120,
+            "incident_start": 8,
+            "incident_end": 30,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 1.0,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 0,
+            "delay_jitter": 0,
+            "missing_probability": 0.0,
+            "load_noise": 0.08,
+            "background_via_source": false,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1017:background_transit",
+          "regime": "background_transit",
+          "scenario": {
+            "seed": 1017,
+            "horizon": 120,
+            "incident_start": 8,
+            "incident_end": 30,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 1.0,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 0,
+            "delay_jitter": 0,
+            "missing_probability": 0.0,
+            "load_noise": 0.0,
+            "background_via_source": true,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1018:clean",
+          "regime": "clean",
+          "scenario": {
+            "seed": 1018,
+            "horizon": 120,
+            "incident_start": 9,
+            "incident_end": 31,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 1.0,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 0,
+            "delay_jitter": 0,
+            "missing_probability": 0.0,
+            "load_noise": 0.0,
+            "background_via_source": false,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1018:demand_bias",
+          "regime": "demand_bias",
+          "scenario": {
+            "seed": 1018,
+            "horizon": 120,
+            "incident_start": 9,
+            "incident_end": 31,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 0.55,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 0,
+            "delay_jitter": 0,
+            "missing_probability": 0.0,
+            "load_noise": 0.0,
+            "background_via_source": false,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1018:delayed",
+          "regime": "delayed",
+          "scenario": {
+            "seed": 1018,
+            "horizon": 120,
+            "incident_start": 9,
+            "incident_end": 31,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 1.0,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 1,
+            "delay_jitter": 2,
+            "missing_probability": 0.0,
+            "load_noise": 0.0,
+            "background_via_source": false,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1018:missing",
+          "regime": "missing",
+          "scenario": {
+            "seed": 1018,
+            "horizon": 120,
+            "incident_start": 9,
+            "incident_end": 31,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 1.0,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 0,
+            "delay_jitter": 0,
+            "missing_probability": 0.35,
+            "load_noise": 0.0,
+            "background_via_source": false,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1018:noisy",
+          "regime": "noisy",
+          "scenario": {
+            "seed": 1018,
+            "horizon": 120,
+            "incident_start": 9,
+            "incident_end": 31,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 1.0,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 0,
+            "delay_jitter": 0,
+            "missing_probability": 0.0,
+            "load_noise": 0.08,
+            "background_via_source": false,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1018:background_transit",
+          "regime": "background_transit",
+          "scenario": {
+            "seed": 1018,
+            "horizon": 120,
+            "incident_start": 9,
+            "incident_end": 31,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 1.0,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 0,
+            "delay_jitter": 0,
+            "missing_probability": 0.0,
+            "load_noise": 0.0,
+            "background_via_source": true,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1019:clean",
+          "regime": "clean",
+          "scenario": {
+            "seed": 1019,
+            "horizon": 120,
+            "incident_start": 10,
+            "incident_end": 32,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 1.0,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 0,
+            "delay_jitter": 0,
+            "missing_probability": 0.0,
+            "load_noise": 0.0,
+            "background_via_source": false,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1019:demand_bias",
+          "regime": "demand_bias",
+          "scenario": {
+            "seed": 1019,
+            "horizon": 120,
+            "incident_start": 10,
+            "incident_end": 32,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 0.55,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 0,
+            "delay_jitter": 0,
+            "missing_probability": 0.0,
+            "load_noise": 0.0,
+            "background_via_source": false,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1019:delayed",
+          "regime": "delayed",
+          "scenario": {
+            "seed": 1019,
+            "horizon": 120,
+            "incident_start": 10,
+            "incident_end": 32,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 1.0,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 1,
+            "delay_jitter": 2,
+            "missing_probability": 0.0,
+            "load_noise": 0.0,
+            "background_via_source": false,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1019:missing",
+          "regime": "missing",
+          "scenario": {
+            "seed": 1019,
+            "horizon": 120,
+            "incident_start": 10,
+            "incident_end": 32,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 1.0,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 0,
+            "delay_jitter": 0,
+            "missing_probability": 0.35,
+            "load_noise": 0.0,
+            "background_via_source": false,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1019:noisy",
+          "regime": "noisy",
+          "scenario": {
+            "seed": 1019,
+            "horizon": 120,
+            "incident_start": 10,
+            "incident_end": 32,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 1.0,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 0,
+            "delay_jitter": 0,
+            "missing_probability": 0.0,
+            "load_noise": 0.08,
+            "background_via_source": false,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        },
+        {
+          "scenario_id": "seed1019:background_transit",
+          "regime": "background_transit",
+          "scenario": {
+            "seed": 1019,
+            "horizon": 120,
+            "incident_start": 10,
+            "incident_end": 32,
+            "normal_target": 35.0,
+            "peak_target": 180.0,
+            "background_demand": 15.0,
+            "demand_bias": 1.0,
+            "propagation_delay": 3,
+            "convergence_ticks": 4,
+            "observation_delay": 0,
+            "delay_jitter": 0,
+            "missing_probability": 0.0,
+            "load_noise": 0.0,
+            "background_via_source": true,
+            "initial_missing": false,
+            "initial_costs": {
+              "values": [
+                10.0,
+                10.0,
+                10.0,
+                10.0,
+                10.0
+              ]
+            }
+          }
+        }
+      ],
+      "schedule_digest": "0143ab7da3c8a47275aad7dbd57e2ef2138e58b1540c8ff66b2e9c0fcc8db8f5"
+    }
+  ],
+  "sources": [
+    {
+      "path": "recovery_completion/__init__.py",
+      "sha256": "10d1862597a45af730257eba2e5df66b11f28eadda9984d6102697f6148dd6e7"
+    },
+    {
+      "path": "recovery_completion/controller.py",
+      "sha256": "6b029561df2f22dfa7ef1f747f3e239b24915e11fcc1251653094ffd6ff7095d"
+    },
+    {
+      "path": "recovery_control/__init__.py",
+      "sha256": "9a4241bf27fb7a9bfd8a2ab2f3eb444f893ad2ec965472b3af337e47fa8a0e39"
+    },
+    {
+      "path": "recovery_control/routing.py",
+      "sha256": "68b9da85044124c06c801822e0b504e9707d6ea0768a4659980d0428b67544b7"
+    },
+    {
+      "path": "recovery_control/scenario.py",
+      "sha256": "e8b808199af8da52b3143d274f3d4fbc5b56f186e49bea019ce163682f2a1469"
+    },
+    {
+      "path": "recovery_control/simulation.py",
+      "sha256": "bdb3751f80486e4e7e7799629ef04895803450a6b6b30bd87e3988bf04f69c78"
+    },
+    {
+      "path": "recovery_control/test_simulation.py",
+      "sha256": "045f9229fcc484fbe4ff507fd330531e34984a17603e0b7a200de3839f81911e"
+    },
+    {
+      "path": "recovery_control/truth.py",
+      "sha256": "0e4de7f9655f01fc9e3d213cf4987a47e32856de915a13b8d2d32b9b72606d41"
+    },
+    {
+      "path": "recovery_control/types.py",
+      "sha256": "392446d197daa99b021fcb92f870890f5139105aa5040b2df9219a9668cfcdb2"
+    },
+    {
+      "path": "recovery_lifecycle/__init__.py",
+      "sha256": "4babc10cff1e0e68020c90c6a8c0d5dbf48f8af61044f6d825903a5753918a74"
+    },
+    {
+      "path": "recovery_lifecycle/contracts.py",
+      "sha256": "296a6275d56ae806972e56bdf85dbe3464d70af28c0609b67760af58137c9093"
+    },
+    {
+      "path": "recovery_lifecycle/controller.py",
+      "sha256": "2fa6331bad7e4190d5c999e017d8c385149434faccc47f1e8ef55686fb2a95bb"
+    },
+    {
+      "path": "recovery_research/__init__.py",
+      "sha256": "9ecda6592546527b9683bcac26378e8e9c093404cc58f3d98908fea110b58aee"
+    },
+    {
+      "path": "recovery_research/aggregation.py",
+      "sha256": "3f7a227dc1db22d1b89ff7bc4b23607d3de2c4281c9d27fadeafe4671f174549"
+    },
+    {
+      "path": "recovery_research/artifacts.py",
+      "sha256": "77c58bcb7009dc9bbf89b4cc324f032dbf2b654814c455c190aabe83ded4fa4f"
+    },
+    {
+      "path": "recovery_research/calibrated_fixed.py",
+      "sha256": "e174e0057aacb9ea174a70fa60cdb68e921e932e783db1b1077e748f8fc2c439"
+    },
+    {
+      "path": "recovery_research/calibrated_hold10.py",
+      "sha256": "c51c58529ca7cdc3250e78096b5b5572ab0ebf2b4f1468f897fd5329546a07fc"
+    },
+    {
+      "path": "recovery_research/calibrated_verified.py",
+      "sha256": "4c96d07de3b3ab170348eb6f917b102bf6707832557ee92e031fc58dfe716e8d"
+    },
+    {
+      "path": "recovery_research/calibration.py",
+      "sha256": "ef250f2d2f63893d9d4dd15976fe0a4dfdd42e2970554e00c0efe6c2a5298635"
+    },
+    {
+      "path": "recovery_research/cycle1.py",
+      "sha256": "bcedec46f86157361e8c238a1b9925b1b11a3aba94d4ba50ed4f8b0f25676249"
+    },
+    {
+      "path": "recovery_research/cycle2.py",
+      "sha256": "249d643957f1202003200dab33d52e63604eb223fd6d6aacf5fefc3e2d5d8213"
+    },
+    {
+      "path": "recovery_research/cycle3.py",
+      "sha256": "71a63b2847e7eb157282e7e3efa41fbc0fa8612af7a42ffce5fef4ba651ded92"
+    },
+    {
+      "path": "recovery_research/evaluation.py",
+      "sha256": "98b46097047aa631419bd2ec5ce9ac4d2351259ad167348aa2ff148e41d8f82b"
+    },
+    {
+      "path": "recovery_research/manifest.py",
+      "sha256": "818c06486faa70bbfd7594a50ca5babf04e3654c9571c9aa85ba09c24fb39e2e"
+    },
+    {
+      "path": "recovery_research/policies.py",
+      "sha256": "69d8061cac61bc1249fe0679fb355f0db99a10c5b3b3633bdb3816c199facc4c"
+    },
+    {
+      "path": "recovery_research/runner.py",
+      "sha256": "7d4006a844f56396baff9c53fe8bfdcbc3a7bea7e575e034a1b1f175f3cb3a84"
+    },
+    {
+      "path": "recovery_research/scenarios.py",
+      "sha256": "b3c17897b75b24769d0451a5b47270113d11eee488ffe15b29a1c081ebc48fc1"
+    },
+    {
+      "path": "recovery_research/statistics.py",
+      "sha256": "e8f69638cfa76180f6aa67fff0d0abb1525ae3851ebcaa8b92a76a5225785534"
+    },
+    {
+      "path": "recovery_research/test_calibration.py",
+      "sha256": "a611d112e2d85d0afc530a51c89008f285c128f90c26d31162aa492a7612eb2c"
+    },
+    {
+      "path": "recovery_research/test_controllers.py",
+      "sha256": "20adad69597c80be6f7dffce333ba70e633261f4372c3d84df698fd902d3736a"
+    },
+    {
+      "path": "recovery_research/test_cycle2.py",
+      "sha256": "a27ba6b4be5b534732108fcc1334f71ade0b0f9f2c459b880bbee2a86e879c1a"
+    },
+    {
+      "path": "recovery_research/test_runner.py",
+      "sha256": "9e66384b6e74bbbd4959c7f7c6e9df914a53b9b847f32ead7cb8c060e684179b"
+    },
+    {
+      "path": "recovery_research/test_statistics.py",
+      "sha256": "5fc4ddf188dce215229c59ebeec2937d2b2066dbbf1b1df573c7524b68db2ecf"
+    },
+    {
+      "path": "../scripts/research_cycle_report.py",
+      "sha256": "79efe5ea9e484aaf17b19a2e7e40d0c1f314e957cbf7875f34a06ec556b806a2"
+    },
+    {
+      "path": "../scripts/research_findings_plot.py",
+      "sha256": "e92728fd5474e071848bebb6c55af2e6f0a57e16aa03d619990e5cf0c8ef7767"
+    },
+    {
+      "path": "../scripts/reproduce_research.sh",
+      "sha256": "d2a9e14a32aef56b370aeb4fe15d11a78043530701a86da79bc47224c818bf04"
+    },
+    {
+      "path": "../requirements-research.txt",
+      "sha256": "3483b3194e3aca03132afd352f77baf6c1c0ed6f91815d02325dfae8cc0df049"
+    }
+  ],
+  "bootstrap": {
+    "replicates": 2000,
+    "seed": 6301
+  }
+}

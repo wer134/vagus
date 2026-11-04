@@ -1,0 +1,139 @@
+
+[1m── metric_generator[0m (/e/network/vagus/autonomous-network-mgmt/simulation)
+OK — 조회 100회 후 스트레스/틱 불변
+OK — tick 진행 및 우회(cost>=100) 시 감쇠 확인
+OK — seed 재현성
+OK — 균일 cost: 6개 쌍이 각자 직결 링크 사용 (부하 1.0씩)
+OK — 우회의 대가: r3-r4 부하 1.0→0.0, 인접 4개 링크 1.0→1.5 (ECMP 2경로)
+OK — cost_inverse 모드 재현 가능 (구 결과 비교용)
+OK — cost=100 즉시 적용 시 SLA 회복까지 4틱 (측정 스크립트가 아닌 시뮬레이터의 시정수)
+OK — 우회 경로 r1-r3 정상상태 스트레스 0.097 → 0.151 (우회 부담)
+OK — snapshot/restore: 상태·난수 스트림 복원 (학습 중 프로브가 비침습적)
+
+모든 자가 테스트 통과
+
+[1m── topology[0m (/e/network/vagus/autonomous-network-mgmt/ai-engine)
+OK — simulation/metric_generator 토폴로지와 일치
+
+[1m── anomaly_detector[0m (/e/network/vagus/autonomous-network-mgmt/ai-engine)
+OK — 사이클 1: 근본 원인 r3-r4
+OK — 사이클 2: 이미 대응됨 → None (개정 전에는 'r1-r3' 오판)
+OK — 사이클 3: 단일 노드 잔여 위반 → None
+OK — 새 혼잡 r1-r2 지목
+OK — 폴백(추정): r1-r3
+OK — 정상 상태 → None
+
+모든 자가 테스트 통과
+
+[1m── ospf_security[0m (/e/network/vagus/autonomous-network-mgmt/ai-engine)
+OK — replay 공격 탐지: 재생 공격 의심 — crypto_seq 1793782579425 <= 마지막 수신값 1793782579425
+OK — 다운그레이드 공격 탐지: 인증 없음 — 평문 LSA, 누구나 위조 가능
+OK — 키 유출 위조는 인증을 통과하지만 seq_jump 규칙으로 탐지: 시퀀스 점프: 10 → 99999 (Δ=+99989, 임계=±50) — 번호 조작 의심
+OK — MD5 다운그레이드 탐지: 인증은 유효하지만 정책(SHA256) 대비 약한 알고리즘(type=2) 사용 — 다운그레이드 위험
+
+모든 자가 테스트 통과
+
+[1m── cicddos_loader[0m (/e/network/vagus/autonomous-network-mgmt/experiments)
+OK — self-test 1 (flow_rate_sum + zero-duration window_rate) 통과
+  t=1547298000 attack=False label=BENIGN features={'bandwidth': 500.0, 'latency': 10.0, 'packet_loss': 0.001, 'syn_ratio': 0.08333333333333333, 'unique_src_count': 2.0, 'pkt_rate': 8.0}
+  t=1547298001 attack=True label=Syn features={'bandwidth': 500.0, 'latency': 10.0, 'packet_loss': 0.001, 'syn_ratio': 0.0, 'unique_src_count': 2.0, 'pkt_rate': 45979.0}
+  t=1547298002 attack=False label=BENIGN features={'bandwidth': 500.0, 'latency': 10.0, 'packet_loss': 0.001, 'syn_ratio': 0.125, 'unique_src_count': 1.0, 'pkt_rate': 2.67}
+  stats={'aggregation_mode': 'flow_rate_sum', 'zero_duration_mode': 'window_rate', 'flows_pkt_rate_recomputed': 0, 'flows_zero_duration': 1, 'zero_duration_packets': 2, 'flows_pkt_rate_excluded': 0, 'attack_flows': 2, 'attack_flows_syn_nonzero': 0}
+OK — self-test 1b (exclude): pkt_rate 45977.0 vs window_rate 45979.0
+  [경고] 'Flow Packets/s' 컬럼 없음 — pkt_rate를 기존 방식(플로우 시작 윈도우 총패킷/초)으로 폴백합니다. 이 방식은 recall을 크게 저하시키는 것으로 확인됨 (README 성능 검증 절 참고).
+OK — self-test 2 (flow_start_window 폴백) 통과
+
+모든 자가 테스트 통과
+
+[1m── result_meta[0m (/e/network/vagus/autonomous-network-mgmt/experiments)
+OK — result_meta: commit=a8a6cab-dirty contract={'obs_version': 1, 'action_version': 1, 'reward_version': 1, 'sim_version': 3}
+
+모든 자가 테스트 통과
+
+[1m── figures/palette[0m (/e/network/vagus/autonomous-network-mgmt/experiments/figures)
+OK — 팔레트 단일 출처 (범주 8, 순차 13단계, 상태 4)
+2026-09-13, dataviz validate_palette.js, categorical 6 slots, light (surface #fcfcfb)
+  [PASS] Lightness band      all 6 inside L 0.43-0.77
+  [PASS] Chroma floor        all 6 >= 0.1
+  [PASS] CVD separation      worst adjacent #eda100<->#1baf7a dE 9.1 (protan)
+  [PASS] Normal-vision floor worst adjacent #e87ba4<->#eda100 dE 19.6
+  [WARN] Contrast vs surface #1baf7a 2.74 / #eda100 2.11 / #e87ba4 2.62 below 3:1
+         -> relief rule: 직접 라벨 또는 표 병기 (도판 규칙 8과 동일 요구)
+  => ALL CHECKS PASS
+
+모든 자가 테스트 통과
+
+[1m── figures/figspec[0m (/e/network/vagus/autonomous-network-mgmt/experiments/figures)
+OK — 조건 스탬프: commit abc1234  |  obs1/act1/rew1/sim3  |  seed 42
+OK — 한글 라벨 거부 (폰트 부재 대비)
+OK — ASCII 줄바꿈 라벨 허용
+  wrote _figspec_selftest.svg + .png  [commit abc1234  |  obs1/act1/rew1/sim3  |  seed 42]
+OK — SVG+PNG 저장/삭제
+OK — 조건 없는 저장 거부
+
+모든 자가 테스트 통과
+
+[1m── recovery_control.test_simulation[0m (/e/network/vagus/autonomous-network-mgmt/experiments)
+PASS test_ecmp_and_detour
+PASS test_ack_delay_and_conservation
+PASS test_restore_requires_convergence
+PASS test_exogenous_pairing_and_reorder
+PASS test_transit_and_missing_initial
+PASS test_interrupted_transition_conserves_every_node
+PASS test_delayed_sample_preserves_sampled_state
+PASS test_boundary_rejects_invalid_paths_and_commands
+PASS simulation: 8 checks
+
+[1m── recovery_research.test_calibration[0m (/e/network/vagus/autonomous-network-mgmt/experiments)
+calibration: 5 contract checks passed
+
+[1m── recovery_research.test_controllers[0m (/e/network/vagus/autonomous-network-mgmt/experiments)
+controllers: 7 contract checks passed
+
+[1m── recovery_research.test_cycle2[0m (/e/network/vagus/autonomous-network-mgmt/experiments)
+cycle2: 7 ablation and integration checks passed
+
+[1m── recovery_research.test_statistics[0m (/e/network/vagus/autonomous-network-mgmt/experiments)
+통계 자체검증 통과
+
+[1m── recovery_research.test_runner[0m (/e/network/vagus/autonomous-network-mgmt/experiments)
+평가 하네스 자체검증 13개 통과 (개발 fixture 전용)
+
+[1m── research_reporting[0m (/e/network/vagus/autonomous-network-mgmt)
+보고서·도판 자가 테스트 통과
+
+[1m── py_compile(all)[0m (/e/network/vagus/autonomous-network-mgmt)
+
+[1m── dashboard_smoke[0m (/e/network/vagus/autonomous-network-mgmt)
+그린 차트: chart-ttr, chart-offline, chart-abl-ttr, chart-abl-waste, chart-entropy, chart-topshare, chart-policy
+KPI TTR=6.88  부수조치=0.70
+갱신된 DOM 노드: abl-tbody, ckpt-tbody, detail-tbody, kpi-rca, kpi-success, kpi-success-sub, kpi-ttr, kpi-ttr-sub, kpi-waste, note-collapse, note-offline, note-ttr, offline-caveat, prov-results, prov-training
+Chart.js 부재 경로: 표·KPI 유지됨
+데이터 없음 경로: dashboard_data.js를 찾을 수 없습니다 — python3 e…
+
+모두 통과
+
+════════════════════════════════════════════════════
+  통과 17 · 실패 0 · 생략 2
+════════════════════════════════════════════════════
+  [32m✓[0m metric_generator
+  [32m✓[0m topology
+  [32m✓[0m anomaly_detector
+  [32m✓[0m ospf_security
+  [32m✓[0m cicddos_loader
+  [32m✓[0m result_meta
+  [32m✓[0m figures/palette
+  [32m✓[0m figures/figspec
+  [32m✓[0m recovery_control.test_simulation
+  [32m✓[0m recovery_research.test_calibration
+  [32m✓[0m recovery_research.test_controllers
+  [32m✓[0m recovery_research.test_cycle2
+  [32m✓[0m recovery_research.test_statistics
+  [32m✓[0m recovery_research.test_runner
+  [32m✓[0m research_reporting
+  [32m✓[0m py_compile(all)
+  [32m✓[0m dashboard_smoke
+  [33m–[0m policy_check (--no-policy)
+  [33m–[0m mvn compile (--quick)
+
+모두 통과
