@@ -26,6 +26,7 @@ import numpy as np
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+from recovery_lab.routes import router as recovery_router
 
 from anomaly_detector import detector, diagnose, root_cause_analysis, security_detector
 from ospf_security import (
@@ -126,6 +127,7 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="ANM AI Engine — ZSM/ENI", lifespan=lifespan)
+app.include_router(recovery_router)
 app.add_middleware(
     CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"],
 )

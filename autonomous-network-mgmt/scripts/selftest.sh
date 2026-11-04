@@ -60,6 +60,7 @@ for module in recovery_control.test_simulation recovery_research.test_calibratio
   run "$module" "$ROOT/experiments" "$PY" -m "$module"
 done
 run "research_reporting" "$ROOT" "$PY" scripts/test_research_reporting.py
+run "recovery_lab" "$ROOT/ai-engine" "$PY" -m recovery_lab.test_api
 
 # ── 2) 문법 검사 (자가 테스트가 없는 모듈까지 최소한 import 가능한지) ──────────
 run "py_compile(all)"   "$ROOT"             "$PY" -m compileall -q \

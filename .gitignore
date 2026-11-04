@@ -11,3 +11,9 @@ autonomous-network-mgmt/experiments/results/tmp_checkpoints/
 *_eff_tmp.pt
 *_eff_tmp.zip
 ppo_scratch.zip
+
+# 로컬 실험실 서버와 재생성 가능한 브라우저 검증 산출물
+.omo/evidence/recovery-lab-server.log
+.omo/evidence/recovery-lab-server.pid
+.omo/evidence/recovery-lab/*
+!.omo/evidence/recovery-lab/QA.md
