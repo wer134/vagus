@@ -60,6 +60,7 @@ autonomous-network-mgmt/
 │   ├── stress_test.py              #   OODA 루프 TTR 스트레스 테스트
 │   ├── ablation_study.py           #   Analytics / MAML / Combined 절제 실험
 │   ├── persistent_buffer_test.py   #   지지 버퍼 장기 유지 실험
+│   ├── capacity_probe.py           #   링크 용량 147 시나리오: 오라클(풀이 존재) vs 규칙 단독
 │   ├── cicddos_loader.py           #   CICDDoS2019 CSV → 6피처 윈도우 변환
 │   ├── validate_security_detector.py  # 실데이터 DDoS 탐지 검증
 │   ├── CICDDOS2019_SETUP.md        #   데이터셋 준비 가이드
@@ -133,6 +134,10 @@ POST /auto-step  (ai-engine 내부에서 한 사이클 전체를 수행)
 - 갱신식: `s_next = clip(s × 0.90 + load_s + cong_s + N(0, 0.015))`
   - `load_s` : OSPF cost 역수 기반 트래픽 비율 × 0.01 × 링크수 → **cost를 올리면 트래픽이 빠진다**
   - `cong_s` : 혼잡 주입 상태이고 `cost < 100`이면 0.50, `cost >= 100`이면 **0** (우회 성공 → 격리)
+- **링크 용량 (2026-11-14, ROADMAP B-2, 선택)**: `set_capacity_mode("finite")`를 켜면 이용률
+  (부하/용량, 기본 용량 2.0)이 스트레스를 정하고, 이용률 > 1이면 과부하 스트레스가 붙으며, 혼잡
+  링크는 cost 임계값이 아니라 **실린 부하가 0일 때** 격리된다. `predict_steady_state(costs)`는
+  cost 배치의 정상상태를 노이즈 없이 계산한다(오라클용). 기본값 `unlimited`는 아래 갱신식 그대로다.
 - 노드 메트릭 = 인접 링크 스트레스 평균 → 대역폭 950→10 Mbps, 지연 3→180 ms, 손실 0→4%
 - `inject_congestion(link)`은 스트레스를 즉시 0.95로 올려 확실한 SLA 위반을 유발한다
 
@@ -158,9 +163,12 @@ POST /auto-step  (ai-engine 내부에서 한 사이클 전체를 수행)
 | POST/DELETE | `/debug/congestion/{link}` | 혼잡 주입·해제 |
 | POST/DELETE | `/debug/attack/{type}`, `/debug/attack` | 공격 주입·해제 (`ddos` / `portscan`) |
 | POST | `/debug/reset` | 에피소드 리셋 (body `{"seed": N}` 지원) |
+| PUT | `/debug/capacity/{link}` | 링크 용량 변경 (body `{"capacity": 1.2}`, reset이 기본값 복원) |
 | POST | `/debug/tick` | 시뮬레이션 시간 진행 (body `{"n": 1}`) — lockstep 모드에서 유일한 시간 진행 수단 |
 | GET | `/debug/stress`, `/debug/state`, `/debug/attack-state` | 디버그 상태 (틱, 링크 스트레스, 혼잡 링크 등) |
 | ANY | `/ai/<path>` | AI Engine(:8000) 프록시 (브라우저 CORS 우회용) |
+
+`SIM_CAPACITY` 환경변수: `unlimited`(기본, sim_version 3 그대로) / `finite`(링크 용량 모델 — `capacity_probe.py` 전용, 기존 실험 스크립트는 이 모드를 결과 파일에 기록하지 않는다).
 
 `SIM_CLOCK` 환경변수: `lockstep`(기본, `/debug/tick`으로만 진행) / `realtime:<ms>`(백그라운드 스레드가
 주기적으로 tick — Java collector·대시보드처럼 관측만 하는 클라이언트용).
