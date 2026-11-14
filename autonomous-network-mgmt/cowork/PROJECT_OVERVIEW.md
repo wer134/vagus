@@ -555,13 +555,21 @@ always-attack(56.2%)보다 낮아, **탐지기의 실데이터 유용성은 아�
 
 ## 8. 표준 매핑 (ETSI ZSM / ENI)
 
-| 표준 조항 | 구현 |
-| --- | --- |
-| ZSM 002 Clause 3.1.1 — Closed-loop automation | `api_server.auto_step()` |
-| ZSM 002 Clause 3.1.1.2 — Analytics Service | `diagnose()` + `_root_cause_analysis()` |
-| ZSM 002 Clause 3.1.1.3 — Intelligence Service | `FewShotAgent.adapt_and_predict()` |
-| ZSM 002 Clause 3.1.1.4 — AI Model Evaluation | `ModelPerformanceTracker` |
-| ENI 007 — Experiential Networked Intelligence | 지지 버퍼 누적을 통한 inner-loop few-shot 적응 |
+절 번호는 ETSI 문서의 조항이 아니라 **대상 논문**(양우석·이재오, "ZSM/ENI 기반의 자율 네트워크 및
+서비스 관리", KNOM Review 27(2), 2024)의 절 번호다. 2026-11-14 이전 문서는 이를
+"ZSM 002 Clause 3.1.1.x"로 잘못 적었고 번호도 어긋나 있었다(폐쇄 루프는 §3.1.2, §3.1.1.3은
+오케스트레이션, 지능은 §3.1.1.4). ETSI GS ZSM 002 원문의 조항 번호는 아직 대조하지 않았다.
+
+| 논문 절 (근거 표준) | 구현 | 범위 |
+| --- | --- | --- |
+| §3.1.2 폐쇄 루프 기반 관리 자율화 (ZSM 009-1) | `api_server.auto_step()` | 단일 관리 도메인, OODA |
+| §3.1.1.1 데이터 수집 (ZSM 002) | `_fetch_snmp()`, collector-service | 성능 메트릭만 |
+| §3.1.1.2 분석 — 이상 탐지·근본 원인 분석 (ZSM 002) | `diagnose()` + `root_cause_analysis()` | 영향 분석·성능 분석 서비스는 없음 |
+| §3.1.1.3 서비스 오케스트레이션 (ZSM 002) | `_apply_ospf()` | OSPF cost 변경뿐 — 카탈로그·타당성 확인 없음 |
+| §3.1.1.4 서비스 지능 — 의사 결정 (ZSM 002) | `FewShotAgent.adapt_and_predict()` | 기여 미확인 (§6) |
+| §3.1.1.4 서비스 지능 — 배포된 AI 모델 평가 (ZSM 002) | `ModelPerformanceTracker` | |
+| §3.2 ENI 시스템 (ENI 005) | 해당 구현 없음 | API 브로커·정규화/역정규화·지식/문맥/정책 FB 미구현. "지지 버퍼 = 경험 기반 적응"은 명목상 대응일 뿐이다 |
+| §2.3 도메인 간 연합·전이 학습, §4 의도 주도 관리 | 해당 구현 없음 | 연구 범위 밖 |
 | RFC 2328 Appendix D / RFC 5709 | `ospf_security.verify_auth()` (MD5 / HMAC-SHA256) |
 
 ---

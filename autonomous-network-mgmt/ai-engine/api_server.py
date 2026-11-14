@@ -1,7 +1,7 @@
 """
 FastAPI — ZSM/ENI 폐쇄 루프 자율 제어 서버
 
-ZSM 3.1.1 관리 서비스 구현:
+ZSM 관리 서비스 구현 (절 번호는 대상 논문 KNOM Review 27(2) 기준):
   - Data Collection  : _fetch_snmp()
   - Analytics        : diagnose() — 이상탐지 + 근본원인분석
   - Intelligence     : MAML adapt_and_predict() — 의사결정
@@ -52,7 +52,7 @@ SNMP_URL = os.environ.get("SNMP_URL", "http://127.0.0.1:5001")
 baseline_agent = BaselineAgent()
 few_shot_agent = FewShotAgent()
 
-# ── ZSM 3.1.1.4: 배포된 AI 모델 성능 자가 추적 ───────────────────────────────
+# ── §3.1.1.4 지능 서비스: 배포된 AI 모델 성능 자가 추적 ───────────────────────────────
 class ModelPerformanceTracker:
     """
     ZSM: 'Deployed AI Model Performance Evaluation Service'
@@ -340,7 +340,7 @@ def diagnose_now():
 
 @app.get("/model-status")
 def model_status():
-    """ZSM 3.1.1.4: Deployed AI Model Performance Evaluation."""
+    """§3.1.1.4 지능 서비스: Deployed AI Model Performance Evaluation."""
     return perf_tracker.status()
 
 @app.post("/auto-step", response_model=OODAStepResponse)

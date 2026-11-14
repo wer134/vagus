@@ -77,7 +77,7 @@ SLA 규칙(지연 > 50 ms 또는 손실 > 1 %)으로 위반 노드를 잡고, �
             ├─ OSPF LSA 위조 탐지    (ospf_security.py)
             ├─ 트래픽 공격 탐지      (SecurityAnomalyDetector)
             ├─ 성능 이상 탐지        (diagnose — SLA 규칙)
-            └─ 근본 원인 분석 RCA    (root_cause_analysis, ZSM Analytics, Clause 3.1.1.2)
+            └─ 근본 원인 분석 RCA    (root_cause_analysis, ZSM 분석 서비스)
      ↓
 [Decide]    MAML few-shot 에이전트 — 최적 대응 행동 결정
             ├─ 라우팅 위협 → OSPF cost 재조정
@@ -86,7 +86,7 @@ SLA 규칙(지연 > 50 ms 또는 손실 > 1 %)으로 위반 노드를 잡고, �
 [Act]       대응 자동 실행 (사람 개입 없음)
      ↓
 [Evaluate]  AI 모델 성능 자가 진단 + 재학습 필요 여부 판단
-            (ZSM AI Model Evaluation, Clause 3.1.1.4)
+            (ZSM 지능 서비스 — 배포된 AI 모델 평가)
 ```
 
 평균 대응 완료까지 **6.88 OODA 사이클** (50 ep, 2026-09-13 재측정, 시뮬레이터 시드 고정). 시뮬레이터의 물리 하한은 cost 적용 후
@@ -337,7 +337,10 @@ BENIGN 3,813 / 공격 4,886)으로 `SecurityAnomalyDetector`를 검증했다.
    가린 것 자체가 결과다
 5. **링크 무관 복구**: 학습에 없던 링크에서도 동일 TTR — 다만 이는 규칙 기반 Analytics의 성질이지
    학습 일반화의 증거가 아니다 (2026-09-09 정정)
-6. **표준 기반 구현**: ETSI ZSM 002 Clause 3.1.1.2~3.1.1.4 완전 구현 및 정량 검증
+6. **표준 기반 구현**: ZSM 폐쇄 루프와 분석·지능 서비스를 **단일 관리 도메인**에서 구현하고 절제
+   실험으로 계층별 기여를 쟀다. 다중 도메인·E2E 서비스 관리, ENI 구조(API 브로커, 정책 관리)는
+   구현하지 않았다 (2026-11-14 정정 — 이전의 "Clause 3.1.1.2~3.1.1.4 완전 구현"은 조항 번호도
+   범위도 틀렸다. 대응표는 `cowork/PROJECT_OVERVIEW.md` §8)
 
 ---
 
@@ -496,4 +499,8 @@ BENIGN 3,813 / 공격 4,886)으로 `SecurityAnomalyDetector`를 검증했다.
 ## 관련 표준
 
 - [ETSI GS ZSM 002](https://www.etsi.org/deliver/etsi_gs/ZSM/001_099/002/) — Zero-touch network and Service Management
-- [ETSI GS ENI 007](https://www.etsi.org/deliver/etsi_gs/ENI/001_099/007/) — Experiential Networked Intelligence
+- [ETSI GS ENI 005](https://www.etsi.org/deliver/etsi_gs/ENI/001_099/005/) — Experiential Networked Intelligence; System Architecture
+  (2026-11-14 정정: 이전에는 ENI 007로 잘못 적혀 있었다)
+- 양우석·이재오, "ZSM/ENI 기반의 자율 네트워크 및 서비스 관리", KNOM Review 27(2), 2024,
+  [doi:10.22670/knom.2024.27.2.12](https://doi.org/10.22670/knom.2024.27.2.12) — 이 프로젝트가
+  구현 대상으로 삼는 참조 구조. 문서의 절 번호(§3.1.1.2 등)는 이 논문 기준이다

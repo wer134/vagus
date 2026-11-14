@@ -115,7 +115,7 @@ def root_cause_analysis(
     bypass_cost: int = BYPASS_COST,
 ) -> str | None:
     """
-    ZSM 3.1.1.2: Root Cause Analysis Service — diagnose() 결과에서 근본 원인 링크를 고른다.
+    §3.1.1.2 분석 서비스: Root Cause Analysis Service — diagnose() 결과에서 근본 원인 링크를 고른다.
 
     규칙 (2026-09-09 개정, cowork/AUDIT_2026-09-09.md P2):
       1. 이미 대응된(cost ≥ bypass_cost) 링크가 위반 노드 **전부**에 인접하면 → None.
