@@ -43,6 +43,7 @@ autonomous-network-mgmt/
 │   ├── api_server.py               #   FastAPI (:8000) — OODA 루프 본체 (614 L)
 │   ├── anomaly_detector.py         #   IsolationForest 이상탐지 + 링크 진단 + 보안 탐지 (183 L)
 │   ├── ospf_security.py            #   OSPF LSA 위조/인증 검증 엔진 (284 L)
+│   ├── routing_model.py            #   라우팅 모델 계획기 — Analytics v3 (상한 기준선)
 │   ├── reward.py                   #   보상 함수 (45 L)
 │   ├── environment/network_env.py  #   gymnasium 환경 (223 L)
 │   ├── agents/
@@ -163,6 +164,7 @@ POST /auto-step  (ai-engine 내부에서 한 사이클 전체를 수행)
 | POST/DELETE | `/debug/congestion/{link}` | 혼잡 주입·해제 |
 | POST/DELETE | `/debug/attack/{type}`, `/debug/attack` | 공격 주입·해제 (`ddos` / `portscan`) |
 | POST | `/debug/reset` | 에피소드 리셋 (body `{"seed": N}` 지원) |
+| GET | `/metrics/links` | 링크(인터페이스) 단위 이용률·손실·용량 — Analytics v2/v3, 관측 v2용 |
 | PUT | `/debug/capacity/{link}` | 링크 용량 변경 (body `{"capacity": 1.2}`, reset이 기본값 복원) |
 | POST | `/debug/tick` | 시뮬레이션 시간 진행 (body `{"n": 1}`) — lockstep 모드에서 유일한 시간 진행 수단 |
 | GET | `/debug/stress`, `/debug/state`, `/debug/attack-state` | 디버그 상태 (틱, 링크 스트레스, 혼잡 링크 등) |
@@ -175,7 +177,8 @@ POST /auto-step  (ai-engine 내부에서 한 사이클 전체를 수행)
 
 ### 4.3 `ai-engine/environment/network_env.py` — 강화학습 환경
 
-- **상태 (14차원, 0~1 정규화)**: `[대역폭×4, 지연×4, OSPF cost×6]`
+- **상태 (14차원, 0~1 정규화)**: `[대역폭×4, 지연×4, OSPF cost×6]`. `obs_version=2`는 여기에
+  `[링크 이용률×6, 링크 손실×6]`을 붙인 26차원 (2026-11-15, ROADMAP A-1)
 - **행동 (Discrete 30)**: `action = link_idx × 5 + cost_idx`, 링크 6개 × cost {10, 20, 50, 100, 200}
 - `local_mode=True`(기본): HTTP 없이 `metric_generator` 모듈을 직접 호출 → 학습이 매우 빠름
 - `local_mode=False`: `:5001` REST 호출 (평가/실서비스용). 관측 실패 시 예외 (가짜 정상값 없음)
@@ -284,6 +287,9 @@ python ai-engine/ospf_security.py     # replay / downgrade / key-compromise / we
 
 응답에는 각 단계 결과와 함께 사람이 읽는 `reasoning_chain` 문자열이 포함된다.
 `?disable_analytics=true`, `?disable_maml=true` 쿼리로 절제 실험 모드를 켤 수 있다.
+`?analytics_version=2`는 근본 원인 분석에 링크 단위 관측을 쓰고(`root_cause_analysis_v2`),
+`?analytics_version=3`은 거기에 라우팅 모델 계획기(`routing_model.py`)로 조치를 고른다
+(`disable_maml=true`에서만). 기본값 1은 링크 관측을 읽지 않는 기존 동작이다 (2026-11-15).
 
 **주요 엔드포인트**
 
