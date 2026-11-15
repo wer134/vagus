@@ -397,6 +397,33 @@ def get_all_metrics() -> list[dict]:
         return [_stress_to_metrics(n) for n in NODES]
 
 
+def get_link_metrics() -> list[dict]:
+    """링크(인터페이스) 단위 관측 — 순수 조회 (cowork/ROADMAP.md A-1).
+
+    실제 장비의 SNMP 인터페이스 테이블에 대응한다: 이용률은 ifInOctets/ifSpeed, 손실은
+    ifInDiscards, 용량은 ifSpeed. 노드 메트릭은 인접 링크의 평균이라 "어느 링크인가"를
+    가리지 못하는데, 장비는 원래 인터페이스 단위로 보고한다.
+
+    이용률만으로는 고장 링크를 찾지 못한다 — 혼잡 링크의 이용률은 정상 링크와 같다.
+    그래서 손실을 함께 낸다. 손실 식은 노드 메트릭과 같다(0.04 × 스트레스 + 노이즈).
+
+    주의: 손실 노이즈가 시뮬레이터 난수 스트림을 소비한다. 이 함수를 부르지 않는 기존
+    경로(관측 v1)의 결과는 그대로다.
+    """
+    with _lock:
+        load = _compute_link_loads()
+        return [
+            {
+                "linkId":      lk,
+                "utilization": round(load[lk] / _link_capacity[lk], 4),
+                "packetLoss":  round(max(0.0, min(0.5, 0.04 * _link_stress[lk] + _rng.gauss(0, 0.001))), 4),
+                "capacity":    _link_capacity[lk],
+                "tick":        _tick_count,
+            }
+            for lk in LINKS_LIST
+        ]
+
+
 def get_ospf_costs() -> dict:
     return dict(_ospf_costs)
 
@@ -742,7 +769,21 @@ if __name__ == "__main__":
         assert get_link_capacity()["r1-r3"] == DEFAULT_LINK_CAPACITY, "reset이 용량을 되돌리지 않았다"
         print("OK — finite 약한 링크(용량 1.2): 단일 혼잡 우회로 이용률 1.25 → 위반. reset이 용량 복원")
 
-        # 18) snapshot/restore가 용량 상태를 복원한다
+        # 18) 링크 단위 관측(A-1): 혼잡 링크는 손실로, 포화 링크는 이용률 > 1로 구분된다
+        reset_state(seed=13); inject_congestion("r3-r4"); tick(5)
+        lm = {m["linkId"]: m for m in get_link_metrics()}
+        assert lm["r3-r4"]["packetLoss"] > 0.03 and lm["r3-r4"]["utilization"] == 0.5, lm["r3-r4"]
+        assert all(m["packetLoss"] < 0.01 for lk, m in lm.items() if lk != "r3-r4"), lm
+        set_link_capacity("r1-r3", 1.2); set_ospf_cost("r3-r4", 100); tick(30)
+        lm = {m["linkId"]: m for m in get_link_metrics()}
+        assert lm["r3-r4"]["utilization"] == 0.0 and lm["r3-r4"]["packetLoss"] < 0.01, lm["r3-r4"]
+        assert lm["r1-r3"]["utilization"] == 1.25 and lm["r1-r3"]["packetLoss"] > 0.03, lm["r1-r3"]
+        t0 = get_tick(); s0 = dict(_link_stress)
+        get_link_metrics()
+        assert get_tick() == t0 and _link_stress == s0, "링크 관측이 상태를 바꿨다"
+        print("OK — 링크 관측: 혼잡 링크는 손실, 포화 링크는 이용률 1.25 + 손실, 격리된 링크는 이용률 0")
+
+        # 19) snapshot/restore가 용량 상태를 복원한다
         reset_state(seed=12); set_link_capacity("r2-r3", 1.5); snap = snapshot()
         set_capacity_mode("unlimited"); reset_state(seed=1)
         restore(snap)

@@ -27,7 +27,10 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
-from anomaly_detector import detector, diagnose, root_cause_analysis, security_detector
+from anomaly_detector import (
+    detector, diagnose, root_cause_analysis, security_detector,
+    root_cause_analysis_v2, classify_links, ANALYTICS_VERSIONS,
+)
 from ospf_security import (
     ospf_monitor,
     OspfLsaPacket,
@@ -264,6 +267,19 @@ def _fetch_snmp() -> tuple[list[dict], dict]:
     return metrics, ospf_map
 
 
+def _fetch_link_metrics() -> list[dict]:
+    """링크(인터페이스) 단위 관측 — Analytics v2 전용. 실패하면 ObservationUnavailable."""
+    try:
+        with httpx.Client(timeout=2.0) as c:
+            r = c.get(f"{SNMP_URL}/metrics/links"); r.raise_for_status()
+            links = r.json()
+    except Exception as e:
+        raise ObservationUnavailable(f"링크 관측 실패: {type(e).__name__}: {e}") from e
+    if not isinstance(links, list) or {m.get("linkId") for m in links} != set(LINKS):
+        raise ObservationUnavailable(f"링크 관측 형식 오류: {links!r:.200}")
+    return links
+
+
 def _apply_ospf(link: str, cost: int) -> tuple[bool, str | None]:
     """OSPF cost 적용. (성공 여부, 오류 메시지) — 실패를 삼키지 않고 응답의 act에 반영한다."""
     try:
@@ -344,8 +360,13 @@ def model_status():
     return perf_tracker.status()
 
 @app.post("/auto-step", response_model=OODAStepResponse)
-def auto_step(disable_analytics: bool = False, disable_maml: bool = False):
+def auto_step(disable_analytics: bool = False, disable_maml: bool = False,
+              analytics_version: int = 1):
     """
+    analytics_version=2: 근본 원인 분석에 링크 단위 관측(GET /metrics/links)을 쓴다
+    (cowork/ROADMAP.md A-1). 기본값 1은 노드 지표만 쓰는 기존 동작이며, 링크 관측을 아예
+    읽지 않으므로 이전 결과와 같다.
+
     ENI 폐쇄 루프 1 사이클 — OODA 패러다임 완전 구현.
 
     Observe : SNMP 메트릭 수집 (실패 시 503 — 정상값으로 대체하지 않음)
@@ -354,11 +375,14 @@ def auto_step(disable_analytics: bool = False, disable_maml: bool = False):
     Act     : OSPF 변경 실행 (ZSM Orchestration) — 실패는 act.applied=False, act.error
     + ZSM AI Model Eval: 모델 성능 자가진단
     """
+    if analytics_version not in ANALYTICS_VERSIONS:
+        raise HTTPException(400, f"analytics_version must be one of {list(ANALYTICS_VERSIONS)}")
     with _loop_lock:
-        return _auto_step_locked(disable_analytics, disable_maml)
+        return _auto_step_locked(disable_analytics, disable_maml, analytics_version)
 
 
-def _auto_step_locked(disable_analytics: bool, disable_maml: bool) -> "OODAStepResponse":
+def _auto_step_locked(disable_analytics: bool, disable_maml: bool,
+                      analytics_version: int = 1) -> "OODAStepResponse":
     global _support_buffer, _prev_obs, _prev_action, _buffer_skipped
 
     # ══ Observe ══════════════════════════════════════════════════════
@@ -366,6 +390,7 @@ def _auto_step_locked(disable_analytics: bool, disable_maml: bool) -> "OODAStepR
     sim_tick = _tick_snmp()          # 사이클당 정확히 1틱
     try:
         metrics, ospf_map = _fetch_snmp()
+        link_metrics = _fetch_link_metrics() if analytics_version == 2 else None
     except ObservationUnavailable as e:
         raise HTTPException(503, str(e))
     obs = _metrics_to_obs(metrics, ospf_map)
@@ -384,7 +409,16 @@ def _auto_step_locked(disable_analytics: bool, disable_maml: bool) -> "OODAStepR
 
     # ══ Orient — 이상 감지 + 근본 원인 분석 ══════════════════════════
     diag = diagnose(metrics, ospf_map)
-    root_cause = root_cause_analysis(diag, ospf_map)
+    if link_metrics is not None:
+        root_cause = root_cause_analysis_v2(link_metrics, ospf_map) if diag["anomaly_detected"] else None
+        link_state = classify_links(link_metrics)
+        observe_out["links"] = {m["linkId"]: {
+            "utilization": m["utilization"], "packet_loss": m["packetLoss"],
+            "state": link_state[m["linkId"]],
+        } for m in link_metrics}
+        diag["reasoning"] += f"  →  [v2] 링크 상태={ {k: v for k, v in link_state.items() if v != 'normal'} }"
+    else:
+        root_cause = root_cause_analysis(diag, ospf_map)
     diag["root_cause_link"] = root_cause
     orient_out = DiagnosisResponse(**diag)
 

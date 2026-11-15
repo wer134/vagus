@@ -104,7 +104,7 @@ def oracle(scn: dict) -> dict:
 
 # ── 규칙(Analytics 단독) 폐쇄 루프 ────────────────────────────────────────────
 
-def run_rule_episode(scn: dict, seed: int) -> dict:
+def run_rule_episode(scn: dict, seed: int, analytics_version: int = 1) -> dict:
     post(f"{SNMP}/debug/reset", {"seed": seed})
     post(f"{AI}/reset-buffer")
     if scn["weak"]:
@@ -117,7 +117,7 @@ def run_rule_episode(scn: dict, seed: int) -> dict:
 
     def cycle() -> bool:
         nonlocal wasted
-        d = post(f"{AI}/auto-step?disable_maml=true")
+        d = post(f"{AI}/auto-step?disable_maml=true&analytics_version={analytics_version}")
         act = d["act"]
         if act.get("applied"):
             actions.append(f'{act["link"]}@{act["cost"]}')
@@ -144,7 +144,7 @@ def run_rule_episode(scn: dict, seed: int) -> dict:
 
 # ── 본체 ──────────────────────────────────────────────────────────────────────
 
-def run(n_seeds: int, output: str) -> None:
+def run(n_seeds: int, output: str, analytics_version: int = 1, solvable_only: bool = False) -> None:
     health = get(f"{SNMP}/health")
     if health.get("capacity_mode") != "finite":
         raise SystemExit("시뮬레이터가 SIM_CAPACITY=finite로 떠 있지 않다 — 이 실험은 용량 모델 전용이다")
@@ -153,8 +153,10 @@ def run(n_seeds: int, output: str) -> None:
     rows = []
     for i, scn in enumerate(scenarios, 1):
         orc = oracle(scn)
+        if solvable_only and not orc["solvable"]:
+            continue   # 풀이 없는 시나리오는 벤치마크 밖 — seed는 전체 목록의 번호 i를 그대로 쓴다
         # 시나리오 간 독립, 시나리오 내 seed 간 독립인 노이즈 (다른 실험의 42000+i 규약과 분리)
-        eps = [run_rule_episode(scn, seed=73_000 + i * 100 + k) for k in range(n_seeds)]
+        eps = [run_rule_episode(scn, 73_000 + i * 100 + k, analytics_version) for k in range(n_seeds)]
         n = len(eps)
         row = {
             "congested": scn["congested"], "profile": scn["profile"],
@@ -214,7 +216,7 @@ def run(n_seeds: int, output: str) -> None:
             **result_meta(
                 seed=73_000,
                 condition=(
-                    "폐쇄 루프 /auto-step?disable_maml=true (Analytics 단독), 사이클당 1틱, "
+                    f"폐쇄 루프 /auto-step?disable_maml=true (Analytics v{analytics_version} 단독), 사이클당 1틱, "
                     f"타임아웃 {MAX_CYCLES} 사이클 + 안정성 확인 {STABLE_CYCLES} 사이클. "
                     "오라클은 cost 배치 15,625개 전수, 노이즈 없는 정상상태 기준."
                 ),
@@ -222,6 +224,8 @@ def run(n_seeds: int, output: str) -> None:
                 default_link_capacity=mg.DEFAULT_LINK_CAPACITY,
                 weak_link_capacity=WEAK_CAPACITY,
                 n_seeds=n_seeds,
+                analytics_version=analytics_version,
+                solvable_only=solvable_only,
             ),
             "summary": summary,
             "scenarios": rows,
@@ -234,5 +238,10 @@ if __name__ == "__main__":
     p = argparse.ArgumentParser()
     p.add_argument("--seeds",  type=int, default=5, help="시나리오당 에피소드(노이즈 seed) 수")
     p.add_argument("--output", type=str, default="capacity_probe.json", help="results/ 아래 파일명")
+    p.add_argument("--analytics-version", type=int, default=1, choices=(1, 2),
+                   help="1 = 노드 지표 RCA (기본), 2 = 링크 단위 관측 RCA")
+    p.add_argument("--solvable-only", action="store_true",
+                   help="오라클이 풀이를 찾은 시나리오만 폐쇄 루프로 돌린다")
     a = p.parse_args()
-    run(n_seeds=a.seeds, output=a.output)
+    run(n_seeds=a.seeds, output=a.output, analytics_version=a.analytics_version,
+        solvable_only=a.solvable_only)

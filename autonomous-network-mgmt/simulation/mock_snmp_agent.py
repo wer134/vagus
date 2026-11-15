@@ -19,6 +19,7 @@ from flask import Flask, jsonify, request, abort
 from metric_generator import (
     get_all_metrics,
     get_node_metrics,
+    get_link_metrics,
     get_ospf_costs,
     get_node_stress,
     get_link_stress,
@@ -98,6 +99,12 @@ def metrics_node(node_id: str):
     if node_id not in NODES:
         abort(404, description=f"Unknown node: {node_id}")
     return jsonify(get_node_metrics(node_id))
+
+
+@app.route("/metrics/links")
+def metrics_links():
+    """링크(인터페이스) 단위 메트릭: 이용률·손실·용량 (cowork/ROADMAP.md A-1)."""
+    return jsonify(get_link_metrics())
 
 
 # ── OSPF 코스트 관리 ───────────────────────────────────────
