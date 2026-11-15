@@ -158,7 +158,8 @@ def root_cause_analysis(
 # 손실이 이 값을 넘고 트래픽이 실려 있으면 고장 링크로 본다. SLA 손실 기준(1 %)의 2배 —
 # 이용률 1.0 부근의 정상 링크(손실 약 0.8 %)가 노이즈로 걸리지 않게 한다. 결과를 보고 조정하지 않는다.
 LINK_LOSS_FAULT = 0.02
-ANALYTICS_VERSIONS = (1, 2)
+# 1 = 노드 지표 RCA, 2 = 링크 관측 RCA, 3 = 2의 진단 + 라우팅 모델 계획기(routing_model.py)
+ANALYTICS_VERSIONS = (1, 2, 3)
 
 
 def classify_links(link_metrics: list[dict]) -> dict[str, str]:

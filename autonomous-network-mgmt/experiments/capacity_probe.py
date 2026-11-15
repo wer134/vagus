@@ -122,7 +122,7 @@ def run_rule_episode(scn: dict, seed: int, analytics_version: int = 1) -> dict:
         if act.get("applied"):
             actions.append(f'{act["link"]}@{act["cost"]}')
             if act["link"] not in congested and act.get("changed", True):
-                wasted += 1
+                wasted += 1   # 혼잡 링크가 아닌 링크의 cost 변경. v3(계획기)에서는 우회 조정이라 낭비가 아니다
         return _sla_ok(get(f"{SNMP}/metrics"))
 
     for step in range(1, MAX_CYCLES + 1):
@@ -238,8 +238,8 @@ if __name__ == "__main__":
     p = argparse.ArgumentParser()
     p.add_argument("--seeds",  type=int, default=5, help="시나리오당 에피소드(노이즈 seed) 수")
     p.add_argument("--output", type=str, default="capacity_probe.json", help="results/ 아래 파일명")
-    p.add_argument("--analytics-version", type=int, default=1, choices=(1, 2),
-                   help="1 = 노드 지표 RCA (기본), 2 = 링크 단위 관측 RCA")
+    p.add_argument("--analytics-version", type=int, default=1, choices=(1, 2, 3),
+                   help="1 = 노드 지표 RCA (기본), 2 = 링크 단위 관측 RCA, 3 = 2 + 라우팅 모델 계획기")
     p.add_argument("--solvable-only", action="store_true",
                    help="오라클이 풀이를 찾은 시나리오만 폐쇄 루프로 돌린다")
     a = p.parse_args()
