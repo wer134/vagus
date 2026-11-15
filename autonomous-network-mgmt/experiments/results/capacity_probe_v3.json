@@ -1,0 +1,4226 @@
+{
+  "schema_version": 1,
+  "timestamp": "2026-11-15T21:24:14.165450",
+  "git_commit": "6ee4b83",
+  "seed": 73000,
+  "contract": {
+    "obs_version": 1,
+    "action_version": 1,
+    "reward_version": 1,
+    "sim_version": 3
+  },
+  "_condition": "폐쇄 루프 /auto-step?disable_maml=true (Analytics v3 단독), 사이클당 1틱, 타임아웃 15 사이클 + 안정성 확인 10 사이클. 오라클은 cost 배치 15,625개 전수, 노이즈 없는 정상상태 기준.",
+  "sim_capacity_mode": "finite",
+  "default_link_capacity": 2.0,
+  "weak_link_capacity": 1.2,
+  "n_seeds": 5,
+  "analytics_version": 3,
+  "solvable_only": true,
+  "summary": {
+    "single/uniform": {
+      "n_scenarios": 6,
+      "rule_solves": 6,
+      "rule_partial": 0,
+      "rule_fails": 0,
+      "unsolvable": 0,
+      "n_solvable": 6,
+      "rule_stable_rate_on_solvable": 1.0
+    },
+    "single/weak": {
+      "n_scenarios": 36,
+      "rule_solves": 35,
+      "rule_partial": 1,
+      "rule_fails": 0,
+      "unsolvable": 0,
+      "n_solvable": 36,
+      "rule_stable_rate_on_solvable": 0.994
+    },
+    "double/uniform": {
+      "n_scenarios": 3,
+      "rule_solves": 3,
+      "rule_partial": 0,
+      "rule_fails": 0,
+      "unsolvable": 0,
+      "n_solvable": 3,
+      "rule_stable_rate_on_solvable": 1.0
+    },
+    "double/weak": {
+      "n_scenarios": 6,
+      "rule_solves": 5,
+      "rule_partial": 1,
+      "rule_fails": 0,
+      "unsolvable": 0,
+      "n_solvable": 6,
+      "rule_stable_rate_on_solvable": 0.967
+    }
+  },
+  "scenarios": [
+    {
+      "congested": [
+        "r1-r2"
+      ],
+      "profile": "uniform",
+      "oracle": {
+        "solvable": true,
+        "n_solutions": 345,
+        "min_changes": 1,
+        "example": {
+          "r1-r2": 50
+        }
+      },
+      "rule": {
+        "resolved_rate": 1.0,
+        "stable_rate": 1.0,
+        "avg_ttr": 7.6,
+        "wasted_per_ep": 0.0,
+        "episodes": [
+          {
+            "seed": 73100,
+            "resolved": true,
+            "stable": true,
+            "ttr": 9,
+            "wasted": 0,
+            "actions": [
+              "r1-r2@50"
+            ]
+          },
+          {
+            "seed": 73101,
+            "resolved": true,
+            "stable": true,
+            "ttr": 6,
+            "wasted": 0,
+            "actions": [
+              "r1-r2@50"
+            ]
+          },
+          {
+            "seed": 73102,
+            "resolved": true,
+            "stable": true,
+            "ttr": 7,
+            "wasted": 0,
+            "actions": [
+              "r1-r2@50"
+            ]
+          },
+          {
+            "seed": 73103,
+            "resolved": true,
+            "stable": true,
+            "ttr": 9,
+            "wasted": 0,
+            "actions": [
+              "r1-r2@50"
+            ]
+          },
+          {
+            "seed": 73104,
+            "resolved": true,
+            "stable": true,
+            "ttr": 7,
+            "wasted": 0,
+            "actions": [
+              "r1-r2@50"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "congested": [
+        "r1-r3"
+      ],
+      "profile": "uniform",
+      "oracle": {
+        "solvable": true,
+        "n_solutions": 345,
+        "min_changes": 1,
+        "example": {
+          "r1-r3": 50
+        }
+      },
+      "rule": {
+        "resolved_rate": 1.0,
+        "stable_rate": 1.0,
+        "avg_ttr": 7.6,
+        "wasted_per_ep": 0.0,
+        "episodes": [
+          {
+            "seed": 73200,
+            "resolved": true,
+            "stable": true,
+            "ttr": 8,
+            "wasted": 0,
+            "actions": [
+              "r1-r3@50"
+            ]
+          },
+          {
+            "seed": 73201,
+            "resolved": true,
+            "stable": true,
+            "ttr": 7,
+            "wasted": 0,
+            "actions": [
+              "r1-r3@50"
+            ]
+          },
+          {
+            "seed": 73202,
+            "resolved": true,
+            "stable": true,
+            "ttr": 7,
+            "wasted": 0,
+            "actions": [
+              "r1-r3@50"
+            ]
+          },
+          {
+            "seed": 73203,
+            "resolved": true,
+            "stable": true,
+            "ttr": 8,
+            "wasted": 0,
+            "actions": [
+              "r1-r3@50"
+            ]
+          },
+          {
+            "seed": 73204,
+            "resolved": true,
+            "stable": true,
+            "ttr": 8,
+            "wasted": 0,
+            "actions": [
+              "r1-r3@50"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "congested": [
+        "r2-r3"
+      ],
+      "profile": "uniform",
+      "oracle": {
+        "solvable": true,
+        "n_solutions": 345,
+        "min_changes": 1,
+        "example": {
+          "r2-r3": 50
+        }
+      },
+      "rule": {
+        "resolved_rate": 1.0,
+        "stable_rate": 1.0,
+        "avg_ttr": 7.8,
+        "wasted_per_ep": 0.0,
+        "episodes": [
+          {
+            "seed": 73300,
+            "resolved": true,
+            "stable": true,
+            "ttr": 6,
+            "wasted": 0,
+            "actions": [
+              "r2-r3@50"
+            ]
+          },
+          {
+            "seed": 73301,
+            "resolved": true,
+            "stable": true,
+            "ttr": 6,
+            "wasted": 0,
+            "actions": [
+              "r2-r3@50"
+            ]
+          },
+          {
+            "seed": 73302,
+            "resolved": true,
+            "stable": true,
+            "ttr": 13,
+            "wasted": 0,
+            "actions": [
+              "r2-r3@50"
+            ]
+          },
+          {
+            "seed": 73303,
+            "resolved": true,
+            "stable": true,
+            "ttr": 6,
+            "wasted": 0,
+            "actions": [
+              "r2-r3@50"
+            ]
+          },
+          {
+            "seed": 73304,
+            "resolved": true,
+            "stable": true,
+            "ttr": 8,
+            "wasted": 0,
+            "actions": [
+              "r2-r3@50"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "congested": [
+        "r2-r4"
+      ],
+      "profile": "uniform",
+      "oracle": {
+        "solvable": true,
+        "n_solutions": 345,
+        "min_changes": 1,
+        "example": {
+          "r2-r4": 50
+        }
+      },
+      "rule": {
+        "resolved_rate": 1.0,
+        "stable_rate": 1.0,
+        "avg_ttr": 6.6,
+        "wasted_per_ep": 0.0,
+        "episodes": [
+          {
+            "seed": 73400,
+            "resolved": true,
+            "stable": true,
+            "ttr": 5,
+            "wasted": 0,
+            "actions": [
+              "r2-r4@50"
+            ]
+          },
+          {
+            "seed": 73401,
+            "resolved": true,
+            "stable": true,
+            "ttr": 7,
+            "wasted": 0,
+            "actions": [
+              "r2-r4@50"
+            ]
+          },
+          {
+            "seed": 73402,
+            "resolved": true,
+            "stable": true,
+            "ttr": 6,
+            "wasted": 0,
+            "actions": [
+              "r2-r4@50"
+            ]
+          },
+          {
+            "seed": 73403,
+            "resolved": true,
+            "stable": true,
+            "ttr": 8,
+            "wasted": 0,
+            "actions": [
+              "r2-r4@50"
+            ]
+          },
+          {
+            "seed": 73404,
+            "resolved": true,
+            "stable": true,
+            "ttr": 7,
+            "wasted": 0,
+            "actions": [
+              "r2-r4@50"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "congested": [
+        "r3-r4"
+      ],
+      "profile": "uniform",
+      "oracle": {
+        "solvable": true,
+        "n_solutions": 345,
+        "min_changes": 1,
+        "example": {
+          "r3-r4": 50
+        }
+      },
+      "rule": {
+        "resolved_rate": 1.0,
+        "stable_rate": 1.0,
+        "avg_ttr": 6.8,
+        "wasted_per_ep": 0.0,
+        "episodes": [
+          {
+            "seed": 73500,
+            "resolved": true,
+            "stable": true,
+            "ttr": 7,
+            "wasted": 0,
+            "actions": [
+              "r3-r4@50"
+            ]
+          },
+          {
+            "seed": 73501,
+            "resolved": true,
+            "stable": true,
+            "ttr": 7,
+            "wasted": 0,
+            "actions": [
+              "r3-r4@50"
+            ]
+          },
+          {
+            "seed": 73502,
+            "resolved": true,
+            "stable": true,
+            "ttr": 7,
+            "wasted": 0,
+            "actions": [
+              "r3-r4@50"
+            ]
+          },
+          {
+            "seed": 73503,
+            "resolved": true,
+            "stable": true,
+            "ttr": 7,
+            "wasted": 0,
+            "actions": [
+              "r3-r4@50"
+            ]
+          },
+          {
+            "seed": 73504,
+            "resolved": true,
+            "stable": true,
+            "ttr": 6,
+            "wasted": 0,
+            "actions": [
+              "r3-r4@50"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "congested": [
+        "r1-r4"
+      ],
+      "profile": "uniform",
+      "oracle": {
+        "solvable": true,
+        "n_solutions": 345,
+        "min_changes": 1,
+        "example": {
+          "r1-r4": 50
+        }
+      },
+      "rule": {
+        "resolved_rate": 1.0,
+        "stable_rate": 1.0,
+        "avg_ttr": 6.8,
+        "wasted_per_ep": 0.0,
+        "episodes": [
+          {
+            "seed": 73600,
+            "resolved": true,
+            "stable": true,
+            "ttr": 7,
+            "wasted": 0,
+            "actions": [
+              "r1-r4@50"
+            ]
+          },
+          {
+            "seed": 73601,
+            "resolved": true,
+            "stable": true,
+            "ttr": 7,
+            "wasted": 0,
+            "actions": [
+              "r1-r4@50"
+            ]
+          },
+          {
+            "seed": 73602,
+            "resolved": true,
+            "stable": true,
+            "ttr": 7,
+            "wasted": 0,
+            "actions": [
+              "r1-r4@50"
+            ]
+          },
+          {
+            "seed": 73603,
+            "resolved": true,
+            "stable": true,
+            "ttr": 6,
+            "wasted": 0,
+            "actions": [
+              "r1-r4@50"
+            ]
+          },
+          {
+            "seed": 73604,
+            "resolved": true,
+            "stable": true,
+            "ttr": 7,
+            "wasted": 0,
+            "actions": [
+              "r1-r4@50"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "congested": [
+        "r1-r2",
+        "r3-r4"
+      ],
+      "profile": "uniform",
+      "oracle": {
+        "solvable": true,
+        "n_solutions": 59,
+        "min_changes": 2,
+        "example": {
+          "r1-r2": 50,
+          "r3-r4": 50
+        }
+      },
+      "rule": {
+        "resolved_rate": 1.0,
+        "stable_rate": 1.0,
+        "avg_ttr": 12.4,
+        "wasted_per_ep": 0.0,
+        "episodes": [
+          {
+            "seed": 74000,
+            "resolved": true,
+            "stable": true,
+            "ttr": 12,
+            "wasted": 0,
+            "actions": [
+              "r1-r2@50",
+              "r3-r4@50"
+            ]
+          },
+          {
+            "seed": 74001,
+            "resolved": true,
+            "stable": true,
+            "ttr": 14,
+            "wasted": 0,
+            "actions": [
+              "r1-r2@50",
+              "r3-r4@50"
+            ]
+          },
+          {
+            "seed": 74002,
+            "resolved": true,
+            "stable": true,
+            "ttr": 12,
+            "wasted": 0,
+            "actions": [
+              "r1-r2@50",
+              "r3-r4@50"
+            ]
+          },
+          {
+            "seed": 74003,
+            "resolved": true,
+            "stable": true,
+            "ttr": 10,
+            "wasted": 0,
+            "actions": [
+              "r1-r2@50",
+              "r3-r4@50"
+            ]
+          },
+          {
+            "seed": 74004,
+            "resolved": true,
+            "stable": true,
+            "ttr": 14,
+            "wasted": 0,
+            "actions": [
+              "r1-r2@50",
+              "r3-r4@50"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "congested": [
+        "r1-r3",
+        "r2-r4"
+      ],
+      "profile": "uniform",
+      "oracle": {
+        "solvable": true,
+        "n_solutions": 59,
+        "min_changes": 2,
+        "example": {
+          "r1-r3": 50,
+          "r2-r4": 50
+        }
+      },
+      "rule": {
+        "resolved_rate": 1.0,
+        "stable_rate": 1.0,
+        "avg_ttr": 11.8,
+        "wasted_per_ep": 0.0,
+        "episodes": [
+          {
+            "seed": 74300,
+            "resolved": true,
+            "stable": true,
+            "ttr": 11,
+            "wasted": 0,
+            "actions": [
+              "r1-r3@50",
+              "r2-r4@50"
+            ]
+          },
+          {
+            "seed": 74301,
+            "resolved": true,
+            "stable": true,
+            "ttr": 14,
+            "wasted": 0,
+            "actions": [
+              "r1-r3@50",
+              "r2-r4@50"
+            ]
+          },
+          {
+            "seed": 74302,
+            "resolved": true,
+            "stable": true,
+            "ttr": 9,
+            "wasted": 0,
+            "actions": [
+              "r1-r3@50",
+              "r2-r4@50"
+            ]
+          },
+          {
+            "seed": 74303,
+            "resolved": true,
+            "stable": true,
+            "ttr": 11,
+            "wasted": 0,
+            "actions": [
+              "r1-r3@50",
+              "r2-r4@50"
+            ]
+          },
+          {
+            "seed": 74304,
+            "resolved": true,
+            "stable": true,
+            "ttr": 14,
+            "wasted": 0,
+            "actions": [
+              "r1-r3@50",
+              "r2-r4@50"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "congested": [
+        "r2-r3",
+        "r1-r4"
+      ],
+      "profile": "uniform",
+      "oracle": {
+        "solvable": true,
+        "n_solutions": 59,
+        "min_changes": 2,
+        "example": {
+          "r1-r4": 50,
+          "r2-r3": 50
+        }
+      },
+      "rule": {
+        "resolved_rate": 1.0,
+        "stable_rate": 1.0,
+        "avg_ttr": 11.4,
+        "wasted_per_ep": 0.0,
+        "episodes": [
+          {
+            "seed": 74800,
+            "resolved": true,
+            "stable": true,
+            "ttr": 8,
+            "wasted": 0,
+            "actions": [
+              "r2-r3@50",
+              "r1-r4@50"
+            ]
+          },
+          {
+            "seed": 74801,
+            "resolved": true,
+            "stable": true,
+            "ttr": 14,
+            "wasted": 0,
+            "actions": [
+              "r2-r3@50",
+              "r1-r4@50"
+            ]
+          },
+          {
+            "seed": 74802,
+            "resolved": true,
+            "stable": true,
+            "ttr": 11,
+            "wasted": 0,
+            "actions": [
+              "r2-r3@50",
+              "r1-r4@50"
+            ]
+          },
+          {
+            "seed": 74803,
+            "resolved": true,
+            "stable": true,
+            "ttr": 10,
+            "wasted": 0,
+            "actions": [
+              "r2-r3@50",
+              "r1-r4@50"
+            ]
+          },
+          {
+            "seed": 74804,
+            "resolved": true,
+            "stable": true,
+            "ttr": 14,
+            "wasted": 0,
+            "actions": [
+              "r2-r3@50",
+              "r1-r4@50"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "congested": [
+        "r1-r2"
+      ],
+      "profile": "weak:r1-r2",
+      "oracle": {
+        "solvable": true,
+        "n_solutions": 345,
+        "min_changes": 1,
+        "example": {
+          "r1-r2": 50
+        }
+      },
+      "rule": {
+        "resolved_rate": 1.0,
+        "stable_rate": 1.0,
+        "avg_ttr": 8.4,
+        "wasted_per_ep": 0.0,
+        "episodes": [
+          {
+            "seed": 75200,
+            "resolved": true,
+            "stable": true,
+            "ttr": 10,
+            "wasted": 0,
+            "actions": [
+              "r1-r2@50"
+            ]
+          },
+          {
+            "seed": 75201,
+            "resolved": true,
+            "stable": true,
+            "ttr": 9,
+            "wasted": 0,
+            "actions": [
+              "r1-r2@50"
+            ]
+          },
+          {
+            "seed": 75202,
+            "resolved": true,
+            "stable": true,
+            "ttr": 9,
+            "wasted": 0,
+            "actions": [
+              "r1-r2@50"
+            ]
+          },
+          {
+            "seed": 75203,
+            "resolved": true,
+            "stable": true,
+            "ttr": 7,
+            "wasted": 0,
+            "actions": [
+              "r1-r2@50"
+            ]
+          },
+          {
+            "seed": 75204,
+            "resolved": true,
+            "stable": true,
+            "ttr": 7,
+            "wasted": 0,
+            "actions": [
+              "r1-r2@50"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "congested": [
+        "r1-r3"
+      ],
+      "profile": "weak:r1-r2",
+      "oracle": {
+        "solvable": true,
+        "n_solutions": 103,
+        "min_changes": 4,
+        "example": {
+          "r1-r2": 20,
+          "r1-r3": 50,
+          "r2-r3": 20,
+          "r2-r4": 20
+        }
+      },
+      "rule": {
+        "resolved_rate": 1.0,
+        "stable_rate": 1.0,
+        "avg_ttr": 9.0,
+        "wasted_per_ep": 3.0,
+        "episodes": [
+          {
+            "seed": 75300,
+            "resolved": true,
+            "stable": true,
+            "ttr": 12,
+            "wasted": 3,
+            "actions": [
+              "r1-r3@50",
+              "r1-r2@20",
+              "r2-r3@20",
+              "r2-r4@20"
+            ]
+          },
+          {
+            "seed": 75301,
+            "resolved": true,
+            "stable": true,
+            "ttr": 10,
+            "wasted": 3,
+            "actions": [
+              "r1-r3@50",
+              "r1-r2@20",
+              "r2-r3@20",
+              "r2-r4@20"
+            ]
+          },
+          {
+            "seed": 75302,
+            "resolved": true,
+            "stable": true,
+            "ttr": 8,
+            "wasted": 3,
+            "actions": [
+              "r1-r3@50",
+              "r1-r2@20",
+              "r2-r3@20",
+              "r2-r4@20"
+            ]
+          },
+          {
+            "seed": 75303,
+            "resolved": true,
+            "stable": true,
+            "ttr": 7,
+            "wasted": 3,
+            "actions": [
+              "r1-r3@50",
+              "r1-r2@20",
+              "r2-r3@20",
+              "r2-r4@20"
+            ]
+          },
+          {
+            "seed": 75304,
+            "resolved": true,
+            "stable": true,
+            "ttr": 8,
+            "wasted": 3,
+            "actions": [
+              "r1-r3@50",
+              "r1-r2@20",
+              "r2-r3@20",
+              "r2-r4@20"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "congested": [
+        "r2-r3"
+      ],
+      "profile": "weak:r1-r2",
+      "oracle": {
+        "solvable": true,
+        "n_solutions": 103,
+        "min_changes": 4,
+        "example": {
+          "r1-r2": 20,
+          "r1-r3": 20,
+          "r1-r4": 20,
+          "r2-r3": 50
+        }
+      },
+      "rule": {
+        "resolved_rate": 1.0,
+        "stable_rate": 1.0,
+        "avg_ttr": 11.0,
+        "wasted_per_ep": 3.0,
+        "episodes": [
+          {
+            "seed": 75400,
+            "resolved": true,
+            "stable": true,
+            "ttr": 10,
+            "wasted": 3,
+            "actions": [
+              "r2-r3@50",
+              "r1-r2@20",
+              "r1-r3@20",
+              "r1-r4@20"
+            ]
+          },
+          {
+            "seed": 75401,
+            "resolved": true,
+            "stable": true,
+            "ttr": 10,
+            "wasted": 3,
+            "actions": [
+              "r2-r3@50",
+              "r1-r2@20",
+              "r1-r3@20",
+              "r1-r4@20"
+            ]
+          },
+          {
+            "seed": 75402,
+            "resolved": true,
+            "stable": true,
+            "ttr": 15,
+            "wasted": 3,
+            "actions": [
+              "r2-r3@50",
+              "r1-r2@20",
+              "r1-r3@20",
+              "r1-r4@20"
+            ]
+          },
+          {
+            "seed": 75403,
+            "resolved": true,
+            "stable": true,
+            "ttr": 11,
+            "wasted": 3,
+            "actions": [
+              "r2-r3@50",
+              "r1-r2@20",
+              "r1-r3@20",
+              "r1-r4@20"
+            ]
+          },
+          {
+            "seed": 75404,
+            "resolved": true,
+            "stable": true,
+            "ttr": 9,
+            "wasted": 3,
+            "actions": [
+              "r2-r3@50",
+              "r1-r2@20",
+              "r1-r3@20",
+              "r1-r4@20"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "congested": [
+        "r2-r4"
+      ],
+      "profile": "weak:r1-r2",
+      "oracle": {
+        "solvable": true,
+        "n_solutions": 103,
+        "min_changes": 4,
+        "example": {
+          "r1-r2": 20,
+          "r1-r3": 20,
+          "r1-r4": 20,
+          "r2-r4": 50
+        }
+      },
+      "rule": {
+        "resolved_rate": 1.0,
+        "stable_rate": 1.0,
+        "avg_ttr": 8.8,
+        "wasted_per_ep": 3.0,
+        "episodes": [
+          {
+            "seed": 75500,
+            "resolved": true,
+            "stable": true,
+            "ttr": 9,
+            "wasted": 3,
+            "actions": [
+              "r2-r4@50",
+              "r1-r2@20",
+              "r1-r3@20",
+              "r1-r4@20"
+            ]
+          },
+          {
+            "seed": 75501,
+            "resolved": true,
+            "stable": true,
+            "ttr": 9,
+            "wasted": 3,
+            "actions": [
+              "r2-r4@50",
+              "r1-r2@20",
+              "r1-r3@20",
+              "r1-r4@20"
+            ]
+          },
+          {
+            "seed": 75502,
+            "resolved": true,
+            "stable": true,
+            "ttr": 9,
+            "wasted": 3,
+            "actions": [
+              "r2-r4@50",
+              "r1-r2@20",
+              "r1-r3@20",
+              "r1-r4@20"
+            ]
+          },
+          {
+            "seed": 75503,
+            "resolved": true,
+            "stable": true,
+            "ttr": 8,
+            "wasted": 3,
+            "actions": [
+              "r2-r4@50",
+              "r1-r2@20",
+              "r1-r3@20",
+              "r1-r4@20"
+            ]
+          },
+          {
+            "seed": 75504,
+            "resolved": true,
+            "stable": true,
+            "ttr": 9,
+            "wasted": 3,
+            "actions": [
+              "r2-r4@50",
+              "r1-r2@20",
+              "r1-r3@20",
+              "r1-r4@20"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "congested": [
+        "r3-r4"
+      ],
+      "profile": "weak:r1-r2",
+      "oracle": {
+        "solvable": true,
+        "n_solutions": 345,
+        "min_changes": 1,
+        "example": {
+          "r3-r4": 50
+        }
+      },
+      "rule": {
+        "resolved_rate": 1.0,
+        "stable_rate": 1.0,
+        "avg_ttr": 7.2,
+        "wasted_per_ep": 0.0,
+        "episodes": [
+          {
+            "seed": 75600,
+            "resolved": true,
+            "stable": true,
+            "ttr": 7,
+            "wasted": 0,
+            "actions": [
+              "r3-r4@50"
+            ]
+          },
+          {
+            "seed": 75601,
+            "resolved": true,
+            "stable": true,
+            "ttr": 8,
+            "wasted": 0,
+            "actions": [
+              "r3-r4@50"
+            ]
+          },
+          {
+            "seed": 75602,
+            "resolved": true,
+            "stable": true,
+            "ttr": 7,
+            "wasted": 0,
+            "actions": [
+              "r3-r4@50"
+            ]
+          },
+          {
+            "seed": 75603,
+            "resolved": true,
+            "stable": true,
+            "ttr": 9,
+            "wasted": 0,
+            "actions": [
+              "r3-r4@50"
+            ]
+          },
+          {
+            "seed": 75604,
+            "resolved": true,
+            "stable": true,
+            "ttr": 5,
+            "wasted": 0,
+            "actions": [
+              "r3-r4@50"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "congested": [
+        "r1-r4"
+      ],
+      "profile": "weak:r1-r2",
+      "oracle": {
+        "solvable": true,
+        "n_solutions": 103,
+        "min_changes": 4,
+        "example": {
+          "r1-r2": 20,
+          "r1-r4": 50,
+          "r2-r3": 20,
+          "r2-r4": 20
+        }
+      },
+      "rule": {
+        "resolved_rate": 1.0,
+        "stable_rate": 1.0,
+        "avg_ttr": 10.0,
+        "wasted_per_ep": 3.0,
+        "episodes": [
+          {
+            "seed": 75700,
+            "resolved": true,
+            "stable": true,
+            "ttr": 11,
+            "wasted": 3,
+            "actions": [
+              "r1-r4@50",
+              "r1-r2@20",
+              "r2-r3@20",
+              "r2-r4@20"
+            ]
+          },
+          {
+            "seed": 75701,
+            "resolved": true,
+            "stable": true,
+            "ttr": 11,
+            "wasted": 3,
+            "actions": [
+              "r1-r4@50",
+              "r1-r2@20",
+              "r2-r3@20",
+              "r2-r4@20"
+            ]
+          },
+          {
+            "seed": 75702,
+            "resolved": true,
+            "stable": true,
+            "ttr": 10,
+            "wasted": 3,
+            "actions": [
+              "r1-r4@50",
+              "r1-r2@20",
+              "r2-r3@20",
+              "r2-r4@20"
+            ]
+          },
+          {
+            "seed": 75703,
+            "resolved": true,
+            "stable": true,
+            "ttr": 11,
+            "wasted": 3,
+            "actions": [
+              "r1-r4@50",
+              "r1-r2@20",
+              "r2-r3@20",
+              "r2-r4@20"
+            ]
+          },
+          {
+            "seed": 75704,
+            "resolved": true,
+            "stable": true,
+            "ttr": 7,
+            "wasted": 3,
+            "actions": [
+              "r1-r4@50",
+              "r1-r2@20",
+              "r2-r3@20",
+              "r2-r4@20"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "congested": [
+        "r1-r2",
+        "r3-r4"
+      ],
+      "profile": "weak:r1-r2",
+      "oracle": {
+        "solvable": true,
+        "n_solutions": 59,
+        "min_changes": 2,
+        "example": {
+          "r1-r2": 50,
+          "r3-r4": 50
+        }
+      },
+      "rule": {
+        "resolved_rate": 1.0,
+        "stable_rate": 1.0,
+        "avg_ttr": 8.8,
+        "wasted_per_ep": 0.0,
+        "episodes": [
+          {
+            "seed": 76100,
+            "resolved": true,
+            "stable": true,
+            "ttr": 10,
+            "wasted": 0,
+            "actions": [
+              "r1-r2@50",
+              "r3-r4@50"
+            ]
+          },
+          {
+            "seed": 76101,
+            "resolved": true,
+            "stable": true,
+            "ttr": 9,
+            "wasted": 0,
+            "actions": [
+              "r1-r2@50",
+              "r3-r4@50"
+            ]
+          },
+          {
+            "seed": 76102,
+            "resolved": true,
+            "stable": true,
+            "ttr": 9,
+            "wasted": 0,
+            "actions": [
+              "r1-r2@50",
+              "r3-r4@50"
+            ]
+          },
+          {
+            "seed": 76103,
+            "resolved": true,
+            "stable": true,
+            "ttr": 8,
+            "wasted": 0,
+            "actions": [
+              "r1-r2@50",
+              "r3-r4@50"
+            ]
+          },
+          {
+            "seed": 76104,
+            "resolved": true,
+            "stable": true,
+            "ttr": 8,
+            "wasted": 0,
+            "actions": [
+              "r1-r2@50",
+              "r3-r4@50"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "congested": [
+        "r1-r2"
+      ],
+      "profile": "weak:r1-r3",
+      "oracle": {
+        "solvable": true,
+        "n_solutions": 103,
+        "min_changes": 4,
+        "example": {
+          "r1-r2": 50,
+          "r1-r3": 20,
+          "r2-r3": 20,
+          "r3-r4": 20
+        }
+      },
+      "rule": {
+        "resolved_rate": 1.0,
+        "stable_rate": 1.0,
+        "avg_ttr": 11.2,
+        "wasted_per_ep": 3.0,
+        "episodes": [
+          {
+            "seed": 77300,
+            "resolved": true,
+            "stable": true,
+            "ttr": 13,
+            "wasted": 3,
+            "actions": [
+              "r1-r2@50",
+              "r1-r3@20",
+              "r2-r3@20",
+              "r3-r4@20"
+            ]
+          },
+          {
+            "seed": 77301,
+            "resolved": true,
+            "stable": true,
+            "ttr": 7,
+            "wasted": 3,
+            "actions": [
+              "r1-r2@50",
+              "r1-r3@20",
+              "r2-r3@20",
+              "r3-r4@20"
+            ]
+          },
+          {
+            "seed": 77302,
+            "resolved": true,
+            "stable": true,
+            "ttr": 11,
+            "wasted": 3,
+            "actions": [
+              "r1-r2@50",
+              "r1-r3@20",
+              "r2-r3@20",
+              "r3-r4@20"
+            ]
+          },
+          {
+            "seed": 77303,
+            "resolved": true,
+            "stable": true,
+            "ttr": 12,
+            "wasted": 3,
+            "actions": [
+              "r1-r2@50",
+              "r1-r3@20",
+              "r2-r3@20",
+              "r3-r4@20"
+            ]
+          },
+          {
+            "seed": 77304,
+            "resolved": true,
+            "stable": true,
+            "ttr": 13,
+            "wasted": 3,
+            "actions": [
+              "r1-r2@50",
+              "r1-r3@20",
+              "r2-r3@20",
+              "r3-r4@20"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "congested": [
+        "r1-r3"
+      ],
+      "profile": "weak:r1-r3",
+      "oracle": {
+        "solvable": true,
+        "n_solutions": 345,
+        "min_changes": 1,
+        "example": {
+          "r1-r3": 50
+        }
+      },
+      "rule": {
+        "resolved_rate": 1.0,
+        "stable_rate": 1.0,
+        "avg_ttr": 7.4,
+        "wasted_per_ep": 0.0,
+        "episodes": [
+          {
+            "seed": 77400,
+            "resolved": true,
+            "stable": true,
+            "ttr": 8,
+            "wasted": 0,
+            "actions": [
+              "r1-r3@50"
+            ]
+          },
+          {
+            "seed": 77401,
+            "resolved": true,
+            "stable": true,
+            "ttr": 5,
+            "wasted": 0,
+            "actions": [
+              "r1-r3@50"
+            ]
+          },
+          {
+            "seed": 77402,
+            "resolved": true,
+            "stable": true,
+            "ttr": 10,
+            "wasted": 0,
+            "actions": [
+              "r1-r3@50"
+            ]
+          },
+          {
+            "seed": 77403,
+            "resolved": true,
+            "stable": true,
+            "ttr": 7,
+            "wasted": 0,
+            "actions": [
+              "r1-r3@50"
+            ]
+          },
+          {
+            "seed": 77404,
+            "resolved": true,
+            "stable": true,
+            "ttr": 7,
+            "wasted": 0,
+            "actions": [
+              "r1-r3@50"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "congested": [
+        "r2-r3"
+      ],
+      "profile": "weak:r1-r3",
+      "oracle": {
+        "solvable": true,
+        "n_solutions": 103,
+        "min_changes": 4,
+        "example": {
+          "r1-r2": 20,
+          "r1-r3": 20,
+          "r1-r4": 20,
+          "r2-r3": 50
+        }
+      },
+      "rule": {
+        "resolved_rate": 1.0,
+        "stable_rate": 1.0,
+        "avg_ttr": 10.2,
+        "wasted_per_ep": 3.0,
+        "episodes": [
+          {
+            "seed": 77500,
+            "resolved": true,
+            "stable": true,
+            "ttr": 9,
+            "wasted": 3,
+            "actions": [
+              "r2-r3@50",
+              "r1-r2@20",
+              "r1-r3@20",
+              "r1-r4@20"
+            ]
+          },
+          {
+            "seed": 77501,
+            "resolved": true,
+            "stable": true,
+            "ttr": 10,
+            "wasted": 3,
+            "actions": [
+              "r2-r3@50",
+              "r1-r2@20",
+              "r1-r3@20",
+              "r1-r4@20"
+            ]
+          },
+          {
+            "seed": 77502,
+            "resolved": true,
+            "stable": true,
+            "ttr": 12,
+            "wasted": 3,
+            "actions": [
+              "r2-r3@50",
+              "r1-r2@20",
+              "r1-r3@20",
+              "r1-r4@20"
+            ]
+          },
+          {
+            "seed": 77503,
+            "resolved": true,
+            "stable": true,
+            "ttr": 11,
+            "wasted": 3,
+            "actions": [
+              "r2-r3@50",
+              "r1-r2@20",
+              "r1-r3@20",
+              "r1-r4@20"
+            ]
+          },
+          {
+            "seed": 77504,
+            "resolved": true,
+            "stable": true,
+            "ttr": 9,
+            "wasted": 3,
+            "actions": [
+              "r2-r3@50",
+              "r1-r2@20",
+              "r1-r3@20",
+              "r1-r4@20"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "congested": [
+        "r2-r4"
+      ],
+      "profile": "weak:r1-r3",
+      "oracle": {
+        "solvable": true,
+        "n_solutions": 345,
+        "min_changes": 1,
+        "example": {
+          "r2-r4": 50
+        }
+      },
+      "rule": {
+        "resolved_rate": 1.0,
+        "stable_rate": 1.0,
+        "avg_ttr": 8.8,
+        "wasted_per_ep": 0.0,
+        "episodes": [
+          {
+            "seed": 77600,
+            "resolved": true,
+            "stable": true,
+            "ttr": 9,
+            "wasted": 0,
+            "actions": [
+              "r2-r4@50"
+            ]
+          },
+          {
+            "seed": 77601,
+            "resolved": true,
+            "stable": true,
+            "ttr": 8,
+            "wasted": 0,
+            "actions": [
+              "r2-r4@50"
+            ]
+          },
+          {
+            "seed": 77602,
+            "resolved": true,
+            "stable": true,
+            "ttr": 8,
+            "wasted": 0,
+            "actions": [
+              "r2-r4@50"
+            ]
+          },
+          {
+            "seed": 77603,
+            "resolved": true,
+            "stable": true,
+            "ttr": 9,
+            "wasted": 0,
+            "actions": [
+              "r2-r4@50"
+            ]
+          },
+          {
+            "seed": 77604,
+            "resolved": true,
+            "stable": true,
+            "ttr": 10,
+            "wasted": 0,
+            "actions": [
+              "r2-r4@50"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "congested": [
+        "r3-r4"
+      ],
+      "profile": "weak:r1-r3",
+      "oracle": {
+        "solvable": true,
+        "n_solutions": 103,
+        "min_changes": 4,
+        "example": {
+          "r1-r2": 20,
+          "r1-r3": 20,
+          "r1-r4": 20,
+          "r3-r4": 50
+        }
+      },
+      "rule": {
+        "resolved_rate": 1.0,
+        "stable_rate": 1.0,
+        "avg_ttr": 11.0,
+        "wasted_per_ep": 3.0,
+        "episodes": [
+          {
+            "seed": 77700,
+            "resolved": true,
+            "stable": true,
+            "ttr": 14,
+            "wasted": 3,
+            "actions": [
+              "r3-r4@50",
+              "r1-r2@20",
+              "r1-r3@20",
+              "r1-r4@20"
+            ]
+          },
+          {
+            "seed": 77701,
+            "resolved": true,
+            "stable": true,
+            "ttr": 11,
+            "wasted": 3,
+            "actions": [
+              "r3-r4@50",
+              "r1-r2@20",
+              "r1-r3@20",
+              "r1-r4@20"
+            ]
+          },
+          {
+            "seed": 77702,
+            "resolved": true,
+            "stable": true,
+            "ttr": 9,
+            "wasted": 3,
+            "actions": [
+              "r3-r4@50",
+              "r1-r2@20",
+              "r1-r3@20",
+              "r1-r4@20"
+            ]
+          },
+          {
+            "seed": 77703,
+            "resolved": true,
+            "stable": true,
+            "ttr": 10,
+            "wasted": 3,
+            "actions": [
+              "r3-r4@50",
+              "r1-r2@20",
+              "r1-r3@20",
+              "r1-r4@20"
+            ]
+          },
+          {
+            "seed": 77704,
+            "resolved": true,
+            "stable": true,
+            "ttr": 11,
+            "wasted": 3,
+            "actions": [
+              "r3-r4@50",
+              "r1-r2@20",
+              "r1-r3@20",
+              "r1-r4@20"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "congested": [
+        "r1-r4"
+      ],
+      "profile": "weak:r1-r3",
+      "oracle": {
+        "solvable": true,
+        "n_solutions": 103,
+        "min_changes": 4,
+        "example": {
+          "r1-r3": 20,
+          "r1-r4": 50,
+          "r2-r3": 20,
+          "r3-r4": 20
+        }
+      },
+      "rule": {
+        "resolved_rate": 1.0,
+        "stable_rate": 1.0,
+        "avg_ttr": 9.6,
+        "wasted_per_ep": 3.0,
+        "episodes": [
+          {
+            "seed": 77800,
+            "resolved": true,
+            "stable": true,
+            "ttr": 9,
+            "wasted": 3,
+            "actions": [
+              "r1-r4@50",
+              "r1-r3@20",
+              "r2-r3@20",
+              "r3-r4@20"
+            ]
+          },
+          {
+            "seed": 77801,
+            "resolved": true,
+            "stable": true,
+            "ttr": 10,
+            "wasted": 3,
+            "actions": [
+              "r1-r4@50",
+              "r1-r3@20",
+              "r2-r3@20",
+              "r3-r4@20"
+            ]
+          },
+          {
+            "seed": 77802,
+            "resolved": true,
+            "stable": true,
+            "ttr": 10,
+            "wasted": 3,
+            "actions": [
+              "r1-r4@50",
+              "r1-r3@20",
+              "r2-r3@20",
+              "r3-r4@20"
+            ]
+          },
+          {
+            "seed": 77803,
+            "resolved": true,
+            "stable": true,
+            "ttr": 10,
+            "wasted": 3,
+            "actions": [
+              "r1-r4@50",
+              "r1-r3@20",
+              "r2-r3@20",
+              "r3-r4@20"
+            ]
+          },
+          {
+            "seed": 77804,
+            "resolved": true,
+            "stable": true,
+            "ttr": 9,
+            "wasted": 3,
+            "actions": [
+              "r1-r4@50",
+              "r1-r3@20",
+              "r2-r3@20",
+              "r3-r4@20"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "congested": [
+        "r1-r3",
+        "r2-r4"
+      ],
+      "profile": "weak:r1-r3",
+      "oracle": {
+        "solvable": true,
+        "n_solutions": 59,
+        "min_changes": 2,
+        "example": {
+          "r1-r3": 50,
+          "r2-r4": 50
+        }
+      },
+      "rule": {
+        "resolved_rate": 1.0,
+        "stable_rate": 1.0,
+        "avg_ttr": 9.8,
+        "wasted_per_ep": 0.0,
+        "episodes": [
+          {
+            "seed": 78500,
+            "resolved": true,
+            "stable": true,
+            "ttr": 10,
+            "wasted": 0,
+            "actions": [
+              "r1-r3@50",
+              "r2-r4@50"
+            ]
+          },
+          {
+            "seed": 78501,
+            "resolved": true,
+            "stable": true,
+            "ttr": 9,
+            "wasted": 0,
+            "actions": [
+              "r1-r3@50",
+              "r2-r4@50"
+            ]
+          },
+          {
+            "seed": 78502,
+            "resolved": true,
+            "stable": true,
+            "ttr": 10,
+            "wasted": 0,
+            "actions": [
+              "r1-r3@50",
+              "r2-r4@50"
+            ]
+          },
+          {
+            "seed": 78503,
+            "resolved": true,
+            "stable": true,
+            "ttr": 8,
+            "wasted": 0,
+            "actions": [
+              "r1-r3@50",
+              "r2-r4@50"
+            ]
+          },
+          {
+            "seed": 78504,
+            "resolved": true,
+            "stable": true,
+            "ttr": 12,
+            "wasted": 0,
+            "actions": [
+              "r1-r3@50",
+              "r2-r4@50"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "congested": [
+        "r1-r2"
+      ],
+      "profile": "weak:r2-r3",
+      "oracle": {
+        "solvable": true,
+        "n_solutions": 103,
+        "min_changes": 4,
+        "example": {
+          "r1-r2": 50,
+          "r1-r3": 20,
+          "r2-r3": 20,
+          "r3-r4": 20
+        }
+      },
+      "rule": {
+        "resolved_rate": 1.0,
+        "stable_rate": 1.0,
+        "avg_ttr": 9.6,
+        "wasted_per_ep": 3.0,
+        "episodes": [
+          {
+            "seed": 79400,
+            "resolved": true,
+            "stable": true,
+            "ttr": 9,
+            "wasted": 3,
+            "actions": [
+              "r1-r2@50",
+              "r1-r3@20",
+              "r2-r3@20",
+              "r3-r4@20"
+            ]
+          },
+          {
+            "seed": 79401,
+            "resolved": true,
+            "stable": true,
+            "ttr": 11,
+            "wasted": 3,
+            "actions": [
+              "r1-r2@50",
+              "r1-r3@20",
+              "r2-r3@20",
+              "r3-r4@20"
+            ]
+          },
+          {
+            "seed": 79402,
+            "resolved": true,
+            "stable": true,
+            "ttr": 9,
+            "wasted": 3,
+            "actions": [
+              "r1-r2@50",
+              "r1-r3@20",
+              "r2-r3@20",
+              "r3-r4@20"
+            ]
+          },
+          {
+            "seed": 79403,
+            "resolved": true,
+            "stable": true,
+            "ttr": 11,
+            "wasted": 3,
+            "actions": [
+              "r1-r2@50",
+              "r1-r3@20",
+              "r2-r3@20",
+              "r3-r4@20"
+            ]
+          },
+          {
+            "seed": 79404,
+            "resolved": true,
+            "stable": true,
+            "ttr": 8,
+            "wasted": 3,
+            "actions": [
+              "r1-r2@50",
+              "r1-r3@20",
+              "r2-r3@20",
+              "r3-r4@20"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "congested": [
+        "r1-r3"
+      ],
+      "profile": "weak:r2-r3",
+      "oracle": {
+        "solvable": true,
+        "n_solutions": 103,
+        "min_changes": 4,
+        "example": {
+          "r1-r2": 20,
+          "r1-r3": 50,
+          "r2-r3": 20,
+          "r2-r4": 20
+        }
+      },
+      "rule": {
+        "resolved_rate": 1.0,
+        "stable_rate": 1.0,
+        "avg_ttr": 10.0,
+        "wasted_per_ep": 3.0,
+        "episodes": [
+          {
+            "seed": 79500,
+            "resolved": true,
+            "stable": true,
+            "ttr": 9,
+            "wasted": 3,
+            "actions": [
+              "r1-r3@50",
+              "r1-r2@20",
+              "r2-r3@20",
+              "r2-r4@20"
+            ]
+          },
+          {
+            "seed": 79501,
+            "resolved": true,
+            "stable": true,
+            "ttr": 11,
+            "wasted": 3,
+            "actions": [
+              "r1-r3@50",
+              "r1-r2@20",
+              "r2-r3@20",
+              "r2-r4@20"
+            ]
+          },
+          {
+            "seed": 79502,
+            "resolved": true,
+            "stable": true,
+            "ttr": 10,
+            "wasted": 3,
+            "actions": [
+              "r1-r3@50",
+              "r1-r2@20",
+              "r2-r3@20",
+              "r2-r4@20"
+            ]
+          },
+          {
+            "seed": 79503,
+            "resolved": true,
+            "stable": true,
+            "ttr": 11,
+            "wasted": 3,
+            "actions": [
+              "r1-r3@50",
+              "r1-r2@20",
+              "r2-r3@20",
+              "r2-r4@20"
+            ]
+          },
+          {
+            "seed": 79504,
+            "resolved": true,
+            "stable": true,
+            "ttr": 9,
+            "wasted": 3,
+            "actions": [
+              "r1-r3@50",
+              "r1-r2@20",
+              "r2-r3@20",
+              "r2-r4@20"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "congested": [
+        "r2-r3"
+      ],
+      "profile": "weak:r2-r3",
+      "oracle": {
+        "solvable": true,
+        "n_solutions": 345,
+        "min_changes": 1,
+        "example": {
+          "r2-r3": 50
+        }
+      },
+      "rule": {
+        "resolved_rate": 1.0,
+        "stable_rate": 1.0,
+        "avg_ttr": 7.4,
+        "wasted_per_ep": 0.0,
+        "episodes": [
+          {
+            "seed": 79600,
+            "resolved": true,
+            "stable": true,
+            "ttr": 6,
+            "wasted": 0,
+            "actions": [
+              "r2-r3@50"
+            ]
+          },
+          {
+            "seed": 79601,
+            "resolved": true,
+            "stable": true,
+            "ttr": 6,
+            "wasted": 0,
+            "actions": [
+              "r2-r3@50"
+            ]
+          },
+          {
+            "seed": 79602,
+            "resolved": true,
+            "stable": true,
+            "ttr": 10,
+            "wasted": 0,
+            "actions": [
+              "r2-r3@50"
+            ]
+          },
+          {
+            "seed": 79603,
+            "resolved": true,
+            "stable": true,
+            "ttr": 9,
+            "wasted": 0,
+            "actions": [
+              "r2-r3@50"
+            ]
+          },
+          {
+            "seed": 79604,
+            "resolved": true,
+            "stable": true,
+            "ttr": 6,
+            "wasted": 0,
+            "actions": [
+              "r2-r3@50"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "congested": [
+        "r2-r4"
+      ],
+      "profile": "weak:r2-r3",
+      "oracle": {
+        "solvable": true,
+        "n_solutions": 103,
+        "min_changes": 4,
+        "example": {
+          "r1-r3": 20,
+          "r2-r3": 20,
+          "r2-r4": 50,
+          "r3-r4": 20
+        }
+      },
+      "rule": {
+        "resolved_rate": 1.0,
+        "stable_rate": 1.0,
+        "avg_ttr": 10.0,
+        "wasted_per_ep": 3.0,
+        "episodes": [
+          {
+            "seed": 79700,
+            "resolved": true,
+            "stable": true,
+            "ttr": 9,
+            "wasted": 3,
+            "actions": [
+              "r2-r4@50",
+              "r1-r3@20",
+              "r2-r3@20",
+              "r3-r4@20"
+            ]
+          },
+          {
+            "seed": 79701,
+            "resolved": true,
+            "stable": true,
+            "ttr": 12,
+            "wasted": 3,
+            "actions": [
+              "r2-r4@50",
+              "r1-r3@20",
+              "r2-r3@20",
+              "r3-r4@20"
+            ]
+          },
+          {
+            "seed": 79702,
+            "resolved": true,
+            "stable": true,
+            "ttr": 10,
+            "wasted": 3,
+            "actions": [
+              "r2-r4@50",
+              "r1-r3@20",
+              "r2-r3@20",
+              "r3-r4@20"
+            ]
+          },
+          {
+            "seed": 79703,
+            "resolved": true,
+            "stable": true,
+            "ttr": 9,
+            "wasted": 3,
+            "actions": [
+              "r2-r4@50",
+              "r1-r3@20",
+              "r2-r3@20",
+              "r3-r4@20"
+            ]
+          },
+          {
+            "seed": 79704,
+            "resolved": true,
+            "stable": true,
+            "ttr": 10,
+            "wasted": 3,
+            "actions": [
+              "r2-r4@50",
+              "r1-r3@20",
+              "r2-r3@20",
+              "r3-r4@20"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "congested": [
+        "r3-r4"
+      ],
+      "profile": "weak:r2-r3",
+      "oracle": {
+        "solvable": true,
+        "n_solutions": 103,
+        "min_changes": 4,
+        "example": {
+          "r1-r2": 20,
+          "r2-r3": 20,
+          "r2-r4": 20,
+          "r3-r4": 50
+        }
+      },
+      "rule": {
+        "resolved_rate": 1.0,
+        "stable_rate": 0.8,
+        "avg_ttr": 12.0,
+        "wasted_per_ep": 3.0,
+        "episodes": [
+          {
+            "seed": 79800,
+            "resolved": true,
+            "stable": false,
+            "ttr": 11,
+            "wasted": 3,
+            "actions": [
+              "r3-r4@50",
+              "r1-r2@20",
+              "r2-r3@20",
+              "r2-r4@20"
+            ]
+          },
+          {
+            "seed": 79801,
+            "resolved": true,
+            "stable": true,
+            "ttr": 13,
+            "wasted": 3,
+            "actions": [
+              "r3-r4@50",
+              "r1-r2@20",
+              "r2-r3@20",
+              "r2-r4@20"
+            ]
+          },
+          {
+            "seed": 79802,
+            "resolved": true,
+            "stable": true,
+            "ttr": 12,
+            "wasted": 3,
+            "actions": [
+              "r3-r4@50",
+              "r1-r2@20",
+              "r2-r3@20",
+              "r2-r4@20"
+            ]
+          },
+          {
+            "seed": 79803,
+            "resolved": true,
+            "stable": true,
+            "ttr": 12,
+            "wasted": 3,
+            "actions": [
+              "r3-r4@50",
+              "r1-r2@20",
+              "r2-r3@20",
+              "r2-r4@20"
+            ]
+          },
+          {
+            "seed": 79804,
+            "resolved": true,
+            "stable": true,
+            "ttr": 12,
+            "wasted": 3,
+            "actions": [
+              "r3-r4@50",
+              "r1-r2@20",
+              "r2-r3@20",
+              "r2-r4@20"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "congested": [
+        "r1-r4"
+      ],
+      "profile": "weak:r2-r3",
+      "oracle": {
+        "solvable": true,
+        "n_solutions": 345,
+        "min_changes": 1,
+        "example": {
+          "r1-r4": 50
+        }
+      },
+      "rule": {
+        "resolved_rate": 1.0,
+        "stable_rate": 1.0,
+        "avg_ttr": 7.0,
+        "wasted_per_ep": 0.0,
+        "episodes": [
+          {
+            "seed": 79900,
+            "resolved": true,
+            "stable": true,
+            "ttr": 6,
+            "wasted": 0,
+            "actions": [
+              "r1-r4@50"
+            ]
+          },
+          {
+            "seed": 79901,
+            "resolved": true,
+            "stable": true,
+            "ttr": 9,
+            "wasted": 0,
+            "actions": [
+              "r1-r4@50"
+            ]
+          },
+          {
+            "seed": 79902,
+            "resolved": true,
+            "stable": true,
+            "ttr": 7,
+            "wasted": 0,
+            "actions": [
+              "r1-r4@50"
+            ]
+          },
+          {
+            "seed": 79903,
+            "resolved": true,
+            "stable": true,
+            "ttr": 6,
+            "wasted": 0,
+            "actions": [
+              "r1-r4@50"
+            ]
+          },
+          {
+            "seed": 79904,
+            "resolved": true,
+            "stable": true,
+            "ttr": 7,
+            "wasted": 0,
+            "actions": [
+              "r1-r4@50"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "congested": [
+        "r2-r3",
+        "r1-r4"
+      ],
+      "profile": "weak:r2-r3",
+      "oracle": {
+        "solvable": true,
+        "n_solutions": 59,
+        "min_changes": 2,
+        "example": {
+          "r1-r4": 50,
+          "r2-r3": 50
+        }
+      },
+      "rule": {
+        "resolved_rate": 1.0,
+        "stable_rate": 0.8,
+        "avg_ttr": 10.0,
+        "wasted_per_ep": 0.0,
+        "episodes": [
+          {
+            "seed": 81100,
+            "resolved": true,
+            "stable": true,
+            "ttr": 8,
+            "wasted": 0,
+            "actions": [
+              "r2-r3@50",
+              "r1-r4@50"
+            ]
+          },
+          {
+            "seed": 81101,
+            "resolved": true,
+            "stable": true,
+            "ttr": 10,
+            "wasted": 0,
+            "actions": [
+              "r2-r3@50",
+              "r1-r4@50"
+            ]
+          },
+          {
+            "seed": 81102,
+            "resolved": true,
+            "stable": true,
+            "ttr": 11,
+            "wasted": 0,
+            "actions": [
+              "r2-r3@50",
+              "r1-r4@50"
+            ]
+          },
+          {
+            "seed": 81103,
+            "resolved": true,
+            "stable": false,
+            "ttr": 13,
+            "wasted": 0,
+            "actions": [
+              "r2-r3@50",
+              "r1-r4@50"
+            ]
+          },
+          {
+            "seed": 81104,
+            "resolved": true,
+            "stable": true,
+            "ttr": 8,
+            "wasted": 0,
+            "actions": [
+              "r2-r3@50",
+              "r1-r4@50"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "congested": [
+        "r1-r2"
+      ],
+      "profile": "weak:r2-r4",
+      "oracle": {
+        "solvable": true,
+        "n_solutions": 103,
+        "min_changes": 4,
+        "example": {
+          "r1-r2": 50,
+          "r1-r4": 20,
+          "r2-r4": 20,
+          "r3-r4": 20
+        }
+      },
+      "rule": {
+        "resolved_rate": 1.0,
+        "stable_rate": 1.0,
+        "avg_ttr": 10.2,
+        "wasted_per_ep": 3.0,
+        "episodes": [
+          {
+            "seed": 81500,
+            "resolved": true,
+            "stable": true,
+            "ttr": 11,
+            "wasted": 3,
+            "actions": [
+              "r1-r2@50",
+              "r2-r4@20",
+              "r3-r4@20",
+              "r1-r4@20"
+            ]
+          },
+          {
+            "seed": 81501,
+            "resolved": true,
+            "stable": true,
+            "ttr": 9,
+            "wasted": 3,
+            "actions": [
+              "r1-r2@50",
+              "r2-r4@20",
+              "r3-r4@20",
+              "r1-r4@20"
+            ]
+          },
+          {
+            "seed": 81502,
+            "resolved": true,
+            "stable": true,
+            "ttr": 9,
+            "wasted": 3,
+            "actions": [
+              "r1-r2@50",
+              "r2-r4@20",
+              "r3-r4@20",
+              "r1-r4@20"
+            ]
+          },
+          {
+            "seed": 81503,
+            "resolved": true,
+            "stable": true,
+            "ttr": 8,
+            "wasted": 3,
+            "actions": [
+              "r1-r2@50",
+              "r2-r4@20",
+              "r3-r4@20",
+              "r1-r4@20"
+            ]
+          },
+          {
+            "seed": 81504,
+            "resolved": true,
+            "stable": true,
+            "ttr": 14,
+            "wasted": 3,
+            "actions": [
+              "r1-r2@50",
+              "r2-r4@20",
+              "r3-r4@20",
+              "r1-r4@20"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "congested": [
+        "r1-r3"
+      ],
+      "profile": "weak:r2-r4",
+      "oracle": {
+        "solvable": true,
+        "n_solutions": 345,
+        "min_changes": 1,
+        "example": {
+          "r1-r3": 50
+        }
+      },
+      "rule": {
+        "resolved_rate": 1.0,
+        "stable_rate": 1.0,
+        "avg_ttr": 7.8,
+        "wasted_per_ep": 0.0,
+        "episodes": [
+          {
+            "seed": 81600,
+            "resolved": true,
+            "stable": true,
+            "ttr": 6,
+            "wasted": 0,
+            "actions": [
+              "r1-r3@50"
+            ]
+          },
+          {
+            "seed": 81601,
+            "resolved": true,
+            "stable": true,
+            "ttr": 7,
+            "wasted": 0,
+            "actions": [
+              "r1-r3@50"
+            ]
+          },
+          {
+            "seed": 81602,
+            "resolved": true,
+            "stable": true,
+            "ttr": 8,
+            "wasted": 0,
+            "actions": [
+              "r1-r3@50"
+            ]
+          },
+          {
+            "seed": 81603,
+            "resolved": true,
+            "stable": true,
+            "ttr": 10,
+            "wasted": 0,
+            "actions": [
+              "r1-r3@50"
+            ]
+          },
+          {
+            "seed": 81604,
+            "resolved": true,
+            "stable": true,
+            "ttr": 8,
+            "wasted": 0,
+            "actions": [
+              "r1-r3@50"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "congested": [
+        "r2-r3"
+      ],
+      "profile": "weak:r2-r4",
+      "oracle": {
+        "solvable": true,
+        "n_solutions": 103,
+        "min_changes": 4,
+        "example": {
+          "r1-r4": 20,
+          "r2-r3": 50,
+          "r2-r4": 20,
+          "r3-r4": 20
+        }
+      },
+      "rule": {
+        "resolved_rate": 1.0,
+        "stable_rate": 1.0,
+        "avg_ttr": 11.0,
+        "wasted_per_ep": 3.0,
+        "episodes": [
+          {
+            "seed": 81700,
+            "resolved": true,
+            "stable": true,
+            "ttr": 13,
+            "wasted": 3,
+            "actions": [
+              "r2-r3@50",
+              "r2-r4@20",
+              "r3-r4@20",
+              "r1-r4@20"
+            ]
+          },
+          {
+            "seed": 81701,
+            "resolved": true,
+            "stable": true,
+            "ttr": 11,
+            "wasted": 3,
+            "actions": [
+              "r2-r3@50",
+              "r2-r4@20",
+              "r3-r4@20",
+              "r1-r4@20"
+            ]
+          },
+          {
+            "seed": 81702,
+            "resolved": true,
+            "stable": true,
+            "ttr": 12,
+            "wasted": 3,
+            "actions": [
+              "r2-r3@50",
+              "r2-r4@20",
+              "r3-r4@20",
+              "r1-r4@20"
+            ]
+          },
+          {
+            "seed": 81703,
+            "resolved": true,
+            "stable": true,
+            "ttr": 10,
+            "wasted": 3,
+            "actions": [
+              "r2-r3@50",
+              "r2-r4@20",
+              "r3-r4@20",
+              "r1-r4@20"
+            ]
+          },
+          {
+            "seed": 81704,
+            "resolved": true,
+            "stable": true,
+            "ttr": 9,
+            "wasted": 3,
+            "actions": [
+              "r2-r3@50",
+              "r2-r4@20",
+              "r3-r4@20",
+              "r1-r4@20"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "congested": [
+        "r2-r4"
+      ],
+      "profile": "weak:r2-r4",
+      "oracle": {
+        "solvable": true,
+        "n_solutions": 345,
+        "min_changes": 1,
+        "example": {
+          "r2-r4": 50
+        }
+      },
+      "rule": {
+        "resolved_rate": 1.0,
+        "stable_rate": 1.0,
+        "avg_ttr": 7.0,
+        "wasted_per_ep": 0.0,
+        "episodes": [
+          {
+            "seed": 81800,
+            "resolved": true,
+            "stable": true,
+            "ttr": 7,
+            "wasted": 0,
+            "actions": [
+              "r2-r4@50"
+            ]
+          },
+          {
+            "seed": 81801,
+            "resolved": true,
+            "stable": true,
+            "ttr": 8,
+            "wasted": 0,
+            "actions": [
+              "r2-r4@50"
+            ]
+          },
+          {
+            "seed": 81802,
+            "resolved": true,
+            "stable": true,
+            "ttr": 6,
+            "wasted": 0,
+            "actions": [
+              "r2-r4@50"
+            ]
+          },
+          {
+            "seed": 81803,
+            "resolved": true,
+            "stable": true,
+            "ttr": 7,
+            "wasted": 0,
+            "actions": [
+              "r2-r4@50"
+            ]
+          },
+          {
+            "seed": 81804,
+            "resolved": true,
+            "stable": true,
+            "ttr": 7,
+            "wasted": 0,
+            "actions": [
+              "r2-r4@50"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "congested": [
+        "r3-r4"
+      ],
+      "profile": "weak:r2-r4",
+      "oracle": {
+        "solvable": true,
+        "n_solutions": 103,
+        "min_changes": 4,
+        "example": {
+          "r1-r2": 20,
+          "r2-r3": 20,
+          "r2-r4": 20,
+          "r3-r4": 50
+        }
+      },
+      "rule": {
+        "resolved_rate": 1.0,
+        "stable_rate": 1.0,
+        "avg_ttr": 12.4,
+        "wasted_per_ep": 3.0,
+        "episodes": [
+          {
+            "seed": 81900,
+            "resolved": true,
+            "stable": true,
+            "ttr": 11,
+            "wasted": 3,
+            "actions": [
+              "r3-r4@50",
+              "r1-r2@20",
+              "r2-r3@20",
+              "r2-r4@20"
+            ]
+          },
+          {
+            "seed": 81901,
+            "resolved": true,
+            "stable": true,
+            "ttr": 13,
+            "wasted": 3,
+            "actions": [
+              "r3-r4@50",
+              "r1-r2@20",
+              "r2-r3@20",
+              "r2-r4@20"
+            ]
+          },
+          {
+            "seed": 81902,
+            "resolved": true,
+            "stable": true,
+            "ttr": 12,
+            "wasted": 3,
+            "actions": [
+              "r3-r4@50",
+              "r1-r2@20",
+              "r2-r3@20",
+              "r2-r4@20"
+            ]
+          },
+          {
+            "seed": 81903,
+            "resolved": true,
+            "stable": true,
+            "ttr": 15,
+            "wasted": 3,
+            "actions": [
+              "r3-r4@50",
+              "r1-r2@20",
+              "r2-r3@20",
+              "r2-r4@20"
+            ]
+          },
+          {
+            "seed": 81904,
+            "resolved": true,
+            "stable": true,
+            "ttr": 11,
+            "wasted": 3,
+            "actions": [
+              "r3-r4@50",
+              "r1-r2@20",
+              "r2-r3@20",
+              "r2-r4@20"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "congested": [
+        "r1-r4"
+      ],
+      "profile": "weak:r2-r4",
+      "oracle": {
+        "solvable": true,
+        "n_solutions": 103,
+        "min_changes": 4,
+        "example": {
+          "r1-r2": 20,
+          "r1-r4": 50,
+          "r2-r3": 20,
+          "r2-r4": 20
+        }
+      },
+      "rule": {
+        "resolved_rate": 1.0,
+        "stable_rate": 1.0,
+        "avg_ttr": 10.6,
+        "wasted_per_ep": 3.0,
+        "episodes": [
+          {
+            "seed": 82000,
+            "resolved": true,
+            "stable": true,
+            "ttr": 11,
+            "wasted": 3,
+            "actions": [
+              "r1-r4@50",
+              "r1-r2@20",
+              "r2-r3@20",
+              "r2-r4@20"
+            ]
+          },
+          {
+            "seed": 82001,
+            "resolved": true,
+            "stable": true,
+            "ttr": 12,
+            "wasted": 3,
+            "actions": [
+              "r1-r4@50",
+              "r1-r2@20",
+              "r2-r3@20",
+              "r2-r4@20"
+            ]
+          },
+          {
+            "seed": 82002,
+            "resolved": true,
+            "stable": true,
+            "ttr": 9,
+            "wasted": 3,
+            "actions": [
+              "r1-r4@50",
+              "r1-r2@20",
+              "r2-r3@20",
+              "r2-r4@20"
+            ]
+          },
+          {
+            "seed": 82003,
+            "resolved": true,
+            "stable": true,
+            "ttr": 11,
+            "wasted": 3,
+            "actions": [
+              "r1-r4@50",
+              "r1-r2@20",
+              "r2-r3@20",
+              "r2-r4@20"
+            ]
+          },
+          {
+            "seed": 82004,
+            "resolved": true,
+            "stable": true,
+            "ttr": 10,
+            "wasted": 3,
+            "actions": [
+              "r1-r4@50",
+              "r1-r2@20",
+              "r2-r3@20",
+              "r2-r4@20"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "congested": [
+        "r1-r3",
+        "r2-r4"
+      ],
+      "profile": "weak:r2-r4",
+      "oracle": {
+        "solvable": true,
+        "n_solutions": 59,
+        "min_changes": 2,
+        "example": {
+          "r1-r3": 50,
+          "r2-r4": 50
+        }
+      },
+      "rule": {
+        "resolved_rate": 1.0,
+        "stable_rate": 1.0,
+        "avg_ttr": 10.4,
+        "wasted_per_ep": 0.0,
+        "episodes": [
+          {
+            "seed": 82700,
+            "resolved": true,
+            "stable": true,
+            "ttr": 9,
+            "wasted": 0,
+            "actions": [
+              "r1-r3@50",
+              "r2-r4@50"
+            ]
+          },
+          {
+            "seed": 82701,
+            "resolved": true,
+            "stable": true,
+            "ttr": 14,
+            "wasted": 0,
+            "actions": [
+              "r1-r3@50",
+              "r2-r4@50"
+            ]
+          },
+          {
+            "seed": 82702,
+            "resolved": true,
+            "stable": true,
+            "ttr": 10,
+            "wasted": 0,
+            "actions": [
+              "r1-r3@50",
+              "r2-r4@50"
+            ]
+          },
+          {
+            "seed": 82703,
+            "resolved": true,
+            "stable": true,
+            "ttr": 10,
+            "wasted": 0,
+            "actions": [
+              "r1-r3@50",
+              "r2-r4@50"
+            ]
+          },
+          {
+            "seed": 82704,
+            "resolved": true,
+            "stable": true,
+            "ttr": 9,
+            "wasted": 0,
+            "actions": [
+              "r1-r3@50",
+              "r2-r4@50"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "congested": [
+        "r1-r2"
+      ],
+      "profile": "weak:r3-r4",
+      "oracle": {
+        "solvable": true,
+        "n_solutions": 345,
+        "min_changes": 1,
+        "example": {
+          "r1-r2": 50
+        }
+      },
+      "rule": {
+        "resolved_rate": 1.0,
+        "stable_rate": 1.0,
+        "avg_ttr": 8.4,
+        "wasted_per_ep": 0.0,
+        "episodes": [
+          {
+            "seed": 83600,
+            "resolved": true,
+            "stable": true,
+            "ttr": 7,
+            "wasted": 0,
+            "actions": [
+              "r1-r2@50"
+            ]
+          },
+          {
+            "seed": 83601,
+            "resolved": true,
+            "stable": true,
+            "ttr": 8,
+            "wasted": 0,
+            "actions": [
+              "r1-r2@50"
+            ]
+          },
+          {
+            "seed": 83602,
+            "resolved": true,
+            "stable": true,
+            "ttr": 12,
+            "wasted": 0,
+            "actions": [
+              "r1-r2@50"
+            ]
+          },
+          {
+            "seed": 83603,
+            "resolved": true,
+            "stable": true,
+            "ttr": 8,
+            "wasted": 0,
+            "actions": [
+              "r1-r2@50"
+            ]
+          },
+          {
+            "seed": 83604,
+            "resolved": true,
+            "stable": true,
+            "ttr": 7,
+            "wasted": 0,
+            "actions": [
+              "r1-r2@50"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "congested": [
+        "r1-r3"
+      ],
+      "profile": "weak:r3-r4",
+      "oracle": {
+        "solvable": true,
+        "n_solutions": 103,
+        "min_changes": 4,
+        "example": {
+          "r1-r3": 50,
+          "r1-r4": 20,
+          "r2-r4": 20,
+          "r3-r4": 20
+        }
+      },
+      "rule": {
+        "resolved_rate": 1.0,
+        "stable_rate": 1.0,
+        "avg_ttr": 10.4,
+        "wasted_per_ep": 3.0,
+        "episodes": [
+          {
+            "seed": 83700,
+            "resolved": true,
+            "stable": true,
+            "ttr": 9,
+            "wasted": 3,
+            "actions": [
+              "r1-r3@50",
+              "r2-r4@20",
+              "r3-r4@20",
+              "r1-r4@20"
+            ]
+          },
+          {
+            "seed": 83701,
+            "resolved": true,
+            "stable": true,
+            "ttr": 13,
+            "wasted": 3,
+            "actions": [
+              "r1-r3@50",
+              "r2-r4@20",
+              "r3-r4@20",
+              "r1-r4@20"
+            ]
+          },
+          {
+            "seed": 83702,
+            "resolved": true,
+            "stable": true,
+            "ttr": 10,
+            "wasted": 3,
+            "actions": [
+              "r1-r3@50",
+              "r2-r4@20",
+              "r3-r4@20",
+              "r1-r4@20"
+            ]
+          },
+          {
+            "seed": 83703,
+            "resolved": true,
+            "stable": true,
+            "ttr": 9,
+            "wasted": 3,
+            "actions": [
+              "r1-r3@50",
+              "r2-r4@20",
+              "r3-r4@20",
+              "r1-r4@20"
+            ]
+          },
+          {
+            "seed": 83704,
+            "resolved": true,
+            "stable": true,
+            "ttr": 11,
+            "wasted": 3,
+            "actions": [
+              "r1-r3@50",
+              "r2-r4@20",
+              "r3-r4@20",
+              "r1-r4@20"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "congested": [
+        "r2-r3"
+      ],
+      "profile": "weak:r3-r4",
+      "oracle": {
+        "solvable": true,
+        "n_solutions": 103,
+        "min_changes": 4,
+        "example": {
+          "r1-r4": 20,
+          "r2-r3": 50,
+          "r2-r4": 20,
+          "r3-r4": 20
+        }
+      },
+      "rule": {
+        "resolved_rate": 1.0,
+        "stable_rate": 1.0,
+        "avg_ttr": 9.8,
+        "wasted_per_ep": 3.0,
+        "episodes": [
+          {
+            "seed": 83800,
+            "resolved": true,
+            "stable": true,
+            "ttr": 10,
+            "wasted": 3,
+            "actions": [
+              "r2-r3@50",
+              "r2-r4@20",
+              "r3-r4@20",
+              "r1-r4@20"
+            ]
+          },
+          {
+            "seed": 83801,
+            "resolved": true,
+            "stable": true,
+            "ttr": 9,
+            "wasted": 3,
+            "actions": [
+              "r2-r3@50",
+              "r2-r4@20",
+              "r3-r4@20",
+              "r1-r4@20"
+            ]
+          },
+          {
+            "seed": 83802,
+            "resolved": true,
+            "stable": true,
+            "ttr": 11,
+            "wasted": 3,
+            "actions": [
+              "r2-r3@50",
+              "r2-r4@20",
+              "r3-r4@20",
+              "r1-r4@20"
+            ]
+          },
+          {
+            "seed": 83803,
+            "resolved": true,
+            "stable": true,
+            "ttr": 10,
+            "wasted": 3,
+            "actions": [
+              "r2-r3@50",
+              "r2-r4@20",
+              "r3-r4@20",
+              "r1-r4@20"
+            ]
+          },
+          {
+            "seed": 83804,
+            "resolved": true,
+            "stable": true,
+            "ttr": 9,
+            "wasted": 3,
+            "actions": [
+              "r2-r3@50",
+              "r2-r4@20",
+              "r3-r4@20",
+              "r1-r4@20"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "congested": [
+        "r2-r4"
+      ],
+      "profile": "weak:r3-r4",
+      "oracle": {
+        "solvable": true,
+        "n_solutions": 103,
+        "min_changes": 4,
+        "example": {
+          "r1-r3": 20,
+          "r2-r3": 20,
+          "r2-r4": 50,
+          "r3-r4": 20
+        }
+      },
+      "rule": {
+        "resolved_rate": 1.0,
+        "stable_rate": 1.0,
+        "avg_ttr": 14.0,
+        "wasted_per_ep": 3.0,
+        "episodes": [
+          {
+            "seed": 83900,
+            "resolved": true,
+            "stable": true,
+            "ttr": 13,
+            "wasted": 3,
+            "actions": [
+              "r2-r4@50",
+              "r1-r3@20",
+              "r2-r3@20",
+              "r3-r4@20"
+            ]
+          },
+          {
+            "seed": 83901,
+            "resolved": true,
+            "stable": true,
+            "ttr": 15,
+            "wasted": 3,
+            "actions": [
+              "r2-r4@50",
+              "r1-r3@20",
+              "r2-r3@20",
+              "r3-r4@20"
+            ]
+          },
+          {
+            "seed": 83902,
+            "resolved": true,
+            "stable": true,
+            "ttr": 15,
+            "wasted": 3,
+            "actions": [
+              "r2-r4@50",
+              "r1-r3@20",
+              "r2-r3@20",
+              "r3-r4@20"
+            ]
+          },
+          {
+            "seed": 83903,
+            "resolved": true,
+            "stable": true,
+            "ttr": 13,
+            "wasted": 3,
+            "actions": [
+              "r2-r4@50",
+              "r1-r3@20",
+              "r2-r3@20",
+              "r3-r4@20"
+            ]
+          },
+          {
+            "seed": 83904,
+            "resolved": true,
+            "stable": true,
+            "ttr": 14,
+            "wasted": 3,
+            "actions": [
+              "r2-r4@50",
+              "r1-r3@20",
+              "r2-r3@20",
+              "r3-r4@20"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "congested": [
+        "r3-r4"
+      ],
+      "profile": "weak:r3-r4",
+      "oracle": {
+        "solvable": true,
+        "n_solutions": 345,
+        "min_changes": 1,
+        "example": {
+          "r3-r4": 50
+        }
+      },
+      "rule": {
+        "resolved_rate": 1.0,
+        "stable_rate": 1.0,
+        "avg_ttr": 7.8,
+        "wasted_per_ep": 0.0,
+        "episodes": [
+          {
+            "seed": 84000,
+            "resolved": true,
+            "stable": true,
+            "ttr": 8,
+            "wasted": 0,
+            "actions": [
+              "r3-r4@50"
+            ]
+          },
+          {
+            "seed": 84001,
+            "resolved": true,
+            "stable": true,
+            "ttr": 7,
+            "wasted": 0,
+            "actions": [
+              "r3-r4@50"
+            ]
+          },
+          {
+            "seed": 84002,
+            "resolved": true,
+            "stable": true,
+            "ttr": 10,
+            "wasted": 0,
+            "actions": [
+              "r3-r4@50"
+            ]
+          },
+          {
+            "seed": 84003,
+            "resolved": true,
+            "stable": true,
+            "ttr": 8,
+            "wasted": 0,
+            "actions": [
+              "r3-r4@50"
+            ]
+          },
+          {
+            "seed": 84004,
+            "resolved": true,
+            "stable": true,
+            "ttr": 6,
+            "wasted": 0,
+            "actions": [
+              "r3-r4@50"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "congested": [
+        "r1-r4"
+      ],
+      "profile": "weak:r3-r4",
+      "oracle": {
+        "solvable": true,
+        "n_solutions": 103,
+        "min_changes": 4,
+        "example": {
+          "r1-r3": 20,
+          "r1-r4": 50,
+          "r2-r3": 20,
+          "r3-r4": 20
+        }
+      },
+      "rule": {
+        "resolved_rate": 1.0,
+        "stable_rate": 1.0,
+        "avg_ttr": 10.4,
+        "wasted_per_ep": 3.0,
+        "episodes": [
+          {
+            "seed": 84100,
+            "resolved": true,
+            "stable": true,
+            "ttr": 11,
+            "wasted": 3,
+            "actions": [
+              "r1-r4@50",
+              "r1-r3@20",
+              "r2-r3@20",
+              "r3-r4@20"
+            ]
+          },
+          {
+            "seed": 84101,
+            "resolved": true,
+            "stable": true,
+            "ttr": 9,
+            "wasted": 3,
+            "actions": [
+              "r1-r4@50",
+              "r1-r3@20",
+              "r2-r3@20",
+              "r3-r4@20"
+            ]
+          },
+          {
+            "seed": 84102,
+            "resolved": true,
+            "stable": true,
+            "ttr": 10,
+            "wasted": 3,
+            "actions": [
+              "r1-r4@50",
+              "r1-r3@20",
+              "r2-r3@20",
+              "r3-r4@20"
+            ]
+          },
+          {
+            "seed": 84103,
+            "resolved": true,
+            "stable": true,
+            "ttr": 11,
+            "wasted": 3,
+            "actions": [
+              "r1-r4@50",
+              "r1-r3@20",
+              "r2-r3@20",
+              "r3-r4@20"
+            ]
+          },
+          {
+            "seed": 84104,
+            "resolved": true,
+            "stable": true,
+            "ttr": 11,
+            "wasted": 3,
+            "actions": [
+              "r1-r4@50",
+              "r1-r3@20",
+              "r2-r3@20",
+              "r3-r4@20"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "congested": [
+        "r1-r2",
+        "r3-r4"
+      ],
+      "profile": "weak:r3-r4",
+      "oracle": {
+        "solvable": true,
+        "n_solutions": 59,
+        "min_changes": 2,
+        "example": {
+          "r1-r2": 50,
+          "r3-r4": 50
+        }
+      },
+      "rule": {
+        "resolved_rate": 1.0,
+        "stable_rate": 1.0,
+        "avg_ttr": 10.0,
+        "wasted_per_ep": 0.0,
+        "episodes": [
+          {
+            "seed": 84500,
+            "resolved": true,
+            "stable": true,
+            "ttr": 7,
+            "wasted": 0,
+            "actions": [
+              "r1-r2@50",
+              "r3-r4@50"
+            ]
+          },
+          {
+            "seed": 84501,
+            "resolved": true,
+            "stable": true,
+            "ttr": 12,
+            "wasted": 0,
+            "actions": [
+              "r1-r2@50",
+              "r3-r4@50"
+            ]
+          },
+          {
+            "seed": 84502,
+            "resolved": true,
+            "stable": true,
+            "ttr": 9,
+            "wasted": 0,
+            "actions": [
+              "r1-r2@50",
+              "r3-r4@50"
+            ]
+          },
+          {
+            "seed": 84503,
+            "resolved": true,
+            "stable": true,
+            "ttr": 10,
+            "wasted": 0,
+            "actions": [
+              "r1-r2@50",
+              "r3-r4@50"
+            ]
+          },
+          {
+            "seed": 84504,
+            "resolved": true,
+            "stable": true,
+            "ttr": 12,
+            "wasted": 0,
+            "actions": [
+              "r1-r2@50",
+              "r3-r4@50"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "congested": [
+        "r1-r2"
+      ],
+      "profile": "weak:r1-r4",
+      "oracle": {
+        "solvable": true,
+        "n_solutions": 103,
+        "min_changes": 4,
+        "example": {
+          "r1-r2": 50,
+          "r1-r4": 20,
+          "r2-r4": 20,
+          "r3-r4": 20
+        }
+      },
+      "rule": {
+        "resolved_rate": 1.0,
+        "stable_rate": 1.0,
+        "avg_ttr": 11.2,
+        "wasted_per_ep": 3.0,
+        "episodes": [
+          {
+            "seed": 85700,
+            "resolved": true,
+            "stable": true,
+            "ttr": 12,
+            "wasted": 3,
+            "actions": [
+              "r1-r2@50",
+              "r2-r4@20",
+              "r3-r4@20",
+              "r1-r4@20"
+            ]
+          },
+          {
+            "seed": 85701,
+            "resolved": true,
+            "stable": true,
+            "ttr": 11,
+            "wasted": 3,
+            "actions": [
+              "r1-r2@50",
+              "r2-r4@20",
+              "r3-r4@20",
+              "r1-r4@20"
+            ]
+          },
+          {
+            "seed": 85702,
+            "resolved": true,
+            "stable": true,
+            "ttr": 10,
+            "wasted": 3,
+            "actions": [
+              "r1-r2@50",
+              "r2-r4@20",
+              "r3-r4@20",
+              "r1-r4@20"
+            ]
+          },
+          {
+            "seed": 85703,
+            "resolved": true,
+            "stable": true,
+            "ttr": 12,
+            "wasted": 3,
+            "actions": [
+              "r1-r2@50",
+              "r2-r4@20",
+              "r3-r4@20",
+              "r1-r4@20"
+            ]
+          },
+          {
+            "seed": 85704,
+            "resolved": true,
+            "stable": true,
+            "ttr": 11,
+            "wasted": 3,
+            "actions": [
+              "r1-r2@50",
+              "r2-r4@20",
+              "r3-r4@20",
+              "r1-r4@20"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "congested": [
+        "r1-r3"
+      ],
+      "profile": "weak:r1-r4",
+      "oracle": {
+        "solvable": true,
+        "n_solutions": 103,
+        "min_changes": 4,
+        "example": {
+          "r1-r3": 50,
+          "r1-r4": 20,
+          "r2-r4": 20,
+          "r3-r4": 20
+        }
+      },
+      "rule": {
+        "resolved_rate": 1.0,
+        "stable_rate": 1.0,
+        "avg_ttr": 11.4,
+        "wasted_per_ep": 3.0,
+        "episodes": [
+          {
+            "seed": 85800,
+            "resolved": true,
+            "stable": true,
+            "ttr": 11,
+            "wasted": 3,
+            "actions": [
+              "r1-r3@50",
+              "r2-r4@20",
+              "r3-r4@20",
+              "r1-r4@20"
+            ]
+          },
+          {
+            "seed": 85801,
+            "resolved": true,
+            "stable": true,
+            "ttr": 11,
+            "wasted": 3,
+            "actions": [
+              "r1-r3@50",
+              "r2-r4@20",
+              "r3-r4@20",
+              "r1-r4@20"
+            ]
+          },
+          {
+            "seed": 85802,
+            "resolved": true,
+            "stable": true,
+            "ttr": 11,
+            "wasted": 3,
+            "actions": [
+              "r1-r3@50",
+              "r2-r4@20",
+              "r3-r4@20",
+              "r1-r4@20"
+            ]
+          },
+          {
+            "seed": 85803,
+            "resolved": true,
+            "stable": true,
+            "ttr": 12,
+            "wasted": 3,
+            "actions": [
+              "r1-r3@50",
+              "r2-r4@20",
+              "r3-r4@20",
+              "r1-r4@20"
+            ]
+          },
+          {
+            "seed": 85804,
+            "resolved": true,
+            "stable": true,
+            "ttr": 12,
+            "wasted": 3,
+            "actions": [
+              "r1-r3@50",
+              "r2-r4@20",
+              "r3-r4@20",
+              "r1-r4@20"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "congested": [
+        "r2-r3"
+      ],
+      "profile": "weak:r1-r4",
+      "oracle": {
+        "solvable": true,
+        "n_solutions": 345,
+        "min_changes": 1,
+        "example": {
+          "r2-r3": 50
+        }
+      },
+      "rule": {
+        "resolved_rate": 1.0,
+        "stable_rate": 1.0,
+        "avg_ttr": 7.2,
+        "wasted_per_ep": 0.0,
+        "episodes": [
+          {
+            "seed": 85900,
+            "resolved": true,
+            "stable": true,
+            "ttr": 7,
+            "wasted": 0,
+            "actions": [
+              "r2-r3@50"
+            ]
+          },
+          {
+            "seed": 85901,
+            "resolved": true,
+            "stable": true,
+            "ttr": 7,
+            "wasted": 0,
+            "actions": [
+              "r2-r3@50"
+            ]
+          },
+          {
+            "seed": 85902,
+            "resolved": true,
+            "stable": true,
+            "ttr": 8,
+            "wasted": 0,
+            "actions": [
+              "r2-r3@50"
+            ]
+          },
+          {
+            "seed": 85903,
+            "resolved": true,
+            "stable": true,
+            "ttr": 5,
+            "wasted": 0,
+            "actions": [
+              "r2-r3@50"
+            ]
+          },
+          {
+            "seed": 85904,
+            "resolved": true,
+            "stable": true,
+            "ttr": 9,
+            "wasted": 0,
+            "actions": [
+              "r2-r3@50"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "congested": [
+        "r2-r4"
+      ],
+      "profile": "weak:r1-r4",
+      "oracle": {
+        "solvable": true,
+        "n_solutions": 103,
+        "min_changes": 4,
+        "example": {
+          "r1-r2": 20,
+          "r1-r3": 20,
+          "r1-r4": 20,
+          "r2-r4": 50
+        }
+      },
+      "rule": {
+        "resolved_rate": 1.0,
+        "stable_rate": 1.0,
+        "avg_ttr": 10.4,
+        "wasted_per_ep": 3.0,
+        "episodes": [
+          {
+            "seed": 86000,
+            "resolved": true,
+            "stable": true,
+            "ttr": 10,
+            "wasted": 3,
+            "actions": [
+              "r2-r4@50",
+              "r1-r2@20",
+              "r1-r3@20",
+              "r1-r4@20"
+            ]
+          },
+          {
+            "seed": 86001,
+            "resolved": true,
+            "stable": true,
+            "ttr": 9,
+            "wasted": 3,
+            "actions": [
+              "r2-r4@50",
+              "r1-r2@20",
+              "r1-r3@20",
+              "r1-r4@20"
+            ]
+          },
+          {
+            "seed": 86002,
+            "resolved": true,
+            "stable": true,
+            "ttr": 11,
+            "wasted": 3,
+            "actions": [
+              "r2-r4@50",
+              "r1-r2@20",
+              "r1-r3@20",
+              "r1-r4@20"
+            ]
+          },
+          {
+            "seed": 86003,
+            "resolved": true,
+            "stable": true,
+            "ttr": 9,
+            "wasted": 3,
+            "actions": [
+              "r2-r4@50",
+              "r1-r2@20",
+              "r1-r3@20",
+              "r1-r4@20"
+            ]
+          },
+          {
+            "seed": 86004,
+            "resolved": true,
+            "stable": true,
+            "ttr": 13,
+            "wasted": 3,
+            "actions": [
+              "r2-r4@50",
+              "r1-r2@20",
+              "r1-r3@20",
+              "r1-r4@20"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "congested": [
+        "r3-r4"
+      ],
+      "profile": "weak:r1-r4",
+      "oracle": {
+        "solvable": true,
+        "n_solutions": 103,
+        "min_changes": 4,
+        "example": {
+          "r1-r2": 20,
+          "r1-r3": 20,
+          "r1-r4": 20,
+          "r3-r4": 50
+        }
+      },
+      "rule": {
+        "resolved_rate": 1.0,
+        "stable_rate": 1.0,
+        "avg_ttr": 13.2,
+        "wasted_per_ep": 3.0,
+        "episodes": [
+          {
+            "seed": 86100,
+            "resolved": true,
+            "stable": true,
+            "ttr": 15,
+            "wasted": 3,
+            "actions": [
+              "r3-r4@50",
+              "r1-r2@20",
+              "r1-r3@20",
+              "r1-r4@20"
+            ]
+          },
+          {
+            "seed": 86101,
+            "resolved": true,
+            "stable": true,
+            "ttr": 10,
+            "wasted": 3,
+            "actions": [
+              "r3-r4@50",
+              "r1-r2@20",
+              "r1-r3@20",
+              "r1-r4@20"
+            ]
+          },
+          {
+            "seed": 86102,
+            "resolved": true,
+            "stable": true,
+            "ttr": 13,
+            "wasted": 3,
+            "actions": [
+              "r3-r4@50",
+              "r1-r2@20",
+              "r1-r3@20",
+              "r1-r4@20"
+            ]
+          },
+          {
+            "seed": 86103,
+            "resolved": true,
+            "stable": true,
+            "ttr": 14,
+            "wasted": 3,
+            "actions": [
+              "r3-r4@50",
+              "r1-r2@20",
+              "r1-r3@20",
+              "r1-r4@20"
+            ]
+          },
+          {
+            "seed": 86104,
+            "resolved": true,
+            "stable": true,
+            "ttr": 14,
+            "wasted": 3,
+            "actions": [
+              "r3-r4@50",
+              "r1-r2@20",
+              "r1-r3@20",
+              "r1-r4@20"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "congested": [
+        "r1-r4"
+      ],
+      "profile": "weak:r1-r4",
+      "oracle": {
+        "solvable": true,
+        "n_solutions": 345,
+        "min_changes": 1,
+        "example": {
+          "r1-r4": 50
+        }
+      },
+      "rule": {
+        "resolved_rate": 1.0,
+        "stable_rate": 1.0,
+        "avg_ttr": 6.8,
+        "wasted_per_ep": 0.0,
+        "episodes": [
+          {
+            "seed": 86200,
+            "resolved": true,
+            "stable": true,
+            "ttr": 8,
+            "wasted": 0,
+            "actions": [
+              "r1-r4@50"
+            ]
+          },
+          {
+            "seed": 86201,
+            "resolved": true,
+            "stable": true,
+            "ttr": 5,
+            "wasted": 0,
+            "actions": [
+              "r1-r4@50"
+            ]
+          },
+          {
+            "seed": 86202,
+            "resolved": true,
+            "stable": true,
+            "ttr": 6,
+            "wasted": 0,
+            "actions": [
+              "r1-r4@50"
+            ]
+          },
+          {
+            "seed": 86203,
+            "resolved": true,
+            "stable": true,
+            "ttr": 8,
+            "wasted": 0,
+            "actions": [
+              "r1-r4@50"
+            ]
+          },
+          {
+            "seed": 86204,
+            "resolved": true,
+            "stable": true,
+            "ttr": 7,
+            "wasted": 0,
+            "actions": [
+              "r1-r4@50"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "congested": [
+        "r2-r3",
+        "r1-r4"
+      ],
+      "profile": "weak:r1-r4",
+      "oracle": {
+        "solvable": true,
+        "n_solutions": 59,
+        "min_changes": 2,
+        "example": {
+          "r1-r4": 50,
+          "r2-r3": 50
+        }
+      },
+      "rule": {
+        "resolved_rate": 1.0,
+        "stable_rate": 1.0,
+        "avg_ttr": 11.0,
+        "wasted_per_ep": 0.0,
+        "episodes": [
+          {
+            "seed": 87400,
+            "resolved": true,
+            "stable": true,
+            "ttr": 9,
+            "wasted": 0,
+            "actions": [
+              "r2-r3@50",
+              "r1-r4@50"
+            ]
+          },
+          {
+            "seed": 87401,
+            "resolved": true,
+            "stable": true,
+            "ttr": 11,
+            "wasted": 0,
+            "actions": [
+              "r2-r3@50",
+              "r1-r4@50"
+            ]
+          },
+          {
+            "seed": 87402,
+            "resolved": true,
+            "stable": true,
+            "ttr": 12,
+            "wasted": 0,
+            "actions": [
+              "r2-r3@50",
+              "r1-r4@50"
+            ]
+          },
+          {
+            "seed": 87403,
+            "resolved": true,
+            "stable": true,
+            "ttr": 14,
+            "wasted": 0,
+            "actions": [
+              "r2-r3@50",
+              "r1-r4@50"
+            ]
+          },
+          {
+            "seed": 87404,
+            "resolved": true,
+            "stable": true,
+            "ttr": 9,
+            "wasted": 0,
+            "actions": [
+              "r2-r3@50",
+              "r1-r4@50"
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}
