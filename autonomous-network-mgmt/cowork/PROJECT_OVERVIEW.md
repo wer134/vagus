@@ -62,6 +62,7 @@ autonomous-network-mgmt/
 │   ├── ablation_study.py           #   Analytics / MAML / Combined 절제 실험
 │   ├── persistent_buffer_test.py   #   지지 버퍼 장기 유지 실험
 │   ├── capacity_probe.py           #   링크 용량 147 시나리오: 오라클(풀이 존재) vs 규칙 단독
+│   ├── demand_shift_probe.py       #   수요 변화 150 시나리오: 규칙 v2 / 계획기 v3 / 적응형 v4
 │   ├── cicddos_loader.py           #   CICDDoS2019 CSV → 6피처 윈도우 변환
 │   ├── validate_security_detector.py  # 실데이터 DDoS 탐지 검증
 │   ├── CICDDOS2019_SETUP.md        #   데이터셋 준비 가이드
@@ -165,6 +166,7 @@ POST /auto-step  (ai-engine 내부에서 한 사이클 전체를 수행)
 | POST/DELETE | `/debug/attack/{type}`, `/debug/attack` | 공격 주입·해제 (`ddos` / `portscan`) |
 | POST | `/debug/reset` | 에피소드 리셋 (body `{"seed": N}` 지원) |
 | GET | `/metrics/links` | 링크(인터페이스) 단위 이용률·손실·용량 — Analytics v2/v3, 관측 v2용 |
+| PUT | `/debug/demand/{pair}` | 노드 쌍 수요 변경 (body `{"demand": 2.0}`, reset이 균일 복원) |
 | PUT | `/debug/capacity/{link}` | 링크 용량 변경 (body `{"capacity": 1.2}`, reset이 기본값 복원) |
 | POST | `/debug/tick` | 시뮬레이션 시간 진행 (body `{"n": 1}`) — lockstep 모드에서 유일한 시간 진행 수단 |
 | GET | `/debug/stress`, `/debug/state`, `/debug/attack-state` | 디버그 상태 (틱, 링크 스트레스, 혼잡 링크 등) |
@@ -289,7 +291,8 @@ python ai-engine/ospf_security.py     # replay / downgrade / key-compromise / we
 `?disable_analytics=true`, `?disable_maml=true` 쿼리로 절제 실험 모드를 켤 수 있다.
 `?analytics_version=2`는 근본 원인 분석에 링크 단위 관측을 쓰고(`root_cause_analysis_v2`),
 `?analytics_version=3`은 거기에 라우팅 모델 계획기(`routing_model.py`)로 조치를 고른다
-(`disable_maml=true`에서만). 기본값 1은 링크 관측을 읽지 않는 기존 동작이다 (2026-11-15).
+(`disable_maml=true`에서만). `?analytics_version=4`는 관측 부하가 모델과 어긋나면 수요를 다시
+추정하는 적응형 계획기다 (2026-11-16). 기본값 1은 링크 관측을 읽지 않는 기존 동작이다 (2026-11-15).
 
 **주요 엔드포인트**
 
