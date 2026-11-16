@@ -20,6 +20,8 @@ cost를 함께 바꿔 우회 경로를 고르는 일이다. 이 모듈은 그것
 """
 import itertools
 
+import numpy as np
+
 from topology import LINKS, NODES, NODE_LINKS, LINK_ENDPOINTS, OSPF_COSTS
 
 PAIRS: list[tuple[str, str]] = [(s, d) for i, s in enumerate(NODES) for d in NODES[i + 1:]]
@@ -76,6 +78,46 @@ def estimate_demand(link_metrics: list[dict], costs: dict[str, int]) -> dict[tup
         return None
     lm = {m["linkId"]: m for m in link_metrics}
     return {pair: lm[_DIRECT[pair]]["utilization"] * lm[_DIRECT[pair]]["capacity"] for pair in PAIRS}
+
+
+def routing_matrix(costs: dict[str, int]) -> np.ndarray:
+    """R[링크, 쌍] = 그 쌍의 수요 중 그 링크를 지나는 비율. 링크 부하 = R @ 수요."""
+    R = np.zeros((len(LINKS), len(PAIRS)))
+    for j, pair in enumerate(PAIRS):
+        unit = link_loads(costs, {pair: 1.0})
+        for i, lk in enumerate(LINKS):
+            R[i, j] = unit[lk]
+    return R
+
+
+# 관측 부하와 모델 예측이 이만큼 어긋나면 수요 추정이 낡았다고 본다 (수요 단위)
+DEMAND_MISMATCH_TOL = 0.05
+
+
+def model_mismatch(demand: dict, costs: dict[str, int], link_metrics: list[dict]) -> float:
+    """현재 수요 추정으로 예측한 링크 부하와 관측 부하의 최대 차이."""
+    lm = {m["linkId"]: m for m in link_metrics}
+    pred = link_loads(costs, demand)
+    return max(abs(pred[lk] - lm[lk]["utilization"] * lm[lk]["capacity"]) for lk in LINKS)
+
+
+def reestimate_demand(prev: dict, costs: dict[str, int], link_metrics: list[dict]) -> dict:
+    """관측 부하에 맞도록 수요 추정을 고친다 — 이전 추정에서 가장 덜 움직이는 해.
+
+    cost가 균일하면 정확히 읽힌다(estimate_demand). 그렇지 않으면 R @ d = 부하는 해가 여럿이다
+    (격리된 링크의 행이 0이라 계수가 모자란다). 그중 이전 추정과 가장 가까운 것을 고른다:
+    d = prev + pinv(R) @ (부하 − R @ prev), 음수는 0으로. 정확한 복원이 아니라 **일관된 추정**이며,
+    cost 배치가 바뀌면 R이 달라져 새 방정식이 생기므로 사이클을 거듭하며 좁혀진다.
+    """
+    exact = estimate_demand(link_metrics, costs)
+    if exact is not None:
+        return exact
+    lm = {m["linkId"]: m for m in link_metrics}
+    load = np.array([lm[lk]["utilization"] * lm[lk]["capacity"] for lk in LINKS])
+    d0 = np.array([prev[pair] for pair in PAIRS])
+    R = routing_matrix(costs)
+    d = np.clip(d0 + np.linalg.pinv(R) @ (load - R @ d0), 0.0, None)
+    return {pair: float(v) for pair, v in zip(PAIRS, d)}
 
 
 class Planner:
@@ -183,6 +225,25 @@ if __name__ == "__main__":
         assert steps <= 6
     assert steps == 4 and next_action(planner.plan(cur, weak, {"r1-r3"}), {"r1-r3"}) is None
     print(f"OK — 약한 링크 우회: {ch} (4개 변경, 사이클당 1개씩 4 사이클에 수렴)")
+
+    # 7) 수요 재추정: 격리 뒤(cost 비균일) 한 쌍의 수요가 2배가 되면 낡은 모델은 어긋나고,
+    #    재추정한 모델은 관측 부하를 다시 설명한다
+    mg.set_capacity_mode("finite")
+    try:
+        mg.reset_state(); mg.inject_congestion("r3-r4"); mg.set_ospf_cost("r3-r4", 100)
+        costs_now = mg.get_ospf_costs()
+        assert model_mismatch(uniform, costs_now, mg.get_link_metrics()) < 1e-9
+        mg.set_demand({("r1", "r3"): 2.0})
+        lm = mg.get_link_metrics()
+        assert abs(model_mismatch(uniform, costs_now, lm) - 1.0) < 1e-9
+        est = reestimate_demand(uniform, costs_now, lm)
+        assert model_mismatch(est, costs_now, lm) < 1e-6, est
+        # 정확한 복원은 아니다 — 부하가 같은 해 중 이전 추정에 가장 가까운 것 (참값 2.0)
+        assert 1.8 < est[("r1", "r3")] < 2.0 and est[("r3", "r4")] > 1.0, est
+        print(f"OK — 수요 재추정: r1-r3 참값 2.0 → 추정 {est[('r1','r3')]:.3f} "
+              f"(r3-r4 {est[('r3','r4')]:.3f}), 관측 부하와는 일치")
+    finally:
+        mg.set_capacity_mode("unlimited"); mg.reset_state()
 
     # 6) 풀이가 없으면 None — 한 노드의 링크 둘이 고장이면 남은 하나로 수요 3이 몰린다
     assert planner.plan(base, cap, {"r3-r4", "r1-r4"}) is None

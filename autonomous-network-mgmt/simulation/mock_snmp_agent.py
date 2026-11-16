@@ -28,6 +28,7 @@ from metric_generator import (
     get_capacity_mode,
     set_capacity_mode,
     set_link_capacity,
+    set_demand,
     get_security_metrics,
     get_attack_state,
     get_tick,
@@ -159,6 +160,27 @@ def update_capacity(link: str):
     if not set_link_capacity(link, cap):
         abort(404, description=f"Unknown link: {link}")
     return jsonify({"link": link, "capacity": cap, "capacity_mode": get_capacity_mode()})
+
+
+@app.route("/debug/demand/<pair>", methods=["PUT"])
+def update_demand(pair: str):
+    """노드 쌍의 트래픽 수요 변경 (수요 단위, ≥ 0). /debug/reset이 균일(1.0)로 되돌린다.
+
+    PUT /debug/demand/r1-r3
+    Body: {"demand": 2.0}
+    """
+    body = request.get_json(force=True, silent=True) or {}
+    val = body.get("demand")
+    parts = pair.split("-")
+    if isinstance(val, bool) or not isinstance(val, (int, float)) or val < 0:
+        abort(400, description="demand must be a non-negative number")
+    if len(parts) != 2:
+        abort(404, description=f"Unknown pair: {pair}")
+    try:
+        set_demand({(parts[0], parts[1]): val})
+    except ValueError:
+        abort(404, description=f"Unknown pair: {pair}")
+    return jsonify({"pair": pair, "demand": val})
 
 
 @app.route("/debug/reset", methods=["POST"])

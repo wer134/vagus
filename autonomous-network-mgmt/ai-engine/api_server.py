@@ -44,7 +44,9 @@ from ospf_security import (
     simulate_auth_downgrade,
     simulate_key_compromise_forge,
 )
-from routing_model import Planner, estimate_demand, next_action
+from routing_model import (
+    Planner, estimate_demand, next_action, model_mismatch, reestimate_demand, DEMAND_MISMATCH_TOL,
+)
 from agents.baseline_drl import BaselineAgent
 from agents.few_shot_agent import FewShotAgent
 from topology import (
@@ -286,7 +288,16 @@ def _fetch_link_metrics() -> list[dict]:
     return links
 
 
-def _plan_v3(link_metrics: list[dict], ospf_map: dict, root_cause: str | None):
+def _get_planner(demand: dict) -> Planner:
+    key = tuple(round(v, 3) for v in demand.values())
+    if key not in _planner_cache:
+        if len(_planner_cache) >= 64:
+            _planner_cache.clear()
+        _planner_cache[key] = Planner(demand)
+    return _planner_cache[key]
+
+
+def _plan_v3(link_metrics: list[dict], ospf_map: dict, root_cause: str | None, adaptive: bool = False):
     """Analytics v3: 라우팅 모델로 cost 배치를 탐색해 이번 사이클의 조치를 고른다.
 
     반환 (조치 | None, 설명). 수요를 추정하지 못했거나 풀이가 없으면 v2 규칙(고장 링크 격리)으로
@@ -300,10 +311,12 @@ def _plan_v3(link_metrics: list[dict], ospf_map: dict, root_cause: str | None):
         demand = estimate_demand(link_metrics, ospf_map)
         if demand is None:
             return fallback, "v3: 수요 추정 불가(cost 비균일) → v2 규칙"
-        key = tuple(round(v, 3) for v in demand.values())
-        if key not in _planner_cache:
-            _planner_cache[key] = Planner(demand)
-        _planner = _planner_cache[key]
+        _planner = _get_planner(demand)
+    elif adaptive:
+        # v4: 관측 부하가 모델 예측과 어긋나면 수요 추정이 낡은 것이다 → 다시 추정하고 다시 계획한다
+        gap = model_mismatch(_planner.demand, ospf_map, link_metrics)
+        if gap > DEMAND_MISMATCH_TOL:
+            _planner = _get_planner(reestimate_demand(_planner.demand, ospf_map, link_metrics))
 
     capacity = {m["linkId"]: m["capacity"] for m in link_metrics}
     changes = _planner.plan(ospf_map, capacity, set(_fault_memory))
@@ -400,7 +413,8 @@ def auto_step(disable_analytics: bool = False, disable_maml: bool = False,
     """
     analytics_version=2: 근본 원인 분석에 링크 단위 관측(GET /metrics/links)을 쓴다
     (cowork/ROADMAP.md A-1). analytics_version=3: 2의 진단에 더해 라우팅 모델 계획기가 조치를
-    고른다 (routing_model.py — disable_maml=true에서만). 기본값 1은 노드 지표만 쓰는 기존 동작이며, 링크 관측을 아예
+    고른다 (routing_model.py — disable_maml=true에서만). analytics_version=4: 3에 더해 관측 부하가
+    모델과 어긋나면 수요를 다시 추정한다. 기본값 1은 노드 지표만 쓰는 기존 동작이며, 링크 관측을 아예
     읽지 않으므로 이전 결과와 같다.
 
     ENI 폐쇄 루프 1 사이클 — OODA 패러다임 완전 구현.
@@ -413,8 +427,8 @@ def auto_step(disable_analytics: bool = False, disable_maml: bool = False,
     """
     if analytics_version not in ANALYTICS_VERSIONS:
         raise HTTPException(400, f"analytics_version must be one of {list(ANALYTICS_VERSIONS)}")
-    if analytics_version == 3 and not disable_maml:
-        raise HTTPException(400, "analytics_version=3 (planner) is defined only with disable_maml=true")
+    if analytics_version >= 3 and not disable_maml:
+        raise HTTPException(400, "analytics_version>=3 (planner) is defined only with disable_maml=true")
     with _loop_lock:
         return _auto_step_locked(disable_analytics, disable_maml, analytics_version)
 
@@ -501,8 +515,9 @@ def _auto_step_locked(disable_analytics: bool, disable_maml: bool,
         # Analytics-only: root cause에 cost=100 직접 적용.
         # root cause가 None이면 "이미 조치됨 — 회복 대기"이므로 아무것도 하지 않는다.
         # (개정 전에는 unhandled[0]에 cost=100을 걸어 정상 링크를 망가뜨렸다 — AUDIT P2)
-        if analytics_version == 3:
-            planned, plan_note = _plan_v3(link_metrics, ospf_map, root_cause)
+        if analytics_version >= 3:
+            planned, plan_note = _plan_v3(link_metrics, ospf_map, root_cause,
+                                          adaptive=(analytics_version == 4))
         else:
             planned, plan_note = ((root_cause, 100) if root_cause else None), ""
         if not planned:

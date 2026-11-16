@@ -85,6 +85,9 @@ def oracle(scn: dict) -> dict:
         mg.set_link_capacity(scn["weak"], WEAK_CAPACITY)
     for lk in scn["congested"]:
         mg.inject_congestion(lk)
+    if scn.get("shift"):     # demand_shift_probe.py: 수요가 바뀐 **뒤**의 상태에 풀이가 있는가
+        a, b = scn["shift"]["pair"].split("-")
+        mg.set_demand({(a, b): scn["shift"]["demand"]})
 
     best, n_ok = None, 0
     for costs in _ALL_ASSIGNMENTS:
