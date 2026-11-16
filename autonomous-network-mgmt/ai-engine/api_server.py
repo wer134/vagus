@@ -319,7 +319,8 @@ def _plan_v3(link_metrics: list[dict], ospf_map: dict, root_cause: str | None, a
             _planner = _get_planner(reestimate_demand(_planner.demand, ospf_map, link_metrics))
 
     capacity = {m["linkId"]: m["capacity"] for m in link_metrics}
-    changes = _planner.plan(ospf_map, capacity, set(_fault_memory))
+    # v4는 추정 수요로 풀이가 없다고 나와도 가장 덜 나쁜 배치로 움직인다 — 움직여야 추정이 고쳐진다
+    changes = _planner.plan(ospf_map, capacity, set(_fault_memory), best_effort=adaptive)
     if changes is None:
         return fallback, f"v3: 풀이 없음(고장={sorted(_fault_memory)}) → v2 규칙"
     act = next_action(changes, _fault_memory)

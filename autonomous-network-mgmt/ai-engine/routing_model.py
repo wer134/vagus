@@ -134,8 +134,15 @@ class Planner:
         costs: dict[str, int],
         capacity: dict[str, float],
         faults: set[str],
+        best_effort: bool = False,
     ) -> dict[str, int] | None:
-        """바꿔야 할 {링크: cost}. 현재 배치가 이미 조건을 만족하면 {}. 풀이가 없으면 None."""
+        """바꿔야 할 {링크: cost}. 현재 배치가 이미 조건을 만족하면 {}. 풀이가 없으면 None.
+
+        best_effort=True면 조건을 다 만족하는 배치가 없을 때 None 대신 **가장 덜 나쁜 배치**
+        (고장 링크는 비우고, 최대 이용률이 가장 낮은 것)를 돌려준다. 수요 추정이 부정확하면
+        참 수요로는 풀이가 있는데 추정 수요로는 없다고 나올 수 있다 — 그때 가만히 있으면
+        cost가 바뀌지 않아 새 관측도 없고 추정도 영영 고쳐지지 않는다.
+        """
         current = tuple(costs[lk] for lk in LINKS)
         best, best_n = None, None
         for a, load in zip(ALL_ASSIGNMENTS, self._loads):
@@ -148,6 +155,15 @@ class Planner:
                 best, best_n = a, n
                 if n == 0:
                     break
+        if best is None and best_effort:
+            best_key = None
+            for a, load in zip(ALL_ASSIGNMENTS, self._loads):
+                if any(load[lk] > 1e-9 for lk in faults):
+                    continue
+                worst = max(load[lk] / capacity[lk] for lk in LINKS)
+                key = (round(worst, 6), sum(1 for x, y in zip(a, current) if x != y))
+                if best_key is None or key < best_key:
+                    best, best_key = a, key
         if best is None:
             return None
         return {lk: c for lk, c, cur in zip(LINKS, best, current) if c != cur}
@@ -247,5 +263,8 @@ if __name__ == "__main__":
 
     # 6) 풀이가 없으면 None — 한 노드의 링크 둘이 고장이면 남은 하나로 수요 3이 몰린다
     assert planner.plan(base, cap, {"r3-r4", "r1-r4"}) is None
+    be = planner.plan(base, cap, {"r3-r4", "r1-r4"}, best_effort=True)
+    lo = link_loads({**base, **be}, uniform)
+    assert lo["r3-r4"] == 0 and lo["r1-r4"] == 0 and max(lo.values()) == 3.0, (be, lo)
     print("OK — 풀이 없는 시나리오 → None")
     print("\n모든 자가 테스트 통과")
