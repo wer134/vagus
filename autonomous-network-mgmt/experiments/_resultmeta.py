@@ -54,6 +54,10 @@ def git_commit() -> str | None:
     status = _run_git(
         "status", "--porcelain", "--",
         ":(top)", f":(top,exclude){prefix}experiments/results",
+        # 학습 체크포인트도 산출물이다 — 학습 스크립트는 체크포인트를 저장한 뒤에 이 함수를 부른다
+        f":(top,exclude,glob){prefix}ai-engine/agents/**/*.zip",
+        f":(top,exclude,glob){prefix}ai-engine/agents/**/*.pt",
+        f":(top,exclude,glob){prefix}ai-engine/agents/**/*.meta.json",
     )
     return f"{sha}-dirty" if status else sha
 
@@ -144,6 +148,13 @@ if __name__ == "__main__":
         assert git_commit().endswith("-dirty"), "코드 쪽 변경을 dirty로 잡지 못했다"
     finally:
         os.remove(stray)
-    print("OK — dirty 판정: results/ 산출물은 무시, 코드 변경은 감지")
+    ck = os.path.join(_PROJECT_ROOT, "ai-engine", "agents", "_selftest_dir", "probe.zip")
+    try:
+        os.makedirs(os.path.dirname(ck), exist_ok=True)
+        open(ck, "w").close()
+        assert git_commit() == before, "체크포인트 파일이 dirty 판정을 바꿨다"
+    finally:
+        os.remove(ck); os.rmdir(os.path.dirname(ck))
+    print("OK — dirty 판정: results/ 산출물·학습 체크포인트는 무시, 코드 변경은 감지")
     print(f"OK — result_meta: commit={m['git_commit']} contract={m['contract']}")
     print("\n모든 자가 테스트 통과")
