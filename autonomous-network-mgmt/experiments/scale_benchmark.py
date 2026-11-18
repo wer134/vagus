@@ -206,7 +206,8 @@ def run(specs: list[str], n: int, output: str, workers: int, topo: str = "abilen
         line = f"  {g:<20} n={s['n']:>3}"
         for spec in specs:
             v = s[spec]
-            line += f" | {spec.split(':')[-1][:16]:<16} {v['stable']:>3} ({v['avg_changes']} ch)"
+            label = Path(spec[4:]).stem if spec.startswith("ppo:") else spec
+            line += f" | {label[:22]:<22} {v['stable']:>3} ({v['avg_changes']} ch)"
         print(line)
     print("=" * 96)
     out = HERE / "results" / output
