@@ -206,6 +206,12 @@ if __name__ == "__main__":
         obs, r, term, trunc, info = env.step(env.action_space.n - 1)
         total += r; n += 1
         assert -1.0 <= r <= 0.0
+        if trunc:
+            break
+    assert n == HORIZON
+    print(f"OK — 무행동 에피소드 {n} 스텝, 누적 보상 {total:.2f}")
+
+    # 3b) 사후 진단용 보상 v3 범위, 허용 키 제한, 시나리오 공간 크기
     e3 = ScaleEnv("abilene", "train", seed=0, reward_version=3)
     e3.reset()
     assert all(-0.02 <= e3.step(e3.action_space.n - 1)[1] <= 1.0 for _ in range(HORIZON))
@@ -213,10 +219,7 @@ if __name__ == "__main__":
     e4 = ScaleEnv("abilene", "train", seed=0, allowed_keys=allowed)
     assert all(e4.reset()[1]["scenario"] in allowed for _ in range(3))
     assert len(all_scenarios("abilene")) == 105 * 15 * 12
-        if trunc:
-            break
-    assert n == HORIZON
-    print(f"OK — 무행동 에피소드 {n} 스텝, 누적 보상 {total:.2f}")
+    print("OK — 보상 v3 범위, 허용 키 제한, 시나리오 공간 18,900")
 
     # 4) 같은 scenario·seed면 같은 궤적 (평가 하네스와 환경이 같은 시나리오를 재현할 수 있다)
     scn = sample_scenario("abilene", random.Random(3), "test")
