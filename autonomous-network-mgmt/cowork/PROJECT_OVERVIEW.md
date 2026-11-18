@@ -35,6 +35,7 @@ autonomous-network-mgmt/
 ├── simulation/                     # [Python] 가상 네트워크 + Mock SNMP
 │   ├── metric_generator.py         #   링크 스트레스 모델 · 메트릭/공격 시뮬레이션 (228 L)
 │   ├── mock_snmp_agent.py          #   Flask REST API (:5001) + AI Engine 프록시 (162 L)
+│   ├── netsim.py                   #   토폴로지 일반화 시뮬레이터 (K4·Abilene, 같은 물리)
 │   ├── topology.py                 #   Mininet 4-라우터 토폴로지 (현 파이프라인 미사용, 84 L)
 │   ├── Dockerfile                  #   ubuntu22.04 + mininet + OVS
 │   └── requirements.txt            #   flask
@@ -44,6 +45,8 @@ autonomous-network-mgmt/
 │   ├── anomaly_detector.py         #   IsolationForest 이상탐지 + 링크 진단 + 보안 탐지 (183 L)
 │   ├── ospf_security.py            #   OSPF LSA 위조/인증 검증 엔진 (284 L)
 │   ├── routing_model.py            #   라우팅 모델 계획기 — Analytics v3 (상한 기준선)
+│   ├── scale_control.py            #   규모 확장용 제어기: 규칙 v2, 국소 탐색 계획기, 탐색 오라클
+│   ├── environment/scale_env.py    #   규모 확장 시나리오·분할·학습 환경 (관측 64, 행동 71)
 │   ├── reward.py                   #   보상 함수 (45 L)
 │   ├── environment/network_env.py  #   gymnasium 환경 (223 L)
 │   ├── agents/
@@ -63,6 +66,9 @@ autonomous-network-mgmt/
 │   ├── persistent_buffer_test.py   #   지지 버퍼 장기 유지 실험
 │   ├── capacity_probe.py           #   링크 용량 147 시나리오: 오라클(풀이 존재) vs 규칙 단독
 │   ├── demand_shift_probe.py       #   수요 변화 150 시나리오: 규칙 v2 / 계획기 v3 / 적응형 v4
+│   ├── scale_benchmark.py          #   Abilene 400 에피소드: 규칙·계획기·PPO (in-process 하네스, K4 재생 검증)
+│   ├── train_scale_ppo.py          #   Abilene PPO 학습 (사전 등록 설정 + 사후 진단 변형)
+│   ├── abilene_solvable_table.py   #   TRAIN 시나리오 전체의 풀이 존재 표 (사후 커리큘럼용)
 │   ├── cicddos_loader.py           #   CICDDoS2019 CSV → 6피처 윈도우 변환
 │   ├── validate_security_detector.py  # 실데이터 DDoS 탐지 검증
 │   ├── CICDDOS2019_SETUP.md        #   데이터셋 준비 가이드
