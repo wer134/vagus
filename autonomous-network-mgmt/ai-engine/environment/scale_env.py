@@ -18,7 +18,12 @@
                           링크 손실/0.05 ×L], clip 0~1 — K4 관측 v2와 같은 구성
   행동 : Discrete(L×5 + 1). 마지막 인덱스 = 무행동 (ROADMAP A-2)
   보상 v2 : −(SLA 위반 노드 비율) − 0.02 × [cost가 실제로 바뀌었는가] (ROADMAP A-3)
+  보상 v3 : +1 × [전 노드 SLA 충족] − 0.02 × [cost 변경] — **사후 진단용** (2026-11-18). 사전 등록
+           실험(v2)에서 PPO가 실패한 뒤, TRAIN 분석에서 v2가 무행동(−7.20)과 규칙(−7.21)을 구분하지
+           못함을 보고 만들었다. 평가 지표(전 노드 SLA)와 보상을 일치시킨다
   길이 : HORIZON 사이클
+
+allowed_keys를 주면 그 시나리오 키만 뽑는다 (풀이 있는 TRAIN 시나리오만으로 학습하는 커리큘럼용).
 """
 import os
 import random
@@ -42,7 +47,8 @@ P_WEAK       = 0.5
 P_SHIFT      = 0.5
 TEST_MOD     = 5
 
-REWARD_VERSION   = 2
+REWARD_VERSION   = 2          # 사전 등록 실험의 보상. v3은 ScaleEnv(reward_version=3)로 명시해야 쓴다
+REWARD_VERSIONS  = (2, 3)
 ACTION_CHANGE_COST = 0.02
 
 
@@ -62,7 +68,8 @@ class Scenario:
         return "test" if zlib.crc32(self.key.encode()) % TEST_MOD == 0 else "train"
 
 
-def sample_scenario(topo_name: str, rng: random.Random, split: str | None = None) -> Scenario:
+def sample_scenario(topo_name: str, rng: random.Random, split: str | None = None,
+                    allowed_keys: set[str] | None = None) -> Scenario:
     topo = TOPOLOGIES[topo_name]
     while True:
         k = 2 if rng.random() < P_DOUBLE else 1
@@ -70,8 +77,17 @@ def sample_scenario(topo_name: str, rng: random.Random, split: str | None = None
         weak = rng.choice(topo.links) if rng.random() < P_WEAK else None
         shift = rng.choice(topo.nodes) if rng.random() < P_SHIFT else None
         s = Scenario(topo_name, cong, weak, shift)
-        if split is None or s.split == split:
+        if (split is None or s.split == split) and (allowed_keys is None or s.key in allowed_keys):
             return s
+
+
+def all_scenarios(topo_name: str) -> list[Scenario]:
+    """시나리오 공간 전체 (혼잡 1~2개 × 약한 링크 없음/1개 × 수요 변화 없음/노드 1개)."""
+    import itertools
+    topo = TOPOLOGIES[topo_name]
+    congs = [(lk,) for lk in topo.links] + list(itertools.combinations(topo.links, 2))
+    return [Scenario(topo_name, c, w, s)
+            for c in congs for w in (None, *topo.links) for s in (None, *topo.nodes)]
 
 
 def setup(sim: NetSim, scn: Scenario, seed: int) -> None:
@@ -107,8 +123,13 @@ def decode_action(sim: NetSim, a: int) -> tuple[str, int] | None:
 class ScaleEnv(gym.Env):
     metadata = {"render_modes": []}
 
-    def __init__(self, topo: str = "abilene", split: str = "train", seed: int = 0):
+    def __init__(self, topo: str = "abilene", split: str = "train", seed: int = 0,
+                 reward_version: int = REWARD_VERSION, allowed_keys: set[str] | None = None):
         super().__init__()
+        if reward_version not in REWARD_VERSIONS:
+            raise ValueError(reward_version)
+        self.reward_version = reward_version
+        self.allowed_keys = allowed_keys
         self.sim = NetSim(TOPOLOGIES[topo])
         self.topo_name = topo
         self.split = split
@@ -133,7 +154,7 @@ class ScaleEnv(gym.Env):
             self.scenario = options["scenario"]
             sim_seed = options["sim_seed"]
         else:
-            self.scenario = sample_scenario(self.topo_name, self._rng, self.split)
+            self.scenario = sample_scenario(self.topo_name, self._rng, self.split, self.allowed_keys)
             sim_seed = self._rng.randrange(2 ** 31)
         setup(self.sim, self.scenario, sim_seed)
         self._t = 1
@@ -143,7 +164,10 @@ class ScaleEnv(gym.Env):
         act = decode_action(self.sim, int(action))
         changed = self.sim.set_cost(*act) if act else False
         ok_nodes = node_ok_count(self.sim.node_metrics())
-        reward = -(self.sim.N - ok_nodes) / self.sim.N - ACTION_CHANGE_COST * float(changed)
+        if self.reward_version == 2:
+            reward = -(self.sim.N - ok_nodes) / self.sim.N - ACTION_CHANGE_COST * float(changed)
+        else:
+            reward = float(ok_nodes == self.sim.N) - ACTION_CHANGE_COST * float(changed)
         if self._t == SHIFT_AT and self.scenario.shift:
             self.sim.scale_node_demand(self.scenario.shift, SHIFT_FACTOR)
         truncated = self._t >= HORIZON
@@ -182,6 +206,13 @@ if __name__ == "__main__":
         obs, r, term, trunc, info = env.step(env.action_space.n - 1)
         total += r; n += 1
         assert -1.0 <= r <= 0.0
+    e3 = ScaleEnv("abilene", "train", seed=0, reward_version=3)
+    e3.reset()
+    assert all(-0.02 <= e3.step(e3.action_space.n - 1)[1] <= 1.0 for _ in range(HORIZON))
+    allowed = {sample_scenario("abilene", random.Random(9), "train").key}
+    e4 = ScaleEnv("abilene", "train", seed=0, allowed_keys=allowed)
+    assert all(e4.reset()[1]["scenario"] in allowed for _ in range(3))
+    assert len(all_scenarios("abilene")) == 105 * 15 * 12
         if trunc:
             break
     assert n == HORIZON

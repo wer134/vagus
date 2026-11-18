@@ -68,7 +68,13 @@ def collapse_check(model, n_episodes: int = 200, seed: int = 999) -> dict:
     }
 
 
-def train(seed: int, timesteps: int) -> None:
+def load_allowed_keys() -> set[str]:
+    d = json.load(open(HERE / "results" / "abilene_train_solvable.json", encoding="utf-8"))
+    return {k for k, v in d["solvable"].items() if v}
+
+
+def train(seed: int, timesteps: int, reward_version: int = se.REWARD_VERSION,
+          solvable_only: bool = False) -> None:
     import numpy as np
     import torch
     from stable_baselines3 import PPO
@@ -77,7 +83,9 @@ def train(seed: int, timesteps: int) -> None:
 
     torch.set_num_threads(1)
     random.seed(seed); np.random.seed(seed); torch.manual_seed(seed)
-    env = Monitor(se.ScaleEnv("abilene", "train", seed=seed))
+    allowed = load_allowed_keys() if solvable_only else None
+    env = Monitor(se.ScaleEnv("abilene", "train", seed=seed, reward_version=reward_version,
+                              allowed_keys=allowed))
 
     curve: list[dict] = []
 
@@ -99,13 +107,18 @@ def train(seed: int, timesteps: int) -> None:
     elapsed = time.time() - t0
 
     OUT_DIR.mkdir(parents=True, exist_ok=True)
-    name = f"ppo_abilene_s{seed}"
+    variant = "" if (reward_version == se.REWARD_VERSION and not solvable_only) else \
+        f"_r{reward_version}{'_solv' if solvable_only else ''}"
+    name = f"ppo_abilene{variant}_s{seed}"
     model.save(OUT_DIR / name)
     cc = collapse_check(model)
     meta = {
-        **result_meta(seed=seed, condition="PPO 학습, scale_env TRAIN 분할, Abilene"),
+        **result_meta(seed=seed, condition=(
+            "PPO 학습, scale_env TRAIN 분할, Abilene"
+            + ("" if not variant else " — 사후 진단 변형 (사전 등록 실험 이후 설계)"))),
         "config": CONFIG, "timesteps": timesteps, "elapsed_s": round(elapsed, 1),
-        "reward_version": se.REWARD_VERSION, "obs_dim": int(env.observation_space.shape[0]),
+        "reward_version": reward_version, "solvable_only": solvable_only,
+        "n_allowed_scenarios": None if allowed is None else len(allowed), "obs_dim": int(env.observation_space.shape[0]),
         "n_actions": int(env.action_space.n),
         "learning_curve": curve, "collapse_check": cc,
     }
@@ -120,5 +133,8 @@ if __name__ == "__main__":
     p = argparse.ArgumentParser()
     p.add_argument("--seed", type=int, required=True)
     p.add_argument("--timesteps", type=int, default=TIMESTEPS)
+    p.add_argument("--reward-version", type=int, default=se.REWARD_VERSION, choices=se.REWARD_VERSIONS)
+    p.add_argument("--solvable-only", action="store_true",
+                   help="results/abilene_train_solvable.json에서 풀이 있는 TRAIN 시나리오만")
     a = p.parse_args()
-    train(a.seed, a.timesteps)
+    train(a.seed, a.timesteps, a.reward_version, a.solvable_only)
