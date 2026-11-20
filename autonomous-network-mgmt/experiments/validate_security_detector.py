@@ -6,7 +6,7 @@ CICDDoS2019 실데이터로 SecurityAnomalyDetector(DDoS 탐지) 검증.
 1초 윈도우로 집계해 동일한 SecurityAnomalyDetector 클래스(.update/.detect)에
 그대로 흘려보내 precision/recall/F1을 측정한다.
 
-알려진 한계 (cicddos_loader.py, README 참고):
+알려진 한계 (cicddos_loader.py, cowork/SECURITY.md 참고):
   - bandwidth/latency/packet_loss는 고정 placeholder — 검증 대상이 아님
   - CICDDoS2019에는 포트스캔 공격이 없음 — attack_type="portscan" 분기는 검증 불가
   - 공격일 CSV는 대부분 공격 트래픽 — --benign-warmup으로 cold-start 민감도 완화

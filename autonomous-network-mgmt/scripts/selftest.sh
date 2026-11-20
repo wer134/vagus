@@ -45,11 +45,18 @@ PY=${PYTHON:-python3}
 run "metric_generator"  "$ROOT/simulation"  "$PY" metric_generator.py
 run "topology"          "$ROOT/ai-engine"   "$PY" topology.py
 run "anomaly_detector"  "$ROOT/ai-engine"   "$PY" anomaly_detector.py
+run "routing_model"     "$ROOT/ai-engine"   "$PY" routing_model.py
+run "netsim"            "$ROOT/simulation"  "$PY" netsim.py
+run "scale_control"     "$ROOT/ai-engine"   "$PY" scale_control.py
+run "scale_env"         "$ROOT/ai-engine"   "$PY" environment/scale_env.py
 run "ospf_security"     "$ROOT/ai-engine"   "$PY" ospf_security.py
 run "cicddos_loader"    "$ROOT/experiments" "$PY" cicddos_loader.py
 run "result_meta"       "$ROOT/experiments" "$PY" _resultmeta.py
 run "figures/palette"   "$ROOT/experiments/figures" "$PY" palette.py
 run "figures/figspec"   "$ROOT/experiments/figures" "$PY" figspec.py
+
+# ── 1b) 문서 표 대조 — cowork/RESULTS.md·README.md의 결과 표가 results/*.json과 같은가 ──────
+run "results_tables"    "$ROOT"             "$PY" experiments/make_results_tables.py --check
 
 # ── 2) 문법 검사 (자가 테스트가 없는 모듈까지 최소한 import 가능한지) ──────────
 run "py_compile(all)"   "$ROOT"             "$PY" -m compileall -q \

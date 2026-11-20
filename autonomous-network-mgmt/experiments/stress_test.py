@@ -4,12 +4,12 @@ ZSM/ENI OODA Loop Stress Test
 20~50 에피소드 동안 무작위 링크에 혼잡을 주입하고
 OODA 자율 루프가 복구하는 데 걸리는 TTR(Time-To-Recovery)을 측정한다.
 
-ZSM 3.1.1 매핑:
+ZSM 폐쇄 루프 매핑 (절 번호는 대상 논문 KNOM Review 27(2) 기준):
   Observe  : GET /metrics (SNMP 수집)
   Orient   : 이상 감지 + 근본 원인 분석 (IsolationForest + 인접도 점수)
   Decide   : MAML inner-loop 적응 → 행동 결정
   Act      : OSPF cost 변경
-  Evaluate : ModelPerformanceTracker (ZSM 3.1.1.4)
+  Evaluate : ModelPerformanceTracker (§3.1.1.4)
 
 ENI 연결:
   - few-shot 적응: 실시간 지지 버퍼(support buffer)로 inner-loop 적응

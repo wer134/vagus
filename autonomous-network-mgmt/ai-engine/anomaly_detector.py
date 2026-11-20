@@ -115,7 +115,7 @@ def root_cause_analysis(
     bypass_cost: int = BYPASS_COST,
 ) -> str | None:
     """
-    ZSM 3.1.1.2: Root Cause Analysis Service — diagnose() 결과에서 근본 원인 링크를 고른다.
+    §3.1.1.2 분석 서비스: Root Cause Analysis Service — diagnose() 결과에서 근본 원인 링크를 고른다.
 
     규칙 (2026-09-09 개정, cowork/AUDIT_2026-09-09.md P2):
       1. 이미 대응된(cost ≥ bypass_cost) 링크가 위반 노드 **전부**에 인접하면 → None.
@@ -152,6 +152,52 @@ def root_cause_analysis(
     unhandled = [lk for lk in suspected if cost(lk) < bypass_cost]
     candidates = unhandled or suspected
     return min(candidates, key=lambda lk: (-shared(lk), cost(lk)))   # 규칙 3: 폴백(추정)
+
+
+# ── Analytics v2: 링크 단위 관측을 쓰는 근본 원인 분석 (cowork/ROADMAP.md A-1) ────────────
+# 손실이 이 값을 넘고 트래픽이 실려 있으면 고장 링크로 본다. SLA 손실 기준(1 %)의 2배 —
+# 이용률 1.0 부근의 정상 링크(손실 약 0.8 %)가 노이즈로 걸리지 않게 한다. 결과를 보고 조정하지 않는다.
+LINK_LOSS_FAULT = 0.02
+# 1 = 노드 지표 RCA, 2 = 링크 관측 RCA, 3 = 2의 진단 + 라우팅 모델 계획기(routing_model.py),
+# 4 = 3 + 관측 부하와 모델이 어긋나면 수요를 다시 추정하는 적응형 계획기
+ANALYTICS_VERSIONS = (1, 2, 3, 4)
+
+
+def classify_links(link_metrics: list[dict]) -> dict[str, str]:
+    """링크마다 상태를 붙인다: normal | fault | overload | draining.
+
+      fault    : 손실이 크고, 트래픽이 실려 있고, 이용률 ≤ 1 → 링크 자체의 문제 (격리 대상)
+      overload : 이용률 > 1 → 용량 초과. 링크가 고장난 게 아니라 **몰린 트래픽이 원인**이다
+      draining : 손실은 크지만 실린 트래픽이 없다 → 이미 격리됐고 회복 중
+    """
+    state: dict[str, str] = {}
+    for m in link_metrics:
+        util, loss = m.get("utilization", 0.0), m.get("packetLoss", 0.0)
+        if util > 1.0:
+            state[m["linkId"]] = "overload"
+        elif loss > LINK_LOSS_FAULT:
+            state[m["linkId"]] = "fault" if util > 0 else "draining"
+        else:
+            state[m["linkId"]] = "normal"
+    return state
+
+
+def root_cause_analysis_v2(link_metrics: list[dict], ospf_costs: dict[str, int]) -> str | None:
+    """링크 단위 관측으로 근본 원인 링크를 고른다. 없으면 None (회복 대기 또는 과부하).
+
+    v1(`root_cause_analysis`)은 노드 지표에서 링크를 **추정**한다 — 서로 떨어진 두 링크가
+    혼잡하면 네 노드가 전부 위반이라 추정이 불가능하고, 포화한 우회 링크를 고장으로 오인해
+    연쇄 격리를 일으킨다 (results/capacity_probe.json). v2는 링크를 직접 본다.
+
+    v2가 하지 않는 것: 과부하 링크를 풀어 주는 일. 그러려면 "어느 cost 배치가 우회를 어디로
+    보내는가"를 알아야 하는데, 그것은 규칙이 아니라 탐색(또는 학습)의 일이다.
+    """
+    state = classify_links(link_metrics)
+    faults = [m for m in link_metrics if state[m["linkId"]] == "fault"]
+    if not faults:
+        return None
+    worst = max(faults, key=lambda m: (m["packetLoss"], -ospf_costs.get(m["linkId"], 10)))
+    return worst["linkId"]
 
 
 class SecurityAnomalyDetector:
@@ -295,4 +341,35 @@ if __name__ == "__main__":
     d6 = diagnose([ok("r1"), ok("r2"), ok("r3"), ok("r4")], costs)
     assert not d6["anomaly_detected"] and root_cause_analysis(d6, costs) is None
     print("OK — 정상 상태 → None")
+
+    # ── Analytics v2 (링크 단위 관측) ────────────────────────────────────────
+    def _l(link, util, loss):
+        return {"linkId": link, "utilization": util, "packetLoss": loss, "capacity": 2.0}
+
+    normal = lambda lk: _l(lk, 0.5, 0.004)
+    all_links = list(costs)
+
+    # 서로 떨어진 이중 혼잡: v1은 네 노드가 전부 위반이라 추정에 그치지만 v2는 두 링크를 짚는다
+    lm = [_l(lk, 0.5, 0.039) if lk in ("r1-r2", "r3-r4") else normal(lk) for lk in all_links]
+    assert {k for k, v in classify_links(lm).items() if v == "fault"} == {"r1-r2", "r3-r4"}
+    first = root_cause_analysis_v2(lm, costs)
+    assert first in ("r1-r2", "r3-r4"), first
+    # 하나를 격리하면(이용률 0, 손실 잔류 = draining) 다음 사이클에 남은 하나를 짚는다
+    lm2 = [_l(first, 0.0, 0.035) if m["linkId"] == first else m for m in lm]
+    second = root_cause_analysis_v2(lm2, {**costs, first: 100})
+    assert second in ("r1-r2", "r3-r4") and second != first, (first, second)
+    print(f"OK — v2 이중 혼잡: {first} → {second} (정상 링크를 건드리지 않음)")
+
+    # 포화한 우회 링크는 고장이 아니다 → 격리하지 않는다 (v1의 연쇄 격리가 여기서 시작됐다)
+    lm3 = [_l("r3-r4", 0.0, 0.03), _l("r1-r3", 1.25, 0.039)] + [
+        normal(lk) for lk in all_links if lk not in ("r3-r4", "r1-r3")]
+    st = classify_links(lm3)
+    assert st["r3-r4"] == "draining" and st["r1-r3"] == "overload", st
+    assert root_cause_analysis_v2(lm3, {**costs, "r3-r4": 100}) is None
+    print("OK — v2 과부하: 포화 링크(overload)와 회복 중 링크(draining)는 격리 대상이 아님")
+
+    # 이용률 1.0 부근의 정상 링크(손실 0.8 % ± 노이즈)는 고장으로 보지 않는다
+    lm4 = [_l(lk, 1.0, 0.011) for lk in all_links]
+    assert root_cause_analysis_v2(lm4, costs) is None
+    print("OK — v2 임계: 이용률 1.0 · 손실 1.1 %는 정상")
     print("\n모든 자가 테스트 통과")

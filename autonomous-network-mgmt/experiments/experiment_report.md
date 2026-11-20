@@ -1,5 +1,8 @@
 # Autonomous Network Management: ZSM/ENI OODA Loop Experiment Report
 
+> **보관 문서 (2026-11-20).** 2026-05 ~ 09의 실험 보고서다. 당시 연구 질문은 "MAML few-shot 에이전트가 DRL 기준선 대비 TTR을 얼마나 줄이는가"였고, 이후 절제 실험과 감사로 MAML의 기여가 확인되지 않아 질문 자체가 바뀌었다(RESULTS.md §1). 이 문서의 연구 질문·수치는 그 시점 기준이며, 본문은 고치지
+> 않고 그대로 둔다. 현재 연구 질문과 결과는 `cowork/RESULTS.md`, 진행 이력은 `cowork/CHANGELOG.md`에 있다.
+
 ## 1. 실험 개요
 
 ETSI ZSM (Zero-touch network and Service Management) 및 ENI (Experiential Networked Intelligence) 표준을 기반으로 한 폐쇄 루프 자율 네트워크 관리 시스템을 구현하고 검증한다.
@@ -10,22 +13,22 @@ ETSI ZSM (Zero-touch network and Service Management) 및 ENI (Experiential Netwo
 
 ## 2. 시스템 아키텍처
 
-### 2.1 ZSM 폐쇄 루프 매핑 (ZSM clause 3.1.1)
+### 2.1 ZSM 폐쇄 루프 매핑 (논문 §3.1.2)
 
 ```
 [Observe]  GET /metrics → SNMP 수집 (Flask mock_snmp_agent)
     ↓
 [Orient]   diagnose() → SLA 규칙 이상 감지 (지연 > 50 ms 또는 손실 > 1 %)
-           root_cause_analysis() → 근본 원인 분석 (ZSM 3.1.1.2)
+           root_cause_analysis() → 근본 원인 분석 (논문 §3.1.1.2 분석)
            ※ IsolationForest(AnomalyDetector)는 Java 경로 /anomaly 전용 — 폐쇄 루프 Orient에는
              관여하지 않는다 (2026-09-09 정정, cowork/AUDIT_2026-09-09.md P3)
     ↓
-[Decide]   MAML few_shot_agent.adapt_and_predict() (ZSM 3.1.1.3)
+[Decide]   MAML few_shot_agent.adapt_and_predict() (논문 §3.1.1.4 지능)
            + Analytics override (high-confidence RCA)
     ↓
 [Act]      PUT /ospf/costs/{link} → OSPF cost 변경
     ↓
-[Evaluate] ModelPerformanceTracker → 모델 성능 자가 진단 (ZSM 3.1.1.4)
+[Evaluate] ModelPerformanceTracker → 모델 성능 자가 진단 (논문 §3.1.1.4 배포된 AI 모델 평가)
 ```
 
 ### 2.2 Analytics-Intelligence 계층 분리
@@ -184,13 +187,21 @@ MAML이 학습한 링크별 2차 행동 패턴 (50 에피소드 분석):
 
 ### 6.1 ETSI GS ZSM 002 (Zero-touch network architecture)
 
-- **Clause 3.1.1**: Closed-loop automation → `auto_step()` 완전 구현
-- **Clause 3.1.1.2**: Analytics Service → `diagnose()` + `_root_cause_analysis()`
-- **Clause 3.1.1.3**: Intelligence Service → `FewShotAgent.adapt_and_predict()`
-- **Clause 3.1.1.4**: AI Model Evaluation → `ModelPerformanceTracker`
+> **2026-11-14 정정**: 아래 절 번호는 ETSI 조항이 아니라 대상 논문(양우석·이재오, KNOM Review
+> 27(2), 2024)의 절 번호다. 이전에는 "ZSM 002 Clause 3.1.1.x"로 잘못 적었고 번호도 어긋나 있었다.
+
+- **논문 §3.1.2** 폐쇄 루프 → `auto_step()` (단일 관리 도메인)
+- **논문 §3.1.1.2** 분석 서비스 → `diagnose()` + `root_cause_analysis()`
+- **논문 §3.1.1.4** 지능 서비스(의사 결정) → `FewShotAgent.adapt_and_predict()`
+- **논문 §3.1.1.4** 지능 서비스(배포된 AI 모델 평가) → `ModelPerformanceTracker`
+- **논문 §3.1.1.3** 오케스트레이션 → OSPF cost 변경 (`_apply_ospf()`)
 - **Analytics-Intelligence 계층 분리**: 고신뢰 Analytics 결과로 Intelligence override 구현
 
-### 6.2 ETSI GS ENI 007 (Experiential Networked Intelligence)
+### 6.2 ETSI GS ENI 005 (Experiential Networked Intelligence — System Architecture)
+
+> **2026-11-14 정정**: 이전 제목의 "ENI 007"은 잘못된 문서 번호였다 (논문이 인용하는 ENI 시스템
+> 구조 문서는 GS ENI 005). 또한 아래 대응은 **개념상의 유사성**일 뿐이다 — ENI 구조의 실체인
+> API 브로커, 정규화/역정규화, 지식·문맥·정책 관리 기능 블록은 이 프로젝트에 구현되어 있지 않다.
 
 - **Few-shot 적응**: MAML inner-loop = 소수 경험 샘플로 빠른 정책 적응
 - **지식 기반 추론**: 학습된 토폴로지 지식으로 혼잡 링크별 최적 우회 경로 추론
@@ -258,7 +269,7 @@ ZSM Analytics 계층과 ENI Intelligence 계층 각각의 기여도를 정량화
 
 ### 7.5 ZSM 계층 분리 원칙 검증
 
-ETSI GS ZSM 002 Clause 3.1.1은 Analytics Service와 Intelligence Service를 독립적 계층으로 정의한다:
+ZSM 프레임워크는 분석 서비스와 지능 서비스를 별개의 관리 서비스로 정의한다 (논문 §3.1.1.2, §3.1.1.4):
 - 본 절제 실험은 **Analytics 계층이 분리 실행 시 충분한 성능(100% 성공)을 제공**함을 실증
 - **Intelligence 계층 단독은 불충분** (24% 성공) — 충분한 학습 데이터 없이는 meta-init 한계
 - **계층 결합이 최적**: 복구 성공률 유지 + MAML의 2차 트래픽 재분산으로 네트워크 안정성 향상

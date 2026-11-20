@@ -1,0 +1,7234 @@
+{
+  "schema_version": 1,
+  "timestamp": "2026-11-16T07:46:40.198651",
+  "git_commit": "b045171",
+  "seed": 91000000,
+  "contract": {
+    "obs_version": 1,
+    "action_version": 1,
+    "reward_version": 1,
+    "sim_version": 3
+  },
+  "_condition": "폐쇄 루프 /auto-step?disable_maml=true&analytics_version=3, 사이클당 1틱, 30 사이클 고정. 3번째 사이클 직후 한 쌍의 수요 1.0 → 2.0. stable = 마지막 5 사이클 중 4번 이상 SLA 충족.",
+  "sim_capacity_mode": "finite",
+  "default_link_capacity": 2.0,
+  "weak_link_capacity": 1.2,
+  "analytics_version": 3,
+  "shift_at": 3,
+  "shift_demand": 2.0,
+  "horizon": 30,
+  "n_seeds": 3,
+  "summary": {
+    "all": {
+      "n_scenarios": 150,
+      "scenarios_all_stable": 73,
+      "scenarios_none_stable": 72,
+      "episodes": 450,
+      "episodes_stable": 229,
+      "avg_settle_after_shift": 10.42,
+      "avg_actions_after_shift": 0.32
+    },
+    "stale_plan_survives": {
+      "n_scenarios": 78,
+      "scenarios_all_stable": 73,
+      "scenarios_none_stable": 0,
+      "episodes": 234,
+      "episodes_stable": 229,
+      "avg_settle_after_shift": 10.42,
+      "avg_actions_after_shift": 0.62
+    },
+    "stale_plan_breaks": {
+      "n_scenarios": 72,
+      "scenarios_all_stable": 0,
+      "scenarios_none_stable": 72,
+      "episodes": 216,
+      "episodes_stable": 0,
+      "avg_settle_after_shift": null,
+      "avg_actions_after_shift": 0.0
+    }
+  },
+  "scenarios": [
+    {
+      "congested": [
+        "r1-r2"
+      ],
+      "profile": "uniform",
+      "shift": {
+        "pair": "r1-r2",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 1,
+      "stale_plan_survives": true,
+      "stable_rate": 1.0,
+      "episodes": [
+        {
+          "seed": 91001000,
+          "stable": true,
+          "settle": 9,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r2@50"
+          ]
+        },
+        {
+          "seed": 91001001,
+          "stable": true,
+          "settle": 11,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r2@50"
+          ]
+        },
+        {
+          "seed": 91001002,
+          "stable": true,
+          "settle": 12,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r2@50"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r1-r2"
+      ],
+      "profile": "uniform",
+      "shift": {
+        "pair": "r1-r3",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 4,
+      "stale_plan_survives": false,
+      "stable_rate": 0.0,
+      "episodes": [
+        {
+          "seed": 91001010,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r2@50"
+          ]
+        },
+        {
+          "seed": 91001011,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r2@50"
+          ]
+        },
+        {
+          "seed": 91001012,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r2@50"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r1-r2"
+      ],
+      "profile": "uniform",
+      "shift": {
+        "pair": "r1-r4",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 4,
+      "stale_plan_survives": false,
+      "stable_rate": 0.0,
+      "episodes": [
+        {
+          "seed": 91001020,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r2@50"
+          ]
+        },
+        {
+          "seed": 91001021,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r2@50"
+          ]
+        },
+        {
+          "seed": 91001022,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r2@50"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r1-r2"
+      ],
+      "profile": "uniform",
+      "shift": {
+        "pair": "r2-r3",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 4,
+      "stale_plan_survives": false,
+      "stable_rate": 0.0,
+      "episodes": [
+        {
+          "seed": 91001030,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r2@50"
+          ]
+        },
+        {
+          "seed": 91001031,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r2@50"
+          ]
+        },
+        {
+          "seed": 91001032,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r2@50"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r1-r2"
+      ],
+      "profile": "uniform",
+      "shift": {
+        "pair": "r2-r4",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 4,
+      "stale_plan_survives": false,
+      "stable_rate": 0.0,
+      "episodes": [
+        {
+          "seed": 91001040,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r2@50"
+          ]
+        },
+        {
+          "seed": 91001041,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r2@50"
+          ]
+        },
+        {
+          "seed": 91001042,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r2@50"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r1-r2"
+      ],
+      "profile": "uniform",
+      "shift": {
+        "pair": "r3-r4",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 1,
+      "stale_plan_survives": true,
+      "stable_rate": 1.0,
+      "episodes": [
+        {
+          "seed": 91001050,
+          "stable": true,
+          "settle": 11,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r2@50"
+          ]
+        },
+        {
+          "seed": 91001051,
+          "stable": true,
+          "settle": 8,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r2@50"
+          ]
+        },
+        {
+          "seed": 91001052,
+          "stable": true,
+          "settle": 11,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r2@50"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r1-r3"
+      ],
+      "profile": "uniform",
+      "shift": {
+        "pair": "r1-r2",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 4,
+      "stale_plan_survives": false,
+      "stable_rate": 0.0,
+      "episodes": [
+        {
+          "seed": 91002000,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r3@50"
+          ]
+        },
+        {
+          "seed": 91002001,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r3@50"
+          ]
+        },
+        {
+          "seed": 91002002,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r3@50"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r1-r3"
+      ],
+      "profile": "uniform",
+      "shift": {
+        "pair": "r1-r3",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 1,
+      "stale_plan_survives": true,
+      "stable_rate": 1.0,
+      "episodes": [
+        {
+          "seed": 91002010,
+          "stable": true,
+          "settle": 8,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r3@50"
+          ]
+        },
+        {
+          "seed": 91002011,
+          "stable": true,
+          "settle": 12,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r3@50"
+          ]
+        },
+        {
+          "seed": 91002012,
+          "stable": true,
+          "settle": 10,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r3@50"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r1-r3"
+      ],
+      "profile": "uniform",
+      "shift": {
+        "pair": "r1-r4",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 4,
+      "stale_plan_survives": false,
+      "stable_rate": 0.0,
+      "episodes": [
+        {
+          "seed": 91002020,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r3@50"
+          ]
+        },
+        {
+          "seed": 91002021,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r3@50"
+          ]
+        },
+        {
+          "seed": 91002022,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r3@50"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r1-r3"
+      ],
+      "profile": "uniform",
+      "shift": {
+        "pair": "r2-r3",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 4,
+      "stale_plan_survives": false,
+      "stable_rate": 0.0,
+      "episodes": [
+        {
+          "seed": 91002030,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r3@50"
+          ]
+        },
+        {
+          "seed": 91002031,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r3@50"
+          ]
+        },
+        {
+          "seed": 91002032,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r3@50"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r1-r3"
+      ],
+      "profile": "uniform",
+      "shift": {
+        "pair": "r2-r4",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 1,
+      "stale_plan_survives": true,
+      "stable_rate": 1.0,
+      "episodes": [
+        {
+          "seed": 91002040,
+          "stable": true,
+          "settle": 11,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r3@50"
+          ]
+        },
+        {
+          "seed": 91002041,
+          "stable": true,
+          "settle": 8,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r3@50"
+          ]
+        },
+        {
+          "seed": 91002042,
+          "stable": true,
+          "settle": 10,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r3@50"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r1-r3"
+      ],
+      "profile": "uniform",
+      "shift": {
+        "pair": "r3-r4",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 4,
+      "stale_plan_survives": false,
+      "stable_rate": 0.0,
+      "episodes": [
+        {
+          "seed": 91002050,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r3@50"
+          ]
+        },
+        {
+          "seed": 91002051,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r3@50"
+          ]
+        },
+        {
+          "seed": 91002052,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r3@50"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r2-r3"
+      ],
+      "profile": "uniform",
+      "shift": {
+        "pair": "r1-r2",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 4,
+      "stale_plan_survives": false,
+      "stable_rate": 0.0,
+      "episodes": [
+        {
+          "seed": 91003000,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r2-r3@50"
+          ]
+        },
+        {
+          "seed": 91003001,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r2-r3@50"
+          ]
+        },
+        {
+          "seed": 91003002,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r2-r3@50"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r2-r3"
+      ],
+      "profile": "uniform",
+      "shift": {
+        "pair": "r1-r3",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 4,
+      "stale_plan_survives": false,
+      "stable_rate": 0.0,
+      "episodes": [
+        {
+          "seed": 91003010,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r2-r3@50"
+          ]
+        },
+        {
+          "seed": 91003011,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r2-r3@50"
+          ]
+        },
+        {
+          "seed": 91003012,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r2-r3@50"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r2-r3"
+      ],
+      "profile": "uniform",
+      "shift": {
+        "pair": "r1-r4",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 1,
+      "stale_plan_survives": true,
+      "stable_rate": 1.0,
+      "episodes": [
+        {
+          "seed": 91003020,
+          "stable": true,
+          "settle": 8,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r2-r3@50"
+          ]
+        },
+        {
+          "seed": 91003021,
+          "stable": true,
+          "settle": 8,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r2-r3@50"
+          ]
+        },
+        {
+          "seed": 91003022,
+          "stable": true,
+          "settle": 5,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r2-r3@50"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r2-r3"
+      ],
+      "profile": "uniform",
+      "shift": {
+        "pair": "r2-r3",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 1,
+      "stale_plan_survives": true,
+      "stable_rate": 1.0,
+      "episodes": [
+        {
+          "seed": 91003030,
+          "stable": true,
+          "settle": 12,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r2-r3@50"
+          ]
+        },
+        {
+          "seed": 91003031,
+          "stable": true,
+          "settle": 14,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r2-r3@50"
+          ]
+        },
+        {
+          "seed": 91003032,
+          "stable": true,
+          "settle": 9,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r2-r3@50"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r2-r3"
+      ],
+      "profile": "uniform",
+      "shift": {
+        "pair": "r2-r4",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 4,
+      "stale_plan_survives": false,
+      "stable_rate": 0.0,
+      "episodes": [
+        {
+          "seed": 91003040,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r2-r3@50"
+          ]
+        },
+        {
+          "seed": 91003041,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r2-r3@50"
+          ]
+        },
+        {
+          "seed": 91003042,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r2-r3@50"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r2-r3"
+      ],
+      "profile": "uniform",
+      "shift": {
+        "pair": "r3-r4",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 4,
+      "stale_plan_survives": false,
+      "stable_rate": 0.0,
+      "episodes": [
+        {
+          "seed": 91003050,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r2-r3@50"
+          ]
+        },
+        {
+          "seed": 91003051,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r2-r3@50"
+          ]
+        },
+        {
+          "seed": 91003052,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r2-r3@50"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r2-r4"
+      ],
+      "profile": "uniform",
+      "shift": {
+        "pair": "r1-r2",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 4,
+      "stale_plan_survives": false,
+      "stable_rate": 0.0,
+      "episodes": [
+        {
+          "seed": 91004000,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r2-r4@50"
+          ]
+        },
+        {
+          "seed": 91004001,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r2-r4@50"
+          ]
+        },
+        {
+          "seed": 91004002,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r2-r4@50"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r2-r4"
+      ],
+      "profile": "uniform",
+      "shift": {
+        "pair": "r1-r3",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 1,
+      "stale_plan_survives": true,
+      "stable_rate": 1.0,
+      "episodes": [
+        {
+          "seed": 91004010,
+          "stable": true,
+          "settle": 8,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r2-r4@50"
+          ]
+        },
+        {
+          "seed": 91004011,
+          "stable": true,
+          "settle": 15,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r2-r4@50"
+          ]
+        },
+        {
+          "seed": 91004012,
+          "stable": true,
+          "settle": 12,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r2-r4@50"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r2-r4"
+      ],
+      "profile": "uniform",
+      "shift": {
+        "pair": "r1-r4",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 4,
+      "stale_plan_survives": false,
+      "stable_rate": 0.0,
+      "episodes": [
+        {
+          "seed": 91004020,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r2-r4@50"
+          ]
+        },
+        {
+          "seed": 91004021,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r2-r4@50"
+          ]
+        },
+        {
+          "seed": 91004022,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r2-r4@50"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r2-r4"
+      ],
+      "profile": "uniform",
+      "shift": {
+        "pair": "r2-r3",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 4,
+      "stale_plan_survives": false,
+      "stable_rate": 0.0,
+      "episodes": [
+        {
+          "seed": 91004030,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r2-r4@50"
+          ]
+        },
+        {
+          "seed": 91004031,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r2-r4@50"
+          ]
+        },
+        {
+          "seed": 91004032,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r2-r4@50"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r2-r4"
+      ],
+      "profile": "uniform",
+      "shift": {
+        "pair": "r2-r4",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 1,
+      "stale_plan_survives": true,
+      "stable_rate": 1.0,
+      "episodes": [
+        {
+          "seed": 91004040,
+          "stable": true,
+          "settle": 12,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r2-r4@50"
+          ]
+        },
+        {
+          "seed": 91004041,
+          "stable": true,
+          "settle": 9,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r2-r4@50"
+          ]
+        },
+        {
+          "seed": 91004042,
+          "stable": true,
+          "settle": 12,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r2-r4@50"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r2-r4"
+      ],
+      "profile": "uniform",
+      "shift": {
+        "pair": "r3-r4",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 4,
+      "stale_plan_survives": false,
+      "stable_rate": 0.0,
+      "episodes": [
+        {
+          "seed": 91004050,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r2-r4@50"
+          ]
+        },
+        {
+          "seed": 91004051,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r2-r4@50"
+          ]
+        },
+        {
+          "seed": 91004052,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r2-r4@50"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r3-r4"
+      ],
+      "profile": "uniform",
+      "shift": {
+        "pair": "r1-r2",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 1,
+      "stale_plan_survives": true,
+      "stable_rate": 1.0,
+      "episodes": [
+        {
+          "seed": 91005000,
+          "stable": true,
+          "settle": 10,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r3-r4@50"
+          ]
+        },
+        {
+          "seed": 91005001,
+          "stable": true,
+          "settle": 7,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r3-r4@50"
+          ]
+        },
+        {
+          "seed": 91005002,
+          "stable": true,
+          "settle": 9,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r3-r4@50"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r3-r4"
+      ],
+      "profile": "uniform",
+      "shift": {
+        "pair": "r1-r3",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 4,
+      "stale_plan_survives": false,
+      "stable_rate": 0.0,
+      "episodes": [
+        {
+          "seed": 91005010,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r3-r4@50"
+          ]
+        },
+        {
+          "seed": 91005011,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r3-r4@50"
+          ]
+        },
+        {
+          "seed": 91005012,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r3-r4@50"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r3-r4"
+      ],
+      "profile": "uniform",
+      "shift": {
+        "pair": "r1-r4",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 4,
+      "stale_plan_survives": false,
+      "stable_rate": 0.0,
+      "episodes": [
+        {
+          "seed": 91005020,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r3-r4@50"
+          ]
+        },
+        {
+          "seed": 91005021,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r3-r4@50"
+          ]
+        },
+        {
+          "seed": 91005022,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r3-r4@50"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r3-r4"
+      ],
+      "profile": "uniform",
+      "shift": {
+        "pair": "r2-r3",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 4,
+      "stale_plan_survives": false,
+      "stable_rate": 0.0,
+      "episodes": [
+        {
+          "seed": 91005030,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r3-r4@50"
+          ]
+        },
+        {
+          "seed": 91005031,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r3-r4@50"
+          ]
+        },
+        {
+          "seed": 91005032,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r3-r4@50"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r3-r4"
+      ],
+      "profile": "uniform",
+      "shift": {
+        "pair": "r2-r4",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 4,
+      "stale_plan_survives": false,
+      "stable_rate": 0.0,
+      "episodes": [
+        {
+          "seed": 91005040,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r3-r4@50"
+          ]
+        },
+        {
+          "seed": 91005041,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r3-r4@50"
+          ]
+        },
+        {
+          "seed": 91005042,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r3-r4@50"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r3-r4"
+      ],
+      "profile": "uniform",
+      "shift": {
+        "pair": "r3-r4",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 1,
+      "stale_plan_survives": true,
+      "stable_rate": 1.0,
+      "episodes": [
+        {
+          "seed": 91005050,
+          "stable": true,
+          "settle": 11,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r3-r4@50"
+          ]
+        },
+        {
+          "seed": 91005051,
+          "stable": true,
+          "settle": 12,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r3-r4@50"
+          ]
+        },
+        {
+          "seed": 91005052,
+          "stable": true,
+          "settle": 10,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r3-r4@50"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r1-r4"
+      ],
+      "profile": "uniform",
+      "shift": {
+        "pair": "r1-r2",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 4,
+      "stale_plan_survives": false,
+      "stable_rate": 0.0,
+      "episodes": [
+        {
+          "seed": 91006000,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r4@50"
+          ]
+        },
+        {
+          "seed": 91006001,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r4@50"
+          ]
+        },
+        {
+          "seed": 91006002,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r4@50"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r1-r4"
+      ],
+      "profile": "uniform",
+      "shift": {
+        "pair": "r1-r3",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 4,
+      "stale_plan_survives": false,
+      "stable_rate": 0.0,
+      "episodes": [
+        {
+          "seed": 91006010,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r4@50"
+          ]
+        },
+        {
+          "seed": 91006011,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r4@50"
+          ]
+        },
+        {
+          "seed": 91006012,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r4@50"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r1-r4"
+      ],
+      "profile": "uniform",
+      "shift": {
+        "pair": "r1-r4",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 1,
+      "stale_plan_survives": true,
+      "stable_rate": 1.0,
+      "episodes": [
+        {
+          "seed": 91006020,
+          "stable": true,
+          "settle": 13,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r4@50"
+          ]
+        },
+        {
+          "seed": 91006021,
+          "stable": true,
+          "settle": 16,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r4@50"
+          ]
+        },
+        {
+          "seed": 91006022,
+          "stable": true,
+          "settle": 10,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r4@50"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r1-r4"
+      ],
+      "profile": "uniform",
+      "shift": {
+        "pair": "r2-r3",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 1,
+      "stale_plan_survives": true,
+      "stable_rate": 1.0,
+      "episodes": [
+        {
+          "seed": 91006030,
+          "stable": true,
+          "settle": 8,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r4@50"
+          ]
+        },
+        {
+          "seed": 91006031,
+          "stable": true,
+          "settle": 8,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r4@50"
+          ]
+        },
+        {
+          "seed": 91006032,
+          "stable": true,
+          "settle": 10,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r4@50"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r1-r4"
+      ],
+      "profile": "uniform",
+      "shift": {
+        "pair": "r2-r4",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 4,
+      "stale_plan_survives": false,
+      "stable_rate": 0.0,
+      "episodes": [
+        {
+          "seed": 91006040,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r4@50"
+          ]
+        },
+        {
+          "seed": 91006041,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r4@50"
+          ]
+        },
+        {
+          "seed": 91006042,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r4@50"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r1-r4"
+      ],
+      "profile": "uniform",
+      "shift": {
+        "pair": "r3-r4",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 4,
+      "stale_plan_survives": false,
+      "stable_rate": 0.0,
+      "episodes": [
+        {
+          "seed": 91006050,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r4@50"
+          ]
+        },
+        {
+          "seed": 91006051,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r4@50"
+          ]
+        },
+        {
+          "seed": 91006052,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r4@50"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r1-r2"
+      ],
+      "profile": "weak:r1-r2",
+      "shift": {
+        "pair": "r1-r2",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 1,
+      "stale_plan_survives": true,
+      "stable_rate": 1.0,
+      "episodes": [
+        {
+          "seed": 91022000,
+          "stable": true,
+          "settle": 12,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r2@50"
+          ]
+        },
+        {
+          "seed": 91022001,
+          "stable": true,
+          "settle": 6,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r2@50"
+          ]
+        },
+        {
+          "seed": 91022002,
+          "stable": true,
+          "settle": 9,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r2@50"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r1-r2"
+      ],
+      "profile": "weak:r1-r2",
+      "shift": {
+        "pair": "r1-r3",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 4,
+      "stale_plan_survives": false,
+      "stable_rate": 0.0,
+      "episodes": [
+        {
+          "seed": 91022010,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r2@50"
+          ]
+        },
+        {
+          "seed": 91022011,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r2@50"
+          ]
+        },
+        {
+          "seed": 91022012,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r2@50"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r1-r2"
+      ],
+      "profile": "weak:r1-r2",
+      "shift": {
+        "pair": "r1-r4",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 4,
+      "stale_plan_survives": false,
+      "stable_rate": 0.0,
+      "episodes": [
+        {
+          "seed": 91022020,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r2@50"
+          ]
+        },
+        {
+          "seed": 91022021,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r2@50"
+          ]
+        },
+        {
+          "seed": 91022022,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r2@50"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r1-r2"
+      ],
+      "profile": "weak:r1-r2",
+      "shift": {
+        "pair": "r2-r3",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 4,
+      "stale_plan_survives": false,
+      "stable_rate": 0.0,
+      "episodes": [
+        {
+          "seed": 91022030,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r2@50"
+          ]
+        },
+        {
+          "seed": 91022031,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r2@50"
+          ]
+        },
+        {
+          "seed": 91022032,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r2@50"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r1-r2"
+      ],
+      "profile": "weak:r1-r2",
+      "shift": {
+        "pair": "r2-r4",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 4,
+      "stale_plan_survives": false,
+      "stable_rate": 0.0,
+      "episodes": [
+        {
+          "seed": 91022040,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r2@50"
+          ]
+        },
+        {
+          "seed": 91022041,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r2@50"
+          ]
+        },
+        {
+          "seed": 91022042,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r2@50"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r1-r2"
+      ],
+      "profile": "weak:r1-r2",
+      "shift": {
+        "pair": "r3-r4",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 1,
+      "stale_plan_survives": true,
+      "stable_rate": 1.0,
+      "episodes": [
+        {
+          "seed": 91022050,
+          "stable": true,
+          "settle": 8,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r2@50"
+          ]
+        },
+        {
+          "seed": 91022051,
+          "stable": true,
+          "settle": 8,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r2@50"
+          ]
+        },
+        {
+          "seed": 91022052,
+          "stable": true,
+          "settle": 15,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r2@50"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r1-r3"
+      ],
+      "profile": "weak:r1-r2",
+      "shift": {
+        "pair": "r2-r3",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 4,
+      "stale_plan_survives": true,
+      "stable_rate": 1.0,
+      "episodes": [
+        {
+          "seed": 91023030,
+          "stable": true,
+          "settle": 11,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r1-r3@50",
+            "2:r1-r2@20",
+            "3:r2-r3@20",
+            "4:r2-r4@20"
+          ]
+        },
+        {
+          "seed": 91023031,
+          "stable": true,
+          "settle": 10,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r1-r3@50",
+            "2:r1-r2@20",
+            "3:r2-r3@20",
+            "4:r2-r4@20"
+          ]
+        },
+        {
+          "seed": 91023032,
+          "stable": true,
+          "settle": 12,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r1-r3@50",
+            "2:r1-r2@20",
+            "3:r2-r3@20",
+            "4:r2-r4@20"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r1-r3"
+      ],
+      "profile": "weak:r1-r2",
+      "shift": {
+        "pair": "r2-r4",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 4,
+      "stale_plan_survives": true,
+      "stable_rate": 0.6666666666666666,
+      "episodes": [
+        {
+          "seed": 91023040,
+          "stable": true,
+          "settle": 14,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r1-r3@50",
+            "2:r1-r2@20",
+            "3:r2-r3@20",
+            "4:r2-r4@20"
+          ]
+        },
+        {
+          "seed": 91023041,
+          "stable": true,
+          "settle": 25,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r1-r3@50",
+            "2:r1-r2@20",
+            "3:r2-r3@20",
+            "4:r2-r4@20"
+          ]
+        },
+        {
+          "seed": 91023042,
+          "stable": false,
+          "settle": null,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r1-r3@50",
+            "2:r1-r2@20",
+            "3:r2-r3@20",
+            "4:r2-r4@20"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r2-r3"
+      ],
+      "profile": "weak:r1-r2",
+      "shift": {
+        "pair": "r1-r3",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 4,
+      "stale_plan_survives": true,
+      "stable_rate": 1.0,
+      "episodes": [
+        {
+          "seed": 91024010,
+          "stable": true,
+          "settle": 15,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r2-r3@50",
+            "2:r1-r2@20",
+            "3:r1-r3@20",
+            "4:r1-r4@20"
+          ]
+        },
+        {
+          "seed": 91024011,
+          "stable": true,
+          "settle": 28,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r2-r3@50",
+            "2:r1-r2@20",
+            "3:r1-r3@20",
+            "4:r1-r4@20"
+          ]
+        },
+        {
+          "seed": 91024012,
+          "stable": true,
+          "settle": 11,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r2-r3@50",
+            "2:r1-r2@20",
+            "3:r1-r3@20",
+            "4:r1-r4@20"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r2-r3"
+      ],
+      "profile": "weak:r1-r2",
+      "shift": {
+        "pair": "r1-r4",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 4,
+      "stale_plan_survives": true,
+      "stable_rate": 0.6666666666666666,
+      "episodes": [
+        {
+          "seed": 91024020,
+          "stable": true,
+          "settle": 24,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r2-r3@50",
+            "2:r1-r2@20",
+            "3:r1-r3@20",
+            "4:r1-r4@20"
+          ]
+        },
+        {
+          "seed": 91024021,
+          "stable": true,
+          "settle": 13,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r2-r3@50",
+            "2:r1-r2@20",
+            "3:r1-r3@20",
+            "4:r1-r4@20"
+          ]
+        },
+        {
+          "seed": 91024022,
+          "stable": false,
+          "settle": null,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r2-r3@50",
+            "2:r1-r2@20",
+            "3:r1-r3@20",
+            "4:r1-r4@20"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r2-r4"
+      ],
+      "profile": "weak:r1-r2",
+      "shift": {
+        "pair": "r1-r3",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 4,
+      "stale_plan_survives": true,
+      "stable_rate": 1.0,
+      "episodes": [
+        {
+          "seed": 91025010,
+          "stable": true,
+          "settle": 12,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r2-r4@50",
+            "2:r1-r2@20",
+            "3:r1-r3@20",
+            "4:r1-r4@20"
+          ]
+        },
+        {
+          "seed": 91025011,
+          "stable": true,
+          "settle": 12,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r2-r4@50",
+            "2:r1-r2@20",
+            "3:r1-r3@20",
+            "4:r1-r4@20"
+          ]
+        },
+        {
+          "seed": 91025012,
+          "stable": true,
+          "settle": 11,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r2-r4@50",
+            "2:r1-r2@20",
+            "3:r1-r3@20",
+            "4:r1-r4@20"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r2-r4"
+      ],
+      "profile": "weak:r1-r2",
+      "shift": {
+        "pair": "r1-r4",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 4,
+      "stale_plan_survives": true,
+      "stable_rate": 1.0,
+      "episodes": [
+        {
+          "seed": 91025020,
+          "stable": true,
+          "settle": 13,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r2-r4@50",
+            "2:r1-r2@20",
+            "3:r1-r3@20",
+            "4:r1-r4@20"
+          ]
+        },
+        {
+          "seed": 91025021,
+          "stable": true,
+          "settle": 12,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r2-r4@50",
+            "2:r1-r2@20",
+            "3:r1-r3@20",
+            "4:r1-r4@20"
+          ]
+        },
+        {
+          "seed": 91025022,
+          "stable": true,
+          "settle": 13,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r2-r4@50",
+            "2:r1-r2@20",
+            "3:r1-r3@20",
+            "4:r1-r4@20"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r3-r4"
+      ],
+      "profile": "weak:r1-r2",
+      "shift": {
+        "pair": "r1-r3",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 4,
+      "stale_plan_survives": false,
+      "stable_rate": 0.0,
+      "episodes": [
+        {
+          "seed": 91026010,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r3-r4@50"
+          ]
+        },
+        {
+          "seed": 91026011,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r3-r4@50"
+          ]
+        },
+        {
+          "seed": 91026012,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r3-r4@50"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r3-r4"
+      ],
+      "profile": "weak:r1-r2",
+      "shift": {
+        "pair": "r1-r4",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 4,
+      "stale_plan_survives": false,
+      "stable_rate": 0.0,
+      "episodes": [
+        {
+          "seed": 91026020,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r3-r4@50"
+          ]
+        },
+        {
+          "seed": 91026021,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r3-r4@50"
+          ]
+        },
+        {
+          "seed": 91026022,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r3-r4@50"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r3-r4"
+      ],
+      "profile": "weak:r1-r2",
+      "shift": {
+        "pair": "r2-r3",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 4,
+      "stale_plan_survives": false,
+      "stable_rate": 0.0,
+      "episodes": [
+        {
+          "seed": 91026030,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r3-r4@50"
+          ]
+        },
+        {
+          "seed": 91026031,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r3-r4@50"
+          ]
+        },
+        {
+          "seed": 91026032,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r3-r4@50"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r3-r4"
+      ],
+      "profile": "weak:r1-r2",
+      "shift": {
+        "pair": "r2-r4",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 4,
+      "stale_plan_survives": false,
+      "stable_rate": 0.0,
+      "episodes": [
+        {
+          "seed": 91026040,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r3-r4@50"
+          ]
+        },
+        {
+          "seed": 91026041,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r3-r4@50"
+          ]
+        },
+        {
+          "seed": 91026042,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r3-r4@50"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r3-r4"
+      ],
+      "profile": "weak:r1-r2",
+      "shift": {
+        "pair": "r3-r4",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 1,
+      "stale_plan_survives": true,
+      "stable_rate": 1.0,
+      "episodes": [
+        {
+          "seed": 91026050,
+          "stable": true,
+          "settle": 9,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r3-r4@50"
+          ]
+        },
+        {
+          "seed": 91026051,
+          "stable": true,
+          "settle": 22,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r3-r4@50"
+          ]
+        },
+        {
+          "seed": 91026052,
+          "stable": true,
+          "settle": 12,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r3-r4@50"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r1-r4"
+      ],
+      "profile": "weak:r1-r2",
+      "shift": {
+        "pair": "r2-r3",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 4,
+      "stale_plan_survives": true,
+      "stable_rate": 1.0,
+      "episodes": [
+        {
+          "seed": 91027030,
+          "stable": true,
+          "settle": 10,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r1-r4@50",
+            "2:r1-r2@20",
+            "3:r2-r3@20",
+            "4:r2-r4@20"
+          ]
+        },
+        {
+          "seed": 91027031,
+          "stable": true,
+          "settle": 9,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r1-r4@50",
+            "2:r1-r2@20",
+            "3:r2-r3@20",
+            "4:r2-r4@20"
+          ]
+        },
+        {
+          "seed": 91027032,
+          "stable": true,
+          "settle": 11,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r1-r4@50",
+            "2:r1-r2@20",
+            "3:r2-r3@20",
+            "4:r2-r4@20"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r1-r4"
+      ],
+      "profile": "weak:r1-r2",
+      "shift": {
+        "pair": "r2-r4",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 4,
+      "stale_plan_survives": true,
+      "stable_rate": 0.6666666666666666,
+      "episodes": [
+        {
+          "seed": 91027040,
+          "stable": true,
+          "settle": 11,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r1-r4@50",
+            "2:r1-r2@20",
+            "3:r2-r3@20",
+            "4:r2-r4@20"
+          ]
+        },
+        {
+          "seed": 91027041,
+          "stable": true,
+          "settle": 9,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r1-r4@50",
+            "2:r1-r2@20",
+            "3:r2-r3@20",
+            "4:r2-r4@20"
+          ]
+        },
+        {
+          "seed": 91027042,
+          "stable": false,
+          "settle": null,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r1-r4@50",
+            "2:r1-r2@20",
+            "3:r2-r3@20",
+            "4:r2-r4@20"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r1-r2"
+      ],
+      "profile": "weak:r1-r3",
+      "shift": {
+        "pair": "r2-r3",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 4,
+      "stale_plan_survives": true,
+      "stable_rate": 1.0,
+      "episodes": [
+        {
+          "seed": 91043030,
+          "stable": true,
+          "settle": 10,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r1-r2@50",
+            "2:r1-r3@20",
+            "3:r2-r3@20",
+            "4:r3-r4@20"
+          ]
+        },
+        {
+          "seed": 91043031,
+          "stable": true,
+          "settle": 25,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r1-r2@50",
+            "2:r1-r3@20",
+            "3:r2-r3@20",
+            "4:r3-r4@20"
+          ]
+        },
+        {
+          "seed": 91043032,
+          "stable": true,
+          "settle": 13,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r1-r2@50",
+            "2:r1-r3@20",
+            "3:r2-r3@20",
+            "4:r3-r4@20"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r1-r2"
+      ],
+      "profile": "weak:r1-r3",
+      "shift": {
+        "pair": "r3-r4",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 4,
+      "stale_plan_survives": true,
+      "stable_rate": 1.0,
+      "episodes": [
+        {
+          "seed": 91043050,
+          "stable": true,
+          "settle": 9,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r1-r2@50",
+            "2:r1-r3@20",
+            "3:r2-r3@20",
+            "4:r3-r4@20"
+          ]
+        },
+        {
+          "seed": 91043051,
+          "stable": true,
+          "settle": 9,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r1-r2@50",
+            "2:r1-r3@20",
+            "3:r2-r3@20",
+            "4:r3-r4@20"
+          ]
+        },
+        {
+          "seed": 91043052,
+          "stable": true,
+          "settle": 13,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r1-r2@50",
+            "2:r1-r3@20",
+            "3:r2-r3@20",
+            "4:r3-r4@20"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r1-r3"
+      ],
+      "profile": "weak:r1-r3",
+      "shift": {
+        "pair": "r1-r2",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 4,
+      "stale_plan_survives": false,
+      "stable_rate": 0.0,
+      "episodes": [
+        {
+          "seed": 91044000,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r3@50"
+          ]
+        },
+        {
+          "seed": 91044001,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r3@50"
+          ]
+        },
+        {
+          "seed": 91044002,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r3@50"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r1-r3"
+      ],
+      "profile": "weak:r1-r3",
+      "shift": {
+        "pair": "r1-r3",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 1,
+      "stale_plan_survives": true,
+      "stable_rate": 1.0,
+      "episodes": [
+        {
+          "seed": 91044010,
+          "stable": true,
+          "settle": 12,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r3@50"
+          ]
+        },
+        {
+          "seed": 91044011,
+          "stable": true,
+          "settle": 9,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r3@50"
+          ]
+        },
+        {
+          "seed": 91044012,
+          "stable": true,
+          "settle": 8,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r3@50"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r1-r3"
+      ],
+      "profile": "weak:r1-r3",
+      "shift": {
+        "pair": "r1-r4",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 4,
+      "stale_plan_survives": false,
+      "stable_rate": 0.0,
+      "episodes": [
+        {
+          "seed": 91044020,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r3@50"
+          ]
+        },
+        {
+          "seed": 91044021,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r3@50"
+          ]
+        },
+        {
+          "seed": 91044022,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r3@50"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r1-r3"
+      ],
+      "profile": "weak:r1-r3",
+      "shift": {
+        "pair": "r2-r3",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 4,
+      "stale_plan_survives": false,
+      "stable_rate": 0.0,
+      "episodes": [
+        {
+          "seed": 91044030,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r3@50"
+          ]
+        },
+        {
+          "seed": 91044031,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r3@50"
+          ]
+        },
+        {
+          "seed": 91044032,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r3@50"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r1-r3"
+      ],
+      "profile": "weak:r1-r3",
+      "shift": {
+        "pair": "r2-r4",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 1,
+      "stale_plan_survives": true,
+      "stable_rate": 1.0,
+      "episodes": [
+        {
+          "seed": 91044040,
+          "stable": true,
+          "settle": 10,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r3@50"
+          ]
+        },
+        {
+          "seed": 91044041,
+          "stable": true,
+          "settle": 8,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r3@50"
+          ]
+        },
+        {
+          "seed": 91044042,
+          "stable": true,
+          "settle": 9,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r3@50"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r1-r3"
+      ],
+      "profile": "weak:r1-r3",
+      "shift": {
+        "pair": "r3-r4",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 4,
+      "stale_plan_survives": false,
+      "stable_rate": 0.0,
+      "episodes": [
+        {
+          "seed": 91044050,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r3@50"
+          ]
+        },
+        {
+          "seed": 91044051,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r3@50"
+          ]
+        },
+        {
+          "seed": 91044052,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r3@50"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r2-r3"
+      ],
+      "profile": "weak:r1-r3",
+      "shift": {
+        "pair": "r1-r2",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 4,
+      "stale_plan_survives": true,
+      "stable_rate": 1.0,
+      "episodes": [
+        {
+          "seed": 91045000,
+          "stable": true,
+          "settle": 11,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r2-r3@50",
+            "2:r1-r2@20",
+            "3:r1-r3@20",
+            "4:r1-r4@20"
+          ]
+        },
+        {
+          "seed": 91045001,
+          "stable": true,
+          "settle": 16,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r2-r3@50",
+            "2:r1-r2@20",
+            "3:r1-r3@20",
+            "4:r1-r4@20"
+          ]
+        },
+        {
+          "seed": 91045002,
+          "stable": true,
+          "settle": 16,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r2-r3@50",
+            "2:r1-r2@20",
+            "3:r1-r3@20",
+            "4:r1-r4@20"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r2-r3"
+      ],
+      "profile": "weak:r1-r3",
+      "shift": {
+        "pair": "r1-r4",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 4,
+      "stale_plan_survives": true,
+      "stable_rate": 1.0,
+      "episodes": [
+        {
+          "seed": 91045020,
+          "stable": true,
+          "settle": 20,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r2-r3@50",
+            "2:r1-r2@20",
+            "3:r1-r3@20",
+            "4:r1-r4@20"
+          ]
+        },
+        {
+          "seed": 91045021,
+          "stable": true,
+          "settle": 12,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r2-r3@50",
+            "2:r1-r2@20",
+            "3:r1-r3@20",
+            "4:r1-r4@20"
+          ]
+        },
+        {
+          "seed": 91045022,
+          "stable": true,
+          "settle": 11,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r2-r3@50",
+            "2:r1-r2@20",
+            "3:r1-r3@20",
+            "4:r1-r4@20"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r2-r4"
+      ],
+      "profile": "weak:r1-r3",
+      "shift": {
+        "pair": "r1-r2",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 4,
+      "stale_plan_survives": false,
+      "stable_rate": 0.0,
+      "episodes": [
+        {
+          "seed": 91046000,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r2-r4@50"
+          ]
+        },
+        {
+          "seed": 91046001,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r2-r4@50"
+          ]
+        },
+        {
+          "seed": 91046002,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r2-r4@50"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r2-r4"
+      ],
+      "profile": "weak:r1-r3",
+      "shift": {
+        "pair": "r1-r4",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 4,
+      "stale_plan_survives": false,
+      "stable_rate": 0.0,
+      "episodes": [
+        {
+          "seed": 91046020,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r2-r4@50"
+          ]
+        },
+        {
+          "seed": 91046021,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r2-r4@50"
+          ]
+        },
+        {
+          "seed": 91046022,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r2-r4@50"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r2-r4"
+      ],
+      "profile": "weak:r1-r3",
+      "shift": {
+        "pair": "r2-r3",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 4,
+      "stale_plan_survives": false,
+      "stable_rate": 0.0,
+      "episodes": [
+        {
+          "seed": 91046030,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r2-r4@50"
+          ]
+        },
+        {
+          "seed": 91046031,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r2-r4@50"
+          ]
+        },
+        {
+          "seed": 91046032,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r2-r4@50"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r2-r4"
+      ],
+      "profile": "weak:r1-r3",
+      "shift": {
+        "pair": "r2-r4",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 1,
+      "stale_plan_survives": true,
+      "stable_rate": 1.0,
+      "episodes": [
+        {
+          "seed": 91046040,
+          "stable": true,
+          "settle": 7,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r2-r4@50"
+          ]
+        },
+        {
+          "seed": 91046041,
+          "stable": true,
+          "settle": 10,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r2-r4@50"
+          ]
+        },
+        {
+          "seed": 91046042,
+          "stable": true,
+          "settle": 7,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r2-r4@50"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r2-r4"
+      ],
+      "profile": "weak:r1-r3",
+      "shift": {
+        "pair": "r3-r4",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 4,
+      "stale_plan_survives": false,
+      "stable_rate": 0.0,
+      "episodes": [
+        {
+          "seed": 91046050,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r2-r4@50"
+          ]
+        },
+        {
+          "seed": 91046051,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r2-r4@50"
+          ]
+        },
+        {
+          "seed": 91046052,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r2-r4@50"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r3-r4"
+      ],
+      "profile": "weak:r1-r3",
+      "shift": {
+        "pair": "r1-r2",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 4,
+      "stale_plan_survives": true,
+      "stable_rate": 1.0,
+      "episodes": [
+        {
+          "seed": 91047000,
+          "stable": true,
+          "settle": 16,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r3-r4@50",
+            "2:r1-r2@20",
+            "3:r1-r3@20",
+            "4:r1-r4@20"
+          ]
+        },
+        {
+          "seed": 91047001,
+          "stable": true,
+          "settle": 10,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r3-r4@50",
+            "2:r1-r2@20",
+            "3:r1-r3@20",
+            "4:r1-r4@20"
+          ]
+        },
+        {
+          "seed": 91047002,
+          "stable": true,
+          "settle": 15,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r3-r4@50",
+            "2:r1-r2@20",
+            "3:r1-r3@20",
+            "4:r1-r4@20"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r3-r4"
+      ],
+      "profile": "weak:r1-r3",
+      "shift": {
+        "pair": "r1-r4",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 4,
+      "stale_plan_survives": true,
+      "stable_rate": 1.0,
+      "episodes": [
+        {
+          "seed": 91047020,
+          "stable": true,
+          "settle": 10,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r3-r4@50",
+            "2:r1-r2@20",
+            "3:r1-r3@20",
+            "4:r1-r4@20"
+          ]
+        },
+        {
+          "seed": 91047021,
+          "stable": true,
+          "settle": 20,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r3-r4@50",
+            "2:r1-r2@20",
+            "3:r1-r3@20",
+            "4:r1-r4@20"
+          ]
+        },
+        {
+          "seed": 91047022,
+          "stable": true,
+          "settle": 18,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r3-r4@50",
+            "2:r1-r2@20",
+            "3:r1-r3@20",
+            "4:r1-r4@20"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r1-r4"
+      ],
+      "profile": "weak:r1-r3",
+      "shift": {
+        "pair": "r2-r3",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 4,
+      "stale_plan_survives": true,
+      "stable_rate": 1.0,
+      "episodes": [
+        {
+          "seed": 91048030,
+          "stable": true,
+          "settle": 12,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r1-r4@50",
+            "2:r1-r3@20",
+            "3:r2-r3@20",
+            "4:r3-r4@20"
+          ]
+        },
+        {
+          "seed": 91048031,
+          "stable": true,
+          "settle": 12,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r1-r4@50",
+            "2:r1-r3@20",
+            "3:r2-r3@20",
+            "4:r3-r4@20"
+          ]
+        },
+        {
+          "seed": 91048032,
+          "stable": true,
+          "settle": 14,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r1-r4@50",
+            "2:r1-r3@20",
+            "3:r2-r3@20",
+            "4:r3-r4@20"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r1-r4"
+      ],
+      "profile": "weak:r1-r3",
+      "shift": {
+        "pair": "r3-r4",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 4,
+      "stale_plan_survives": true,
+      "stable_rate": 1.0,
+      "episodes": [
+        {
+          "seed": 91048050,
+          "stable": true,
+          "settle": 13,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r1-r4@50",
+            "2:r1-r3@20",
+            "3:r2-r3@20",
+            "4:r3-r4@20"
+          ]
+        },
+        {
+          "seed": 91048051,
+          "stable": true,
+          "settle": 13,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r1-r4@50",
+            "2:r1-r3@20",
+            "3:r2-r3@20",
+            "4:r3-r4@20"
+          ]
+        },
+        {
+          "seed": 91048052,
+          "stable": true,
+          "settle": 14,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r1-r4@50",
+            "2:r1-r3@20",
+            "3:r2-r3@20",
+            "4:r3-r4@20"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r1-r2"
+      ],
+      "profile": "weak:r2-r3",
+      "shift": {
+        "pair": "r1-r3",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 4,
+      "stale_plan_survives": true,
+      "stable_rate": 1.0,
+      "episodes": [
+        {
+          "seed": 91064010,
+          "stable": true,
+          "settle": 10,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r1-r2@50",
+            "2:r1-r3@20",
+            "3:r2-r3@20",
+            "4:r3-r4@20"
+          ]
+        },
+        {
+          "seed": 91064011,
+          "stable": true,
+          "settle": 13,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r1-r2@50",
+            "2:r1-r3@20",
+            "3:r2-r3@20",
+            "4:r3-r4@20"
+          ]
+        },
+        {
+          "seed": 91064012,
+          "stable": true,
+          "settle": 12,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r1-r2@50",
+            "2:r1-r3@20",
+            "3:r2-r3@20",
+            "4:r3-r4@20"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r1-r2"
+      ],
+      "profile": "weak:r2-r3",
+      "shift": {
+        "pair": "r3-r4",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 4,
+      "stale_plan_survives": true,
+      "stable_rate": 1.0,
+      "episodes": [
+        {
+          "seed": 91064050,
+          "stable": true,
+          "settle": 30,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r1-r2@50",
+            "2:r1-r3@20",
+            "3:r2-r3@20",
+            "4:r3-r4@20"
+          ]
+        },
+        {
+          "seed": 91064051,
+          "stable": true,
+          "settle": 27,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r1-r2@50",
+            "2:r1-r3@20",
+            "3:r2-r3@20",
+            "4:r3-r4@20"
+          ]
+        },
+        {
+          "seed": 91064052,
+          "stable": true,
+          "settle": 18,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r1-r2@50",
+            "2:r1-r3@20",
+            "3:r2-r3@20",
+            "4:r3-r4@20"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r1-r3"
+      ],
+      "profile": "weak:r2-r3",
+      "shift": {
+        "pair": "r1-r2",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 4,
+      "stale_plan_survives": true,
+      "stable_rate": 1.0,
+      "episodes": [
+        {
+          "seed": 91065000,
+          "stable": true,
+          "settle": 13,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r1-r3@50",
+            "2:r1-r2@20",
+            "3:r2-r3@20",
+            "4:r2-r4@20"
+          ]
+        },
+        {
+          "seed": 91065001,
+          "stable": true,
+          "settle": 13,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r1-r3@50",
+            "2:r1-r2@20",
+            "3:r2-r3@20",
+            "4:r2-r4@20"
+          ]
+        },
+        {
+          "seed": 91065002,
+          "stable": true,
+          "settle": 18,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r1-r3@50",
+            "2:r1-r2@20",
+            "3:r2-r3@20",
+            "4:r2-r4@20"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r1-r3"
+      ],
+      "profile": "weak:r2-r3",
+      "shift": {
+        "pair": "r2-r4",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 4,
+      "stale_plan_survives": true,
+      "stable_rate": 0.6666666666666666,
+      "episodes": [
+        {
+          "seed": 91065040,
+          "stable": true,
+          "settle": 14,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r1-r3@50",
+            "2:r1-r2@20",
+            "3:r2-r3@20",
+            "4:r2-r4@20"
+          ]
+        },
+        {
+          "seed": 91065041,
+          "stable": true,
+          "settle": 9,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r1-r3@50",
+            "2:r1-r2@20",
+            "3:r2-r3@20",
+            "4:r2-r4@20"
+          ]
+        },
+        {
+          "seed": 91065042,
+          "stable": false,
+          "settle": null,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r1-r3@50",
+            "2:r1-r2@20",
+            "3:r2-r3@20",
+            "4:r2-r4@20"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r2-r3"
+      ],
+      "profile": "weak:r2-r3",
+      "shift": {
+        "pair": "r1-r2",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 4,
+      "stale_plan_survives": false,
+      "stable_rate": 0.0,
+      "episodes": [
+        {
+          "seed": 91066000,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r2-r3@50"
+          ]
+        },
+        {
+          "seed": 91066001,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r2-r3@50"
+          ]
+        },
+        {
+          "seed": 91066002,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r2-r3@50"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r2-r3"
+      ],
+      "profile": "weak:r2-r3",
+      "shift": {
+        "pair": "r1-r3",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 4,
+      "stale_plan_survives": false,
+      "stable_rate": 0.0,
+      "episodes": [
+        {
+          "seed": 91066010,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r2-r3@50"
+          ]
+        },
+        {
+          "seed": 91066011,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r2-r3@50"
+          ]
+        },
+        {
+          "seed": 91066012,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r2-r3@50"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r2-r3"
+      ],
+      "profile": "weak:r2-r3",
+      "shift": {
+        "pair": "r1-r4",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 1,
+      "stale_plan_survives": true,
+      "stable_rate": 1.0,
+      "episodes": [
+        {
+          "seed": 91066020,
+          "stable": true,
+          "settle": 8,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r2-r3@50"
+          ]
+        },
+        {
+          "seed": 91066021,
+          "stable": true,
+          "settle": 12,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r2-r3@50"
+          ]
+        },
+        {
+          "seed": 91066022,
+          "stable": true,
+          "settle": 8,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r2-r3@50"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r2-r3"
+      ],
+      "profile": "weak:r2-r3",
+      "shift": {
+        "pair": "r2-r3",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 1,
+      "stale_plan_survives": true,
+      "stable_rate": 1.0,
+      "episodes": [
+        {
+          "seed": 91066030,
+          "stable": true,
+          "settle": 10,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r2-r3@50"
+          ]
+        },
+        {
+          "seed": 91066031,
+          "stable": true,
+          "settle": 12,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r2-r3@50"
+          ]
+        },
+        {
+          "seed": 91066032,
+          "stable": true,
+          "settle": 9,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r2-r3@50"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r2-r3"
+      ],
+      "profile": "weak:r2-r3",
+      "shift": {
+        "pair": "r2-r4",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 4,
+      "stale_plan_survives": false,
+      "stable_rate": 0.0,
+      "episodes": [
+        {
+          "seed": 91066040,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r2-r3@50"
+          ]
+        },
+        {
+          "seed": 91066041,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r2-r3@50"
+          ]
+        },
+        {
+          "seed": 91066042,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r2-r3@50"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r2-r3"
+      ],
+      "profile": "weak:r2-r3",
+      "shift": {
+        "pair": "r3-r4",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 4,
+      "stale_plan_survives": false,
+      "stable_rate": 0.0,
+      "episodes": [
+        {
+          "seed": 91066050,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r2-r3@50"
+          ]
+        },
+        {
+          "seed": 91066051,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r2-r3@50"
+          ]
+        },
+        {
+          "seed": 91066052,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r2-r3@50"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r2-r4"
+      ],
+      "profile": "weak:r2-r3",
+      "shift": {
+        "pair": "r1-r3",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 4,
+      "stale_plan_survives": true,
+      "stable_rate": 1.0,
+      "episodes": [
+        {
+          "seed": 91067010,
+          "stable": true,
+          "settle": 21,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r2-r4@50",
+            "2:r1-r3@20",
+            "3:r2-r3@20",
+            "4:r3-r4@20"
+          ]
+        },
+        {
+          "seed": 91067011,
+          "stable": true,
+          "settle": 20,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r2-r4@50",
+            "2:r1-r3@20",
+            "3:r2-r3@20",
+            "4:r3-r4@20"
+          ]
+        },
+        {
+          "seed": 91067012,
+          "stable": true,
+          "settle": 11,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r2-r4@50",
+            "2:r1-r3@20",
+            "3:r2-r3@20",
+            "4:r3-r4@20"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r2-r4"
+      ],
+      "profile": "weak:r2-r3",
+      "shift": {
+        "pair": "r3-r4",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 4,
+      "stale_plan_survives": true,
+      "stable_rate": 1.0,
+      "episodes": [
+        {
+          "seed": 91067050,
+          "stable": true,
+          "settle": 30,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r2-r4@50",
+            "2:r1-r3@20",
+            "3:r2-r3@20",
+            "4:r3-r4@20"
+          ]
+        },
+        {
+          "seed": 91067051,
+          "stable": true,
+          "settle": 20,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r2-r4@50",
+            "2:r1-r3@20",
+            "3:r2-r3@20",
+            "4:r3-r4@20"
+          ]
+        },
+        {
+          "seed": 91067052,
+          "stable": true,
+          "settle": 12,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r2-r4@50",
+            "2:r1-r3@20",
+            "3:r2-r3@20",
+            "4:r3-r4@20"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r3-r4"
+      ],
+      "profile": "weak:r2-r3",
+      "shift": {
+        "pair": "r1-r2",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 4,
+      "stale_plan_survives": true,
+      "stable_rate": 1.0,
+      "episodes": [
+        {
+          "seed": 91068000,
+          "stable": true,
+          "settle": 12,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r3-r4@50",
+            "2:r1-r2@20",
+            "3:r2-r3@20",
+            "4:r2-r4@20"
+          ]
+        },
+        {
+          "seed": 91068001,
+          "stable": true,
+          "settle": 11,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r3-r4@50",
+            "2:r1-r2@20",
+            "3:r2-r3@20",
+            "4:r2-r4@20"
+          ]
+        },
+        {
+          "seed": 91068002,
+          "stable": true,
+          "settle": 16,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r3-r4@50",
+            "2:r1-r2@20",
+            "3:r2-r3@20",
+            "4:r2-r4@20"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r3-r4"
+      ],
+      "profile": "weak:r2-r3",
+      "shift": {
+        "pair": "r2-r4",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 4,
+      "stale_plan_survives": true,
+      "stable_rate": 1.0,
+      "episodes": [
+        {
+          "seed": 91068040,
+          "stable": true,
+          "settle": 13,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r3-r4@50",
+            "2:r1-r2@20",
+            "3:r2-r3@20",
+            "4:r2-r4@20"
+          ]
+        },
+        {
+          "seed": 91068041,
+          "stable": true,
+          "settle": 16,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r3-r4@50",
+            "2:r1-r2@20",
+            "3:r2-r3@20",
+            "4:r2-r4@20"
+          ]
+        },
+        {
+          "seed": 91068042,
+          "stable": true,
+          "settle": 11,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r3-r4@50",
+            "2:r1-r2@20",
+            "3:r2-r3@20",
+            "4:r2-r4@20"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r1-r4"
+      ],
+      "profile": "weak:r2-r3",
+      "shift": {
+        "pair": "r1-r2",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 4,
+      "stale_plan_survives": false,
+      "stable_rate": 0.0,
+      "episodes": [
+        {
+          "seed": 91069000,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r4@50"
+          ]
+        },
+        {
+          "seed": 91069001,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r4@50"
+          ]
+        },
+        {
+          "seed": 91069002,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r4@50"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r1-r4"
+      ],
+      "profile": "weak:r2-r3",
+      "shift": {
+        "pair": "r1-r3",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 4,
+      "stale_plan_survives": false,
+      "stable_rate": 0.0,
+      "episodes": [
+        {
+          "seed": 91069010,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r4@50"
+          ]
+        },
+        {
+          "seed": 91069011,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r4@50"
+          ]
+        },
+        {
+          "seed": 91069012,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r4@50"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r1-r4"
+      ],
+      "profile": "weak:r2-r3",
+      "shift": {
+        "pair": "r1-r4",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 1,
+      "stale_plan_survives": true,
+      "stable_rate": 1.0,
+      "episodes": [
+        {
+          "seed": 91069020,
+          "stable": true,
+          "settle": 12,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r4@50"
+          ]
+        },
+        {
+          "seed": 91069021,
+          "stable": true,
+          "settle": 8,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r4@50"
+          ]
+        },
+        {
+          "seed": 91069022,
+          "stable": true,
+          "settle": 12,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r4@50"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r1-r4"
+      ],
+      "profile": "weak:r2-r3",
+      "shift": {
+        "pair": "r2-r4",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 4,
+      "stale_plan_survives": false,
+      "stable_rate": 0.0,
+      "episodes": [
+        {
+          "seed": 91069040,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r4@50"
+          ]
+        },
+        {
+          "seed": 91069041,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r4@50"
+          ]
+        },
+        {
+          "seed": 91069042,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r4@50"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r1-r4"
+      ],
+      "profile": "weak:r2-r3",
+      "shift": {
+        "pair": "r3-r4",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 4,
+      "stale_plan_survives": false,
+      "stable_rate": 0.0,
+      "episodes": [
+        {
+          "seed": 91069050,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r4@50"
+          ]
+        },
+        {
+          "seed": 91069051,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r4@50"
+          ]
+        },
+        {
+          "seed": 91069052,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r4@50"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r1-r2"
+      ],
+      "profile": "weak:r2-r4",
+      "shift": {
+        "pair": "r1-r4",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 4,
+      "stale_plan_survives": true,
+      "stable_rate": 1.0,
+      "episodes": [
+        {
+          "seed": 91085020,
+          "stable": true,
+          "settle": 14,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r1-r2@50",
+            "2:r2-r4@20",
+            "3:r3-r4@20",
+            "4:r1-r4@20"
+          ]
+        },
+        {
+          "seed": 91085021,
+          "stable": true,
+          "settle": 11,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r1-r2@50",
+            "2:r2-r4@20",
+            "3:r3-r4@20",
+            "4:r1-r4@20"
+          ]
+        },
+        {
+          "seed": 91085022,
+          "stable": true,
+          "settle": 11,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r1-r2@50",
+            "2:r2-r4@20",
+            "3:r3-r4@20",
+            "4:r1-r4@20"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r1-r2"
+      ],
+      "profile": "weak:r2-r4",
+      "shift": {
+        "pair": "r3-r4",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 4,
+      "stale_plan_survives": true,
+      "stable_rate": 1.0,
+      "episodes": [
+        {
+          "seed": 91085050,
+          "stable": true,
+          "settle": 9,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r1-r2@50",
+            "2:r2-r4@20",
+            "3:r3-r4@20",
+            "4:r1-r4@20"
+          ]
+        },
+        {
+          "seed": 91085051,
+          "stable": true,
+          "settle": 30,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r1-r2@50",
+            "2:r2-r4@20",
+            "3:r3-r4@20",
+            "4:r1-r4@20"
+          ]
+        },
+        {
+          "seed": 91085052,
+          "stable": true,
+          "settle": 12,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r1-r2@50",
+            "2:r2-r4@20",
+            "3:r3-r4@20",
+            "4:r1-r4@20"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r1-r3"
+      ],
+      "profile": "weak:r2-r4",
+      "shift": {
+        "pair": "r1-r2",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 4,
+      "stale_plan_survives": false,
+      "stable_rate": 0.0,
+      "episodes": [
+        {
+          "seed": 91086000,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r3@50"
+          ]
+        },
+        {
+          "seed": 91086001,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r3@50"
+          ]
+        },
+        {
+          "seed": 91086002,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r3@50"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r1-r3"
+      ],
+      "profile": "weak:r2-r4",
+      "shift": {
+        "pair": "r1-r3",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 1,
+      "stale_plan_survives": true,
+      "stable_rate": 1.0,
+      "episodes": [
+        {
+          "seed": 91086010,
+          "stable": true,
+          "settle": 13,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r3@50"
+          ]
+        },
+        {
+          "seed": 91086011,
+          "stable": true,
+          "settle": 12,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r3@50"
+          ]
+        },
+        {
+          "seed": 91086012,
+          "stable": true,
+          "settle": 7,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r3@50"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r1-r3"
+      ],
+      "profile": "weak:r2-r4",
+      "shift": {
+        "pair": "r1-r4",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 4,
+      "stale_plan_survives": false,
+      "stable_rate": 0.0,
+      "episodes": [
+        {
+          "seed": 91086020,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r3@50"
+          ]
+        },
+        {
+          "seed": 91086021,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r3@50"
+          ]
+        },
+        {
+          "seed": 91086022,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r3@50"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r1-r3"
+      ],
+      "profile": "weak:r2-r4",
+      "shift": {
+        "pair": "r2-r3",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 4,
+      "stale_plan_survives": false,
+      "stable_rate": 0.0,
+      "episodes": [
+        {
+          "seed": 91086030,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r3@50"
+          ]
+        },
+        {
+          "seed": 91086031,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r3@50"
+          ]
+        },
+        {
+          "seed": 91086032,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r3@50"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r1-r3"
+      ],
+      "profile": "weak:r2-r4",
+      "shift": {
+        "pair": "r3-r4",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 4,
+      "stale_plan_survives": false,
+      "stable_rate": 0.0,
+      "episodes": [
+        {
+          "seed": 91086050,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r3@50"
+          ]
+        },
+        {
+          "seed": 91086051,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r3@50"
+          ]
+        },
+        {
+          "seed": 91086052,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r3@50"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r2-r3"
+      ],
+      "profile": "weak:r2-r4",
+      "shift": {
+        "pair": "r1-r4",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 4,
+      "stale_plan_survives": true,
+      "stable_rate": 1.0,
+      "episodes": [
+        {
+          "seed": 91087020,
+          "stable": true,
+          "settle": 13,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r2-r3@50",
+            "2:r2-r4@20",
+            "3:r3-r4@20",
+            "4:r1-r4@20"
+          ]
+        },
+        {
+          "seed": 91087021,
+          "stable": true,
+          "settle": 11,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r2-r3@50",
+            "2:r2-r4@20",
+            "3:r3-r4@20",
+            "4:r1-r4@20"
+          ]
+        },
+        {
+          "seed": 91087022,
+          "stable": true,
+          "settle": 10,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r2-r3@50",
+            "2:r2-r4@20",
+            "3:r3-r4@20",
+            "4:r1-r4@20"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r2-r3"
+      ],
+      "profile": "weak:r2-r4",
+      "shift": {
+        "pair": "r3-r4",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 4,
+      "stale_plan_survives": true,
+      "stable_rate": 1.0,
+      "episodes": [
+        {
+          "seed": 91087050,
+          "stable": true,
+          "settle": 16,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r2-r3@50",
+            "2:r2-r4@20",
+            "3:r3-r4@20",
+            "4:r1-r4@20"
+          ]
+        },
+        {
+          "seed": 91087051,
+          "stable": true,
+          "settle": 14,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r2-r3@50",
+            "2:r2-r4@20",
+            "3:r3-r4@20",
+            "4:r1-r4@20"
+          ]
+        },
+        {
+          "seed": 91087052,
+          "stable": true,
+          "settle": 14,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r2-r3@50",
+            "2:r2-r4@20",
+            "3:r3-r4@20",
+            "4:r1-r4@20"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r2-r4"
+      ],
+      "profile": "weak:r2-r4",
+      "shift": {
+        "pair": "r1-r2",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 4,
+      "stale_plan_survives": false,
+      "stable_rate": 0.0,
+      "episodes": [
+        {
+          "seed": 91088000,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r2-r4@50"
+          ]
+        },
+        {
+          "seed": 91088001,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r2-r4@50"
+          ]
+        },
+        {
+          "seed": 91088002,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r2-r4@50"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r2-r4"
+      ],
+      "profile": "weak:r2-r4",
+      "shift": {
+        "pair": "r1-r3",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 1,
+      "stale_plan_survives": true,
+      "stable_rate": 1.0,
+      "episodes": [
+        {
+          "seed": 91088010,
+          "stable": true,
+          "settle": 5,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r2-r4@50"
+          ]
+        },
+        {
+          "seed": 91088011,
+          "stable": true,
+          "settle": 10,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r2-r4@50"
+          ]
+        },
+        {
+          "seed": 91088012,
+          "stable": true,
+          "settle": 9,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r2-r4@50"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r2-r4"
+      ],
+      "profile": "weak:r2-r4",
+      "shift": {
+        "pair": "r1-r4",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 4,
+      "stale_plan_survives": false,
+      "stable_rate": 0.0,
+      "episodes": [
+        {
+          "seed": 91088020,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r2-r4@50"
+          ]
+        },
+        {
+          "seed": 91088021,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r2-r4@50"
+          ]
+        },
+        {
+          "seed": 91088022,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r2-r4@50"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r2-r4"
+      ],
+      "profile": "weak:r2-r4",
+      "shift": {
+        "pair": "r2-r3",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 4,
+      "stale_plan_survives": false,
+      "stable_rate": 0.0,
+      "episodes": [
+        {
+          "seed": 91088030,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r2-r4@50"
+          ]
+        },
+        {
+          "seed": 91088031,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r2-r4@50"
+          ]
+        },
+        {
+          "seed": 91088032,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r2-r4@50"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r2-r4"
+      ],
+      "profile": "weak:r2-r4",
+      "shift": {
+        "pair": "r2-r4",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 1,
+      "stale_plan_survives": true,
+      "stable_rate": 1.0,
+      "episodes": [
+        {
+          "seed": 91088040,
+          "stable": true,
+          "settle": 15,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r2-r4@50"
+          ]
+        },
+        {
+          "seed": 91088041,
+          "stable": true,
+          "settle": 22,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r2-r4@50"
+          ]
+        },
+        {
+          "seed": 91088042,
+          "stable": true,
+          "settle": 10,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r2-r4@50"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r2-r4"
+      ],
+      "profile": "weak:r2-r4",
+      "shift": {
+        "pair": "r3-r4",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 4,
+      "stale_plan_survives": false,
+      "stable_rate": 0.0,
+      "episodes": [
+        {
+          "seed": 91088050,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r2-r4@50"
+          ]
+        },
+        {
+          "seed": 91088051,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r2-r4@50"
+          ]
+        },
+        {
+          "seed": 91088052,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r2-r4@50"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r3-r4"
+      ],
+      "profile": "weak:r2-r4",
+      "shift": {
+        "pair": "r1-r2",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 4,
+      "stale_plan_survives": true,
+      "stable_rate": 1.0,
+      "episodes": [
+        {
+          "seed": 91089000,
+          "stable": true,
+          "settle": 15,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r3-r4@50",
+            "2:r1-r2@20",
+            "3:r2-r3@20",
+            "4:r2-r4@20"
+          ]
+        },
+        {
+          "seed": 91089001,
+          "stable": true,
+          "settle": 18,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r3-r4@50",
+            "2:r1-r2@20",
+            "3:r2-r3@20",
+            "4:r2-r4@20"
+          ]
+        },
+        {
+          "seed": 91089002,
+          "stable": true,
+          "settle": 14,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r3-r4@50",
+            "2:r1-r2@20",
+            "3:r2-r3@20",
+            "4:r2-r4@20"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r3-r4"
+      ],
+      "profile": "weak:r2-r4",
+      "shift": {
+        "pair": "r2-r3",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 4,
+      "stale_plan_survives": true,
+      "stable_rate": 1.0,
+      "episodes": [
+        {
+          "seed": 91089030,
+          "stable": true,
+          "settle": 14,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r3-r4@50",
+            "2:r1-r2@20",
+            "3:r2-r3@20",
+            "4:r2-r4@20"
+          ]
+        },
+        {
+          "seed": 91089031,
+          "stable": true,
+          "settle": 16,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r3-r4@50",
+            "2:r1-r2@20",
+            "3:r2-r3@20",
+            "4:r2-r4@20"
+          ]
+        },
+        {
+          "seed": 91089032,
+          "stable": true,
+          "settle": 13,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r3-r4@50",
+            "2:r1-r2@20",
+            "3:r2-r3@20",
+            "4:r2-r4@20"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r1-r4"
+      ],
+      "profile": "weak:r2-r4",
+      "shift": {
+        "pair": "r1-r2",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 4,
+      "stale_plan_survives": true,
+      "stable_rate": 1.0,
+      "episodes": [
+        {
+          "seed": 91090000,
+          "stable": true,
+          "settle": 14,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r1-r4@50",
+            "2:r1-r2@20",
+            "3:r2-r3@20",
+            "4:r2-r4@20"
+          ]
+        },
+        {
+          "seed": 91090001,
+          "stable": true,
+          "settle": 11,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r1-r4@50",
+            "2:r1-r2@20",
+            "3:r2-r3@20",
+            "4:r2-r4@20"
+          ]
+        },
+        {
+          "seed": 91090002,
+          "stable": true,
+          "settle": 10,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r1-r4@50",
+            "2:r1-r2@20",
+            "3:r2-r3@20",
+            "4:r2-r4@20"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r1-r4"
+      ],
+      "profile": "weak:r2-r4",
+      "shift": {
+        "pair": "r2-r3",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 4,
+      "stale_plan_survives": true,
+      "stable_rate": 1.0,
+      "episodes": [
+        {
+          "seed": 91090030,
+          "stable": true,
+          "settle": 13,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r1-r4@50",
+            "2:r1-r2@20",
+            "3:r2-r3@20",
+            "4:r2-r4@20"
+          ]
+        },
+        {
+          "seed": 91090031,
+          "stable": true,
+          "settle": 12,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r1-r4@50",
+            "2:r1-r2@20",
+            "3:r2-r3@20",
+            "4:r2-r4@20"
+          ]
+        },
+        {
+          "seed": 91090032,
+          "stable": true,
+          "settle": 12,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r1-r4@50",
+            "2:r1-r2@20",
+            "3:r2-r3@20",
+            "4:r2-r4@20"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r1-r2"
+      ],
+      "profile": "weak:r3-r4",
+      "shift": {
+        "pair": "r1-r2",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 1,
+      "stale_plan_survives": true,
+      "stable_rate": 1.0,
+      "episodes": [
+        {
+          "seed": 91106000,
+          "stable": true,
+          "settle": 31,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r2@50"
+          ]
+        },
+        {
+          "seed": 91106001,
+          "stable": true,
+          "settle": 11,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r2@50"
+          ]
+        },
+        {
+          "seed": 91106002,
+          "stable": true,
+          "settle": 9,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r2@50"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r1-r2"
+      ],
+      "profile": "weak:r3-r4",
+      "shift": {
+        "pair": "r1-r3",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 4,
+      "stale_plan_survives": false,
+      "stable_rate": 0.0,
+      "episodes": [
+        {
+          "seed": 91106010,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r2@50"
+          ]
+        },
+        {
+          "seed": 91106011,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r2@50"
+          ]
+        },
+        {
+          "seed": 91106012,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r2@50"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r1-r2"
+      ],
+      "profile": "weak:r3-r4",
+      "shift": {
+        "pair": "r1-r4",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 4,
+      "stale_plan_survives": false,
+      "stable_rate": 0.0,
+      "episodes": [
+        {
+          "seed": 91106020,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r2@50"
+          ]
+        },
+        {
+          "seed": 91106021,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r2@50"
+          ]
+        },
+        {
+          "seed": 91106022,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r2@50"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r1-r2"
+      ],
+      "profile": "weak:r3-r4",
+      "shift": {
+        "pair": "r2-r3",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 4,
+      "stale_plan_survives": false,
+      "stable_rate": 0.0,
+      "episodes": [
+        {
+          "seed": 91106030,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r2@50"
+          ]
+        },
+        {
+          "seed": 91106031,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r2@50"
+          ]
+        },
+        {
+          "seed": 91106032,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r2@50"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r1-r2"
+      ],
+      "profile": "weak:r3-r4",
+      "shift": {
+        "pair": "r2-r4",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 4,
+      "stale_plan_survives": false,
+      "stable_rate": 0.0,
+      "episodes": [
+        {
+          "seed": 91106040,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r2@50"
+          ]
+        },
+        {
+          "seed": 91106041,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r2@50"
+          ]
+        },
+        {
+          "seed": 91106042,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r2@50"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r1-r3"
+      ],
+      "profile": "weak:r3-r4",
+      "shift": {
+        "pair": "r1-r4",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 4,
+      "stale_plan_survives": true,
+      "stable_rate": 1.0,
+      "episodes": [
+        {
+          "seed": 91107020,
+          "stable": true,
+          "settle": 15,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r1-r3@50",
+            "2:r2-r4@20",
+            "3:r3-r4@20",
+            "4:r1-r4@20"
+          ]
+        },
+        {
+          "seed": 91107021,
+          "stable": true,
+          "settle": 16,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r1-r3@50",
+            "2:r2-r4@20",
+            "3:r3-r4@20",
+            "4:r1-r4@20"
+          ]
+        },
+        {
+          "seed": 91107022,
+          "stable": true,
+          "settle": 14,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r1-r3@50",
+            "2:r2-r4@20",
+            "3:r3-r4@20",
+            "4:r1-r4@20"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r1-r3"
+      ],
+      "profile": "weak:r3-r4",
+      "shift": {
+        "pair": "r2-r4",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 4,
+      "stale_plan_survives": true,
+      "stable_rate": 1.0,
+      "episodes": [
+        {
+          "seed": 91107040,
+          "stable": true,
+          "settle": 13,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r1-r3@50",
+            "2:r2-r4@20",
+            "3:r3-r4@20",
+            "4:r1-r4@20"
+          ]
+        },
+        {
+          "seed": 91107041,
+          "stable": true,
+          "settle": 13,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r1-r3@50",
+            "2:r2-r4@20",
+            "3:r3-r4@20",
+            "4:r1-r4@20"
+          ]
+        },
+        {
+          "seed": 91107042,
+          "stable": true,
+          "settle": 15,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r1-r3@50",
+            "2:r2-r4@20",
+            "3:r3-r4@20",
+            "4:r1-r4@20"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r2-r3"
+      ],
+      "profile": "weak:r3-r4",
+      "shift": {
+        "pair": "r1-r4",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 4,
+      "stale_plan_survives": true,
+      "stable_rate": 1.0,
+      "episodes": [
+        {
+          "seed": 91108020,
+          "stable": true,
+          "settle": 25,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r2-r3@50",
+            "2:r2-r4@20",
+            "3:r3-r4@20",
+            "4:r1-r4@20"
+          ]
+        },
+        {
+          "seed": 91108021,
+          "stable": true,
+          "settle": 10,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r2-r3@50",
+            "2:r2-r4@20",
+            "3:r3-r4@20",
+            "4:r1-r4@20"
+          ]
+        },
+        {
+          "seed": 91108022,
+          "stable": true,
+          "settle": 9,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r2-r3@50",
+            "2:r2-r4@20",
+            "3:r3-r4@20",
+            "4:r1-r4@20"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r2-r3"
+      ],
+      "profile": "weak:r3-r4",
+      "shift": {
+        "pair": "r2-r4",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 4,
+      "stale_plan_survives": true,
+      "stable_rate": 1.0,
+      "episodes": [
+        {
+          "seed": 91108040,
+          "stable": true,
+          "settle": 15,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r2-r3@50",
+            "2:r2-r4@20",
+            "3:r3-r4@20",
+            "4:r1-r4@20"
+          ]
+        },
+        {
+          "seed": 91108041,
+          "stable": true,
+          "settle": 17,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r2-r3@50",
+            "2:r2-r4@20",
+            "3:r3-r4@20",
+            "4:r1-r4@20"
+          ]
+        },
+        {
+          "seed": 91108042,
+          "stable": true,
+          "settle": 13,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r2-r3@50",
+            "2:r2-r4@20",
+            "3:r3-r4@20",
+            "4:r1-r4@20"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r2-r4"
+      ],
+      "profile": "weak:r3-r4",
+      "shift": {
+        "pair": "r1-r3",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 4,
+      "stale_plan_survives": true,
+      "stable_rate": 1.0,
+      "episodes": [
+        {
+          "seed": 91109010,
+          "stable": true,
+          "settle": 28,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r2-r4@50",
+            "2:r1-r3@20",
+            "3:r2-r3@20",
+            "4:r3-r4@20"
+          ]
+        },
+        {
+          "seed": 91109011,
+          "stable": true,
+          "settle": 15,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r2-r4@50",
+            "2:r1-r3@20",
+            "3:r2-r3@20",
+            "4:r3-r4@20"
+          ]
+        },
+        {
+          "seed": 91109012,
+          "stable": true,
+          "settle": 28,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r2-r4@50",
+            "2:r1-r3@20",
+            "3:r2-r3@20",
+            "4:r3-r4@20"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r2-r4"
+      ],
+      "profile": "weak:r3-r4",
+      "shift": {
+        "pair": "r2-r3",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 4,
+      "stale_plan_survives": true,
+      "stable_rate": 1.0,
+      "episodes": [
+        {
+          "seed": 91109030,
+          "stable": true,
+          "settle": 13,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r2-r4@50",
+            "2:r1-r3@20",
+            "3:r2-r3@20",
+            "4:r3-r4@20"
+          ]
+        },
+        {
+          "seed": 91109031,
+          "stable": true,
+          "settle": 16,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r2-r4@50",
+            "2:r1-r3@20",
+            "3:r2-r3@20",
+            "4:r3-r4@20"
+          ]
+        },
+        {
+          "seed": 91109032,
+          "stable": true,
+          "settle": 15,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r2-r4@50",
+            "2:r1-r3@20",
+            "3:r2-r3@20",
+            "4:r3-r4@20"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r3-r4"
+      ],
+      "profile": "weak:r3-r4",
+      "shift": {
+        "pair": "r1-r2",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 1,
+      "stale_plan_survives": true,
+      "stable_rate": 0.6666666666666666,
+      "episodes": [
+        {
+          "seed": 91110000,
+          "stable": true,
+          "settle": 11,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r3-r4@50"
+          ]
+        },
+        {
+          "seed": 91110001,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r3-r4@50"
+          ]
+        },
+        {
+          "seed": 91110002,
+          "stable": true,
+          "settle": 10,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r3-r4@50"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r3-r4"
+      ],
+      "profile": "weak:r3-r4",
+      "shift": {
+        "pair": "r1-r3",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 4,
+      "stale_plan_survives": false,
+      "stable_rate": 0.0,
+      "episodes": [
+        {
+          "seed": 91110010,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r3-r4@50"
+          ]
+        },
+        {
+          "seed": 91110011,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r3-r4@50"
+          ]
+        },
+        {
+          "seed": 91110012,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r3-r4@50"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r3-r4"
+      ],
+      "profile": "weak:r3-r4",
+      "shift": {
+        "pair": "r1-r4",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 4,
+      "stale_plan_survives": false,
+      "stable_rate": 0.0,
+      "episodes": [
+        {
+          "seed": 91110020,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r3-r4@50"
+          ]
+        },
+        {
+          "seed": 91110021,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r3-r4@50"
+          ]
+        },
+        {
+          "seed": 91110022,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r3-r4@50"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r3-r4"
+      ],
+      "profile": "weak:r3-r4",
+      "shift": {
+        "pair": "r2-r3",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 4,
+      "stale_plan_survives": false,
+      "stable_rate": 0.0,
+      "episodes": [
+        {
+          "seed": 91110030,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r3-r4@50"
+          ]
+        },
+        {
+          "seed": 91110031,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r3-r4@50"
+          ]
+        },
+        {
+          "seed": 91110032,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r3-r4@50"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r3-r4"
+      ],
+      "profile": "weak:r3-r4",
+      "shift": {
+        "pair": "r2-r4",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 4,
+      "stale_plan_survives": false,
+      "stable_rate": 0.0,
+      "episodes": [
+        {
+          "seed": 91110040,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r3-r4@50"
+          ]
+        },
+        {
+          "seed": 91110041,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r3-r4@50"
+          ]
+        },
+        {
+          "seed": 91110042,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r3-r4@50"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r3-r4"
+      ],
+      "profile": "weak:r3-r4",
+      "shift": {
+        "pair": "r3-r4",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 1,
+      "stale_plan_survives": true,
+      "stable_rate": 1.0,
+      "episodes": [
+        {
+          "seed": 91110050,
+          "stable": true,
+          "settle": 11,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r3-r4@50"
+          ]
+        },
+        {
+          "seed": 91110051,
+          "stable": true,
+          "settle": 8,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r3-r4@50"
+          ]
+        },
+        {
+          "seed": 91110052,
+          "stable": true,
+          "settle": 15,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r3-r4@50"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r1-r4"
+      ],
+      "profile": "weak:r3-r4",
+      "shift": {
+        "pair": "r1-r3",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 4,
+      "stale_plan_survives": true,
+      "stable_rate": 1.0,
+      "episodes": [
+        {
+          "seed": 91111010,
+          "stable": true,
+          "settle": 12,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r1-r4@50",
+            "2:r1-r3@20",
+            "3:r2-r3@20",
+            "4:r3-r4@20"
+          ]
+        },
+        {
+          "seed": 91111011,
+          "stable": true,
+          "settle": 24,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r1-r4@50",
+            "2:r1-r3@20",
+            "3:r2-r3@20",
+            "4:r3-r4@20"
+          ]
+        },
+        {
+          "seed": 91111012,
+          "stable": true,
+          "settle": 11,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r1-r4@50",
+            "2:r1-r3@20",
+            "3:r2-r3@20",
+            "4:r3-r4@20"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r1-r4"
+      ],
+      "profile": "weak:r3-r4",
+      "shift": {
+        "pair": "r2-r3",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 4,
+      "stale_plan_survives": true,
+      "stable_rate": 1.0,
+      "episodes": [
+        {
+          "seed": 91111030,
+          "stable": true,
+          "settle": 25,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r1-r4@50",
+            "2:r1-r3@20",
+            "3:r2-r3@20",
+            "4:r3-r4@20"
+          ]
+        },
+        {
+          "seed": 91111031,
+          "stable": true,
+          "settle": 18,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r1-r4@50",
+            "2:r1-r3@20",
+            "3:r2-r3@20",
+            "4:r3-r4@20"
+          ]
+        },
+        {
+          "seed": 91111032,
+          "stable": true,
+          "settle": 22,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r1-r4@50",
+            "2:r1-r3@20",
+            "3:r2-r3@20",
+            "4:r3-r4@20"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r1-r2"
+      ],
+      "profile": "weak:r1-r4",
+      "shift": {
+        "pair": "r2-r4",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 4,
+      "stale_plan_survives": true,
+      "stable_rate": 1.0,
+      "episodes": [
+        {
+          "seed": 91127040,
+          "stable": true,
+          "settle": 9,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r1-r2@50",
+            "2:r2-r4@20",
+            "3:r3-r4@20",
+            "4:r1-r4@20"
+          ]
+        },
+        {
+          "seed": 91127041,
+          "stable": true,
+          "settle": 12,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r1-r2@50",
+            "2:r2-r4@20",
+            "3:r3-r4@20",
+            "4:r1-r4@20"
+          ]
+        },
+        {
+          "seed": 91127042,
+          "stable": true,
+          "settle": 16,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r1-r2@50",
+            "2:r2-r4@20",
+            "3:r3-r4@20",
+            "4:r1-r4@20"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r1-r2"
+      ],
+      "profile": "weak:r1-r4",
+      "shift": {
+        "pair": "r3-r4",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 4,
+      "stale_plan_survives": true,
+      "stable_rate": 1.0,
+      "episodes": [
+        {
+          "seed": 91127050,
+          "stable": true,
+          "settle": 27,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r1-r2@50",
+            "2:r2-r4@20",
+            "3:r3-r4@20",
+            "4:r1-r4@20"
+          ]
+        },
+        {
+          "seed": 91127051,
+          "stable": true,
+          "settle": 18,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r1-r2@50",
+            "2:r2-r4@20",
+            "3:r3-r4@20",
+            "4:r1-r4@20"
+          ]
+        },
+        {
+          "seed": 91127052,
+          "stable": true,
+          "settle": 19,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r1-r2@50",
+            "2:r2-r4@20",
+            "3:r3-r4@20",
+            "4:r1-r4@20"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r1-r3"
+      ],
+      "profile": "weak:r1-r4",
+      "shift": {
+        "pair": "r2-r4",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 4,
+      "stale_plan_survives": true,
+      "stable_rate": 1.0,
+      "episodes": [
+        {
+          "seed": 91128040,
+          "stable": true,
+          "settle": 12,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r1-r3@50",
+            "2:r2-r4@20",
+            "3:r3-r4@20",
+            "4:r1-r4@20"
+          ]
+        },
+        {
+          "seed": 91128041,
+          "stable": true,
+          "settle": 14,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r1-r3@50",
+            "2:r2-r4@20",
+            "3:r3-r4@20",
+            "4:r1-r4@20"
+          ]
+        },
+        {
+          "seed": 91128042,
+          "stable": true,
+          "settle": 25,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r1-r3@50",
+            "2:r2-r4@20",
+            "3:r3-r4@20",
+            "4:r1-r4@20"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r1-r3"
+      ],
+      "profile": "weak:r1-r4",
+      "shift": {
+        "pair": "r3-r4",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 4,
+      "stale_plan_survives": true,
+      "stable_rate": 1.0,
+      "episodes": [
+        {
+          "seed": 91128050,
+          "stable": true,
+          "settle": 13,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r1-r3@50",
+            "2:r2-r4@20",
+            "3:r3-r4@20",
+            "4:r1-r4@20"
+          ]
+        },
+        {
+          "seed": 91128051,
+          "stable": true,
+          "settle": 12,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r1-r3@50",
+            "2:r2-r4@20",
+            "3:r3-r4@20",
+            "4:r1-r4@20"
+          ]
+        },
+        {
+          "seed": 91128052,
+          "stable": true,
+          "settle": 15,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r1-r3@50",
+            "2:r2-r4@20",
+            "3:r3-r4@20",
+            "4:r1-r4@20"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r2-r3"
+      ],
+      "profile": "weak:r1-r4",
+      "shift": {
+        "pair": "r1-r2",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 4,
+      "stale_plan_survives": false,
+      "stable_rate": 0.0,
+      "episodes": [
+        {
+          "seed": 91129000,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r2-r3@50"
+          ]
+        },
+        {
+          "seed": 91129001,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r2-r3@50"
+          ]
+        },
+        {
+          "seed": 91129002,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r2-r3@50"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r2-r3"
+      ],
+      "profile": "weak:r1-r4",
+      "shift": {
+        "pair": "r1-r3",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 4,
+      "stale_plan_survives": false,
+      "stable_rate": 0.0,
+      "episodes": [
+        {
+          "seed": 91129010,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r2-r3@50"
+          ]
+        },
+        {
+          "seed": 91129011,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r2-r3@50"
+          ]
+        },
+        {
+          "seed": 91129012,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r2-r3@50"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r2-r3"
+      ],
+      "profile": "weak:r1-r4",
+      "shift": {
+        "pair": "r2-r3",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 1,
+      "stale_plan_survives": true,
+      "stable_rate": 1.0,
+      "episodes": [
+        {
+          "seed": 91129030,
+          "stable": true,
+          "settle": 14,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r2-r3@50"
+          ]
+        },
+        {
+          "seed": 91129031,
+          "stable": true,
+          "settle": 31,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r2-r3@50"
+          ]
+        },
+        {
+          "seed": 91129032,
+          "stable": true,
+          "settle": 27,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r2-r3@50"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r2-r3"
+      ],
+      "profile": "weak:r1-r4",
+      "shift": {
+        "pair": "r2-r4",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 4,
+      "stale_plan_survives": false,
+      "stable_rate": 0.0,
+      "episodes": [
+        {
+          "seed": 91129040,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r2-r3@50"
+          ]
+        },
+        {
+          "seed": 91129041,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r2-r3@50"
+          ]
+        },
+        {
+          "seed": 91129042,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r2-r3@50"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r2-r3"
+      ],
+      "profile": "weak:r1-r4",
+      "shift": {
+        "pair": "r3-r4",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 4,
+      "stale_plan_survives": false,
+      "stable_rate": 0.0,
+      "episodes": [
+        {
+          "seed": 91129050,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r2-r3@50"
+          ]
+        },
+        {
+          "seed": 91129051,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r2-r3@50"
+          ]
+        },
+        {
+          "seed": 91129052,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r2-r3@50"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r2-r4"
+      ],
+      "profile": "weak:r1-r4",
+      "shift": {
+        "pair": "r1-r2",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 4,
+      "stale_plan_survives": true,
+      "stable_rate": 1.0,
+      "episodes": [
+        {
+          "seed": 91130000,
+          "stable": true,
+          "settle": 13,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r2-r4@50",
+            "2:r1-r2@20",
+            "3:r1-r3@20",
+            "4:r1-r4@20"
+          ]
+        },
+        {
+          "seed": 91130001,
+          "stable": true,
+          "settle": 11,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r2-r4@50",
+            "2:r1-r2@20",
+            "3:r1-r3@20",
+            "4:r1-r4@20"
+          ]
+        },
+        {
+          "seed": 91130002,
+          "stable": true,
+          "settle": 9,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r2-r4@50",
+            "2:r1-r2@20",
+            "3:r1-r3@20",
+            "4:r1-r4@20"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r2-r4"
+      ],
+      "profile": "weak:r1-r4",
+      "shift": {
+        "pair": "r1-r3",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 4,
+      "stale_plan_survives": true,
+      "stable_rate": 1.0,
+      "episodes": [
+        {
+          "seed": 91130010,
+          "stable": true,
+          "settle": 13,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r2-r4@50",
+            "2:r1-r2@20",
+            "3:r1-r3@20",
+            "4:r1-r4@20"
+          ]
+        },
+        {
+          "seed": 91130011,
+          "stable": true,
+          "settle": 29,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r2-r4@50",
+            "2:r1-r2@20",
+            "3:r1-r3@20",
+            "4:r1-r4@20"
+          ]
+        },
+        {
+          "seed": 91130012,
+          "stable": true,
+          "settle": 13,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r2-r4@50",
+            "2:r1-r2@20",
+            "3:r1-r3@20",
+            "4:r1-r4@20"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r3-r4"
+      ],
+      "profile": "weak:r1-r4",
+      "shift": {
+        "pair": "r1-r2",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 4,
+      "stale_plan_survives": true,
+      "stable_rate": 1.0,
+      "episodes": [
+        {
+          "seed": 91131000,
+          "stable": true,
+          "settle": 15,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r3-r4@50",
+            "2:r1-r2@20",
+            "3:r1-r3@20",
+            "4:r1-r4@20"
+          ]
+        },
+        {
+          "seed": 91131001,
+          "stable": true,
+          "settle": 13,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r3-r4@50",
+            "2:r1-r2@20",
+            "3:r1-r3@20",
+            "4:r1-r4@20"
+          ]
+        },
+        {
+          "seed": 91131002,
+          "stable": true,
+          "settle": 15,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r3-r4@50",
+            "2:r1-r2@20",
+            "3:r1-r3@20",
+            "4:r1-r4@20"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r3-r4"
+      ],
+      "profile": "weak:r1-r4",
+      "shift": {
+        "pair": "r1-r3",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 4,
+      "stale_plan_survives": true,
+      "stable_rate": 1.0,
+      "episodes": [
+        {
+          "seed": 91131010,
+          "stable": true,
+          "settle": 13,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r3-r4@50",
+            "2:r1-r2@20",
+            "3:r1-r3@20",
+            "4:r1-r4@20"
+          ]
+        },
+        {
+          "seed": 91131011,
+          "stable": true,
+          "settle": 18,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r3-r4@50",
+            "2:r1-r2@20",
+            "3:r1-r3@20",
+            "4:r1-r4@20"
+          ]
+        },
+        {
+          "seed": 91131012,
+          "stable": true,
+          "settle": 17,
+          "n_actions": 4,
+          "n_actions_after_shift": 1,
+          "actions": [
+            "1:r3-r4@50",
+            "2:r1-r2@20",
+            "3:r1-r3@20",
+            "4:r1-r4@20"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r1-r4"
+      ],
+      "profile": "weak:r1-r4",
+      "shift": {
+        "pair": "r1-r2",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 4,
+      "stale_plan_survives": false,
+      "stable_rate": 0.0,
+      "episodes": [
+        {
+          "seed": 91132000,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r4@50"
+          ]
+        },
+        {
+          "seed": 91132001,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r4@50"
+          ]
+        },
+        {
+          "seed": 91132002,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r4@50"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r1-r4"
+      ],
+      "profile": "weak:r1-r4",
+      "shift": {
+        "pair": "r1-r3",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 4,
+      "stale_plan_survives": false,
+      "stable_rate": 0.0,
+      "episodes": [
+        {
+          "seed": 91132010,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r4@50"
+          ]
+        },
+        {
+          "seed": 91132011,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r4@50"
+          ]
+        },
+        {
+          "seed": 91132012,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r4@50"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r1-r4"
+      ],
+      "profile": "weak:r1-r4",
+      "shift": {
+        "pair": "r1-r4",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 1,
+      "stale_plan_survives": true,
+      "stable_rate": 1.0,
+      "episodes": [
+        {
+          "seed": 91132020,
+          "stable": true,
+          "settle": 13,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r4@50"
+          ]
+        },
+        {
+          "seed": 91132021,
+          "stable": true,
+          "settle": 12,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r4@50"
+          ]
+        },
+        {
+          "seed": 91132022,
+          "stable": true,
+          "settle": 12,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r4@50"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r1-r4"
+      ],
+      "profile": "weak:r1-r4",
+      "shift": {
+        "pair": "r2-r3",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 1,
+      "stale_plan_survives": true,
+      "stable_rate": 1.0,
+      "episodes": [
+        {
+          "seed": 91132030,
+          "stable": true,
+          "settle": 8,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r4@50"
+          ]
+        },
+        {
+          "seed": 91132031,
+          "stable": true,
+          "settle": 6,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r4@50"
+          ]
+        },
+        {
+          "seed": 91132032,
+          "stable": true,
+          "settle": 12,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r4@50"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r1-r4"
+      ],
+      "profile": "weak:r1-r4",
+      "shift": {
+        "pair": "r2-r4",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 4,
+      "stale_plan_survives": false,
+      "stable_rate": 0.0,
+      "episodes": [
+        {
+          "seed": 91132040,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r4@50"
+          ]
+        },
+        {
+          "seed": 91132041,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r4@50"
+          ]
+        },
+        {
+          "seed": 91132042,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r4@50"
+          ]
+        }
+      ]
+    },
+    {
+      "congested": [
+        "r1-r4"
+      ],
+      "profile": "weak:r1-r4",
+      "shift": {
+        "pair": "r3-r4",
+        "demand": 2.0
+      },
+      "oracle_min_changes": 4,
+      "stale_plan_survives": false,
+      "stable_rate": 0.0,
+      "episodes": [
+        {
+          "seed": 91132050,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r4@50"
+          ]
+        },
+        {
+          "seed": 91132051,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r4@50"
+          ]
+        },
+        {
+          "seed": 91132052,
+          "stable": false,
+          "settle": null,
+          "n_actions": 1,
+          "n_actions_after_shift": 0,
+          "actions": [
+            "1:r1-r4@50"
+          ]
+        }
+      ]
+    }
+  ]
+}

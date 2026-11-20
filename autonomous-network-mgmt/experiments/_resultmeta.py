@@ -40,11 +40,25 @@ def _run_git(*args: str) -> str | None:
 
 
 def git_commit() -> str | None:
-    """현재 커밋 SHA. 워킹트리가 더러우면 `<sha>-dirty`."""
+    """현재 커밋 SHA. 워킹트리가 더러우면 `<sha>-dirty`.
+
+    `experiments/results/` 아래의 변경은 세지 않는다. 실험 스크립트는 결과 파일을 쓰려고 연 뒤에
+    이 함수를 부르므로, 결과 파일까지 세면 **코드가 깨끗해도 항상 dirty**가 된다 — 2026-11-14
+    이전의 결과 파일이 전부 `-dirty`인 이유다. dirty 표시는 "측정한 코드가 커밋과 다른가"를
+    말해야 하고, 결과 파일은 코드가 아니라 산출물이다.
+    """
     sha = _run_git("rev-parse", "--short", "HEAD")
     if sha is None:
         return None
-    status = _run_git("status", "--porcelain")
+    prefix = _run_git("rev-parse", "--show-prefix") or ""
+    status = _run_git(
+        "status", "--porcelain", "--",
+        ":(top)", f":(top,exclude){prefix}experiments/results",
+        # 학습 체크포인트도 산출물이다 — 학습 스크립트는 체크포인트를 저장한 뒤에 이 함수를 부른다
+        f":(top,exclude,glob){prefix}ai-engine/agents/**/*.zip",
+        f":(top,exclude,glob){prefix}ai-engine/agents/**/*.pt",
+        f":(top,exclude,glob){prefix}ai-engine/agents/**/*.meta.json",
+    )
     return f"{sha}-dirty" if status else sha
 
 
@@ -116,5 +130,31 @@ if __name__ == "__main__":
     missing = [k for k, v in m["contract"].items() if v is None]
     assert not missing, f"계약 버전을 읽지 못함: {missing}"
     assert m["git_commit"], "git_commit을 읽지 못함"
+
+    # 결과 파일을 쓰는 중이어도 dirty 판정이 바뀌지 않아야 한다
+    before = git_commit()
+    probe = os.path.join(_PROJECT_ROOT, "experiments", "results", "_selftest_probe.json")
+    try:
+        with open(probe, "w", encoding="utf-8") as f:
+            f.write("{}")
+            f.flush()
+            assert git_commit() == before, "results/ 아래의 파일이 dirty 판정을 바꿨다"
+    finally:
+        os.remove(probe)
+    # 반대로 코드 변경은 잡아야 한다 (추적되지 않는 새 파일도 코드 변경이다)
+    stray = os.path.join(_PROJECT_ROOT, "experiments", "_selftest_stray.py")
+    try:
+        open(stray, "w").close()
+        assert git_commit().endswith("-dirty"), "코드 쪽 변경을 dirty로 잡지 못했다"
+    finally:
+        os.remove(stray)
+    ck = os.path.join(_PROJECT_ROOT, "ai-engine", "agents", "_selftest_dir", "probe.zip")
+    try:
+        os.makedirs(os.path.dirname(ck), exist_ok=True)
+        open(ck, "w").close()
+        assert git_commit() == before, "체크포인트 파일이 dirty 판정을 바꿨다"
+    finally:
+        os.remove(ck); os.rmdir(os.path.dirname(ck))
+    print("OK — dirty 판정: results/ 산출물·학습 체크포인트는 무시, 코드 변경은 감지")
     print(f"OK — result_meta: commit={m['git_commit']} contract={m['contract']}")
     print("\n모든 자가 테스트 통과")

@@ -1,6 +1,8 @@
 """NetworkEnv — gymnasium.Env 구현.
 
-State  : [bw×N_NODES, lat×N_NODES, ospf_cost×N_LINKS]  (정규화 float32, 14차원)
+State  : obs_version=1 (기본) [bw×N_NODES, lat×N_NODES, ospf_cost×N_LINKS]  (정규화 float32, 14차원)
+         obs_version=2 위 14차원 + [link_util×N_LINKS, link_loss×N_LINKS] = 26차원
+           (cowork/ROADMAP.md A-1 — 링크 단위 관측. util/2, loss/0.05, clip 0~1)
 Action : Discrete — (link_idx × cost_idx) 단일 정수 인코딩
            action = link_idx * len(OSPF_COSTS) + cost_idx
 
@@ -30,6 +32,10 @@ if _AI_ENGINE_DIR not in sys.path:
 from topology import (  # noqa: E402
     NODES, LINKS, OSPF_COSTS, N_NODES, N_LINKS, MAX_BW, MAX_LAT, MAX_COST,
 )
+
+# 관측 v2 정규화 상한 (링크 이용률·손실)
+MAX_LINK_UTIL = 2.0
+MAX_LINK_LOSS = 0.05
 
 ANOMALY_PROB        = 0.03
 ANOMALY_CLEAR_STEPS = 120
@@ -63,6 +69,7 @@ class NetworkEnv(gym.Env):
         local_mode: bool = True,
         train_links: list[str] | None = None,  # None=전체, 지정 시 해당 링크만 이상 주입
         sim_seed: int | None = None,           # 시뮬레이터 노이즈 스트림 시드 (재현성)
+        obs_version: int = 1,                  # 2 = 링크 이용률·손실 12차원 추가 (ROADMAP A-1)
     ):
         super().__init__()
         self.snmp_url        = snmp_base_url
@@ -75,7 +82,12 @@ class NetworkEnv(gym.Env):
         self._anomaly_timers: dict[str, int] = {}
         self._ospf_costs     = {lk: 10 for lk in LINKS}
 
+        if obs_version not in (1, 2):
+            raise ValueError(f"obs_version은 1 또는 2여야 합니다: {obs_version!r}")
+        self.obs_version = obs_version
         obs_dim = 2 * N_NODES + N_LINKS  # 14
+        if obs_version == 2:
+            obs_dim += 2 * N_LINKS       # 26
         self.observation_space = spaces.Box(0.0, 1.0, shape=(obs_dim,), dtype=np.float32)
         self.action_space      = spaces.Discrete(N_LINKS * len(OSPF_COSTS))
 
@@ -122,7 +134,7 @@ class NetworkEnv(gym.Env):
 
         self._tick()                      # 행동 → 1틱 → 관측
         metrics = self._fetch_raw_metrics()
-        obs     = self._obs_from_metrics(metrics)
+        obs     = self._obs_from_metrics(metrics)   # v2면 링크 관측도 여기서 읽는다
 
         from reward import compute_reward
         reward = compute_reward(
@@ -243,4 +255,16 @@ class NetworkEnv(gym.Env):
         bw   = np.array([mm.get(n, {}).get("bandwidth", 500.0) / MAX_BW  for n in NODES], dtype=np.float32)
         lat  = np.array([mm.get(n, {}).get("latency",   10.0)  / MAX_LAT for n in NODES], dtype=np.float32)
         cost = np.array([self._ospf_costs.get(lk, 10) / MAX_COST for lk in LINKS], dtype=np.float32)
-        return np.clip(np.concatenate([bw, lat, cost]), 0.0, 1.0)
+        parts = [bw, lat, cost]
+        if self.obs_version == 2:
+            lm = {m["linkId"]: m for m in self._fetch_link_metrics()}
+            parts.append(np.array([lm[lk]["utilization"] / MAX_LINK_UTIL for lk in LINKS], dtype=np.float32))
+            parts.append(np.array([lm[lk]["packetLoss"] / MAX_LINK_LOSS for lk in LINKS], dtype=np.float32))
+        return np.clip(np.concatenate(parts), 0.0, 1.0)
+
+    def _fetch_link_metrics(self) -> list[dict]:
+        if self._local_mode:
+            return self._mg.get_link_metrics()
+        resp = self._client.get(f"{self.snmp_url}/metrics/links")
+        resp.raise_for_status()
+        return resp.json()

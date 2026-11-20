@@ -6,6 +6,10 @@
   realtime:<ms>    — 백그라운드 스레드가 <ms>마다 tick. Java collector/대시보드처럼
                      주기적으로 관측만 하는 클라이언트를 위한 데모 모드.
 GET /metrics 계열은 순수 조회이며 시간을 진행시키지 않는다 (cowork/AUDIT_2026-09-09.md P1).
+
+링크 용량 (SIM_CAPACITY 환경변수, cowork/ROADMAP.md B-2):
+  unlimited (기본) — 용량 없음 (sim_version 3 그대로).
+  finite           — 링크 용량·과부하 모델. 링크별 용량은 PUT /debug/capacity/<link>로 바꾼다.
 """
 import os
 import threading
@@ -15,11 +19,16 @@ from flask import Flask, jsonify, request, abort
 from metric_generator import (
     get_all_metrics,
     get_node_metrics,
+    get_link_metrics,
     get_ospf_costs,
     get_node_stress,
     get_link_stress,
     get_congested_links,
     get_routing_state,
+    get_capacity_mode,
+    set_capacity_mode,
+    set_link_capacity,
+    set_demand,
     get_security_metrics,
     get_attack_state,
     get_tick,
@@ -36,6 +45,12 @@ from metric_generator import (
 app = Flask(__name__)
 
 SIM_CLOCK = os.environ.get("SIM_CLOCK", "lockstep")
+
+# 용량 모드는 프로세스 수명 동안 고정이다 — 실험 도중 바뀌면 결과 파일의 조건이 거짓이 된다.
+try:
+    set_capacity_mode(os.environ.get("SIM_CAPACITY", "unlimited"))
+except ValueError as e:
+    raise SystemExit(f"SIM_CAPACITY 오류: {e}")
 
 
 def _start_realtime_clock(spec: str) -> None:
@@ -68,7 +83,8 @@ def handle_options(path):
 
 @app.route("/health")
 def health():
-    return jsonify({"status": "ok", "sim_clock": SIM_CLOCK, "tick": get_tick()})
+    return jsonify({"status": "ok", "sim_clock": SIM_CLOCK, "tick": get_tick(),
+                    "capacity_mode": get_capacity_mode()})
 
 
 # ── 메트릭 엔드포인트 ──────────────────────────────────────
@@ -84,6 +100,12 @@ def metrics_node(node_id: str):
     if node_id not in NODES:
         abort(404, description=f"Unknown node: {node_id}")
     return jsonify(get_node_metrics(node_id))
+
+
+@app.route("/metrics/links")
+def metrics_links():
+    """링크(인터페이스) 단위 메트릭: 이용률·손실·용량 (cowork/ROADMAP.md A-1)."""
+    return jsonify(get_link_metrics())
 
 
 # ── OSPF 코스트 관리 ───────────────────────────────────────
@@ -122,6 +144,43 @@ def inject(link: str):
 def clear(link: str):
     clear_congestion(link)
     return jsonify({"link": link, "congested": False})
+
+
+@app.route("/debug/capacity/<link>", methods=["PUT"])
+def update_capacity(link: str):
+    """링크 용량 변경 (수요 단위, > 0). /debug/reset이 기본값으로 되돌린다.
+
+    PUT /debug/capacity/r1-r3
+    Body: {"capacity": 1.2}
+    """
+    body = request.get_json(force=True, silent=True) or {}
+    cap = body.get("capacity")
+    if isinstance(cap, bool) or not isinstance(cap, (int, float)) or not cap > 0:
+        abort(400, description="capacity must be a positive number")
+    if not set_link_capacity(link, cap):
+        abort(404, description=f"Unknown link: {link}")
+    return jsonify({"link": link, "capacity": cap, "capacity_mode": get_capacity_mode()})
+
+
+@app.route("/debug/demand/<pair>", methods=["PUT"])
+def update_demand(pair: str):
+    """노드 쌍의 트래픽 수요 변경 (수요 단위, ≥ 0). /debug/reset이 균일(1.0)로 되돌린다.
+
+    PUT /debug/demand/r1-r3
+    Body: {"demand": 2.0}
+    """
+    body = request.get_json(force=True, silent=True) or {}
+    val = body.get("demand")
+    parts = pair.split("-")
+    if isinstance(val, bool) or not isinstance(val, (int, float)) or val < 0:
+        abort(400, description="demand must be a non-negative number")
+    if len(parts) != 2:
+        abort(404, description=f"Unknown pair: {pair}")
+    try:
+        set_demand({(parts[0], parts[1]): val})
+    except ValueError:
+        abort(404, description=f"Unknown pair: {pair}")
+    return jsonify({"pair": pair, "demand": val})
 
 
 @app.route("/debug/reset", methods=["POST"])
@@ -220,5 +279,6 @@ if __name__ == "__main__":
     port = int(os.environ.get("FLASK_PORT", 5001))
     if SIM_CLOCK.startswith("realtime"):
         _start_realtime_clock(SIM_CLOCK)
-    print(f"[mock_snmp_agent] SIM_CLOCK={SIM_CLOCK}  port={port}", flush=True)
+    print(f"[mock_snmp_agent] SIM_CLOCK={SIM_CLOCK}  SIM_CAPACITY={get_capacity_mode()}  port={port}",
+          flush=True)
     app.run(host="0.0.0.0", port=port, threaded=True)

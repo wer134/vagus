@@ -1,7 +1,7 @@
 """
 FastAPI — ZSM/ENI 폐쇄 루프 자율 제어 서버
 
-ZSM 3.1.1 관리 서비스 구현:
+ZSM 관리 서비스 구현 (절 번호는 대상 논문 KNOM Review 27(2) 기준):
   - Data Collection  : _fetch_snmp()
   - Analytics        : diagnose() — 이상탐지 + 근본원인분석
   - Intelligence     : MAML adapt_and_predict() — 의사결정
@@ -27,7 +27,10 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
-from anomaly_detector import detector, diagnose, root_cause_analysis, security_detector
+from anomaly_detector import (
+    detector, diagnose, root_cause_analysis, security_detector,
+    root_cause_analysis_v2, classify_links, ANALYTICS_VERSIONS,
+)
 from ospf_security import (
     ospf_monitor,
     OspfLsaPacket,
@@ -41,6 +44,9 @@ from ospf_security import (
     simulate_auth_downgrade,
     simulate_key_compromise_forge,
 )
+from routing_model import (
+    Planner, estimate_demand, next_action, model_mismatch, reestimate_demand, DEMAND_MISMATCH_TOL,
+)
 from agents.baseline_drl import BaselineAgent
 from agents.few_shot_agent import FewShotAgent
 from topology import (
@@ -52,7 +58,7 @@ SNMP_URL = os.environ.get("SNMP_URL", "http://127.0.0.1:5001")
 baseline_agent = BaselineAgent()
 few_shot_agent = FewShotAgent()
 
-# ── ZSM 3.1.1.4: 배포된 AI 모델 성능 자가 추적 ───────────────────────────────
+# ── §3.1.1.4 지능 서비스: 배포된 AI 모델 성능 자가 추적 ───────────────────────────────
 class ModelPerformanceTracker:
     """
     ZSM: 'Deployed AI Model Performance Evaluation Service'
@@ -105,6 +111,11 @@ _MAX_SUPPORT    = 32
 _prev_obs: np.ndarray | None = None
 _prev_action: int | None = None
 _buffer_skipped: int = 0   # 행동이 없어 버퍼에 넣지 않은 전이 수 (진단용)
+
+# Analytics v3(계획기) 에피소드 상태 — /reset-buffer가 함께 초기화한다
+_fault_memory: set[str] = set()      # 고장으로 판정된 적 있는 링크 (격리 후 손실이 빠져도 기억)
+_planner: Planner | None = None      # 이번 에피소드의 수요 추정치로 만든 계획기
+_planner_cache: dict[tuple, Planner] = {}
 
 # FastAPI는 동기 핸들러를 스레드풀에서 돌린다 — 위 전역 상태와 detector 버퍼를 동시 /auto-step
 # 호출로부터 보호한다 (cowork/AUDIT_2026-09-09.md C3). 폐쇄 루프는 본질적으로 순차다.
@@ -264,6 +275,60 @@ def _fetch_snmp() -> tuple[list[dict], dict]:
     return metrics, ospf_map
 
 
+def _fetch_link_metrics() -> list[dict]:
+    """링크(인터페이스) 단위 관측 — Analytics v2 전용. 실패하면 ObservationUnavailable."""
+    try:
+        with httpx.Client(timeout=2.0) as c:
+            r = c.get(f"{SNMP_URL}/metrics/links"); r.raise_for_status()
+            links = r.json()
+    except Exception as e:
+        raise ObservationUnavailable(f"링크 관측 실패: {type(e).__name__}: {e}") from e
+    if not isinstance(links, list) or {m.get("linkId") for m in links} != set(LINKS):
+        raise ObservationUnavailable(f"링크 관측 형식 오류: {links!r:.200}")
+    return links
+
+
+def _get_planner(demand: dict) -> Planner:
+    key = tuple(round(v, 3) for v in demand.values())
+    if key not in _planner_cache:
+        if len(_planner_cache) >= 64:
+            _planner_cache.clear()
+        _planner_cache[key] = Planner(demand)
+    return _planner_cache[key]
+
+
+def _plan_v3(link_metrics: list[dict], ospf_map: dict, root_cause: str | None, adaptive: bool = False):
+    """Analytics v3: 라우팅 모델로 cost 배치를 탐색해 이번 사이클의 조치를 고른다.
+
+    반환 (조치 | None, 설명). 수요를 추정하지 못했거나 풀이가 없으면 v2 규칙(고장 링크 격리)으로
+    물러난다 — 계획기가 답을 못 낸다고 고장 링크를 방치하지는 않는다.
+    """
+    global _planner
+    _fault_memory.update(lk for lk, s in classify_links(link_metrics).items() if s == "fault")
+    fallback = (root_cause, 100) if root_cause else None
+
+    if _planner is None:
+        demand = estimate_demand(link_metrics, ospf_map)
+        if demand is None:
+            return fallback, "v3: 수요 추정 불가(cost 비균일) → v2 규칙"
+        _planner = _get_planner(demand)
+    elif adaptive:
+        # v4: 관측 부하가 모델 예측과 어긋나면 수요 추정이 낡은 것이다 → 다시 추정하고 다시 계획한다
+        gap = model_mismatch(_planner.demand, ospf_map, link_metrics)
+        if gap > DEMAND_MISMATCH_TOL:
+            _planner = _get_planner(reestimate_demand(_planner.demand, ospf_map, link_metrics))
+
+    capacity = {m["linkId"]: m["capacity"] for m in link_metrics}
+    # v4는 추정 수요로 풀이가 없다고 나와도 가장 덜 나쁜 배치로 움직인다 — 움직여야 추정이 고쳐진다
+    changes = _planner.plan(ospf_map, capacity, set(_fault_memory), best_effort=adaptive)
+    if changes is None:
+        return fallback, f"v3: 풀이 없음(고장={sorted(_fault_memory)}) → v2 규칙"
+    act = next_action(changes, _fault_memory)
+    if act is None:
+        return None, "v3: 현재 배치가 계획을 만족 — 회복 대기"
+    return act, f"v3: 계획 {changes} 중 {act[0]}@{act[1]}"
+
+
 def _apply_ospf(link: str, cost: int) -> tuple[bool, str | None]:
     """OSPF cost 적용. (성공 여부, 오류 메시지) — 실패를 삼키지 않고 응답의 act에 반영한다."""
     try:
@@ -340,12 +405,19 @@ def diagnose_now():
 
 @app.get("/model-status")
 def model_status():
-    """ZSM 3.1.1.4: Deployed AI Model Performance Evaluation."""
+    """§3.1.1.4 지능 서비스: Deployed AI Model Performance Evaluation."""
     return perf_tracker.status()
 
 @app.post("/auto-step", response_model=OODAStepResponse)
-def auto_step(disable_analytics: bool = False, disable_maml: bool = False):
+def auto_step(disable_analytics: bool = False, disable_maml: bool = False,
+              analytics_version: int = 1):
     """
+    analytics_version=2: 근본 원인 분석에 링크 단위 관측(GET /metrics/links)을 쓴다
+    (cowork/ROADMAP.md A-1). analytics_version=3: 2의 진단에 더해 라우팅 모델 계획기가 조치를
+    고른다 (routing_model.py — disable_maml=true에서만). analytics_version=4: 3에 더해 관측 부하가
+    모델과 어긋나면 수요를 다시 추정한다. 기본값 1은 노드 지표만 쓰는 기존 동작이며, 링크 관측을 아예
+    읽지 않으므로 이전 결과와 같다.
+
     ENI 폐쇄 루프 1 사이클 — OODA 패러다임 완전 구현.
 
     Observe : SNMP 메트릭 수집 (실패 시 503 — 정상값으로 대체하지 않음)
@@ -354,11 +426,16 @@ def auto_step(disable_analytics: bool = False, disable_maml: bool = False):
     Act     : OSPF 변경 실행 (ZSM Orchestration) — 실패는 act.applied=False, act.error
     + ZSM AI Model Eval: 모델 성능 자가진단
     """
+    if analytics_version not in ANALYTICS_VERSIONS:
+        raise HTTPException(400, f"analytics_version must be one of {list(ANALYTICS_VERSIONS)}")
+    if analytics_version >= 3 and not disable_maml:
+        raise HTTPException(400, "analytics_version>=3 (planner) is defined only with disable_maml=true")
     with _loop_lock:
-        return _auto_step_locked(disable_analytics, disable_maml)
+        return _auto_step_locked(disable_analytics, disable_maml, analytics_version)
 
 
-def _auto_step_locked(disable_analytics: bool, disable_maml: bool) -> "OODAStepResponse":
+def _auto_step_locked(disable_analytics: bool, disable_maml: bool,
+                      analytics_version: int = 1) -> "OODAStepResponse":
     global _support_buffer, _prev_obs, _prev_action, _buffer_skipped
 
     # ══ Observe ══════════════════════════════════════════════════════
@@ -366,6 +443,7 @@ def _auto_step_locked(disable_analytics: bool, disable_maml: bool) -> "OODAStepR
     sim_tick = _tick_snmp()          # 사이클당 정확히 1틱
     try:
         metrics, ospf_map = _fetch_snmp()
+        link_metrics = _fetch_link_metrics() if analytics_version >= 2 else None
     except ObservationUnavailable as e:
         raise HTTPException(503, str(e))
     obs = _metrics_to_obs(metrics, ospf_map)
@@ -384,7 +462,16 @@ def _auto_step_locked(disable_analytics: bool, disable_maml: bool) -> "OODAStepR
 
     # ══ Orient — 이상 감지 + 근본 원인 분석 ══════════════════════════
     diag = diagnose(metrics, ospf_map)
-    root_cause = root_cause_analysis(diag, ospf_map)
+    if link_metrics is not None:
+        root_cause = root_cause_analysis_v2(link_metrics, ospf_map) if diag["anomaly_detected"] else None
+        link_state = classify_links(link_metrics)
+        observe_out["links"] = {m["linkId"]: {
+            "utilization": m["utilization"], "packet_loss": m["packetLoss"],
+            "state": link_state[m["linkId"]],
+        } for m in link_metrics}
+        diag["reasoning"] += f"  →  [v2] 링크 상태={ {k: v for k, v in link_state.items() if v != 'normal'} }"
+    else:
+        root_cause = root_cause_analysis(diag, ospf_map)
     diag["root_cause_link"] = root_cause
     orient_out = DiagnosisResponse(**diag)
 
@@ -429,10 +516,15 @@ def _auto_step_locked(disable_analytics: bool, disable_maml: bool) -> "OODAStepR
         # Analytics-only: root cause에 cost=100 직접 적용.
         # root cause가 None이면 "이미 조치됨 — 회복 대기"이므로 아무것도 하지 않는다.
         # (개정 전에는 unhandled[0]에 cost=100을 걸어 정상 링크를 망가뜨렸다 — AUDIT P2)
-        if not root_cause:
+        if analytics_version >= 3:
+            planned, plan_note = _plan_v3(link_metrics, ospf_map, root_cause,
+                                          adaptive=(analytics_version == 4))
+        else:
+            planned, plan_note = ((root_cause, 100) if root_cause else None), ""
+        if not planned:
             chain = (
                 f"[Observe] 위반노드={diag['violated_nodes']}  →  "
-                f"[Orient] 근본원인=None (이미 대응된 링크의 잔여 스트레스)  →  "
+                f"[Orient] 근본원인={root_cause} (조치할 것 없음 — 이미 대응됐거나 회복 중) {plan_note}  →  "
                 f"[Decide/Analytics-only] 회복 대기  →  [Act] OSPF 유지"
             )
             return OODAStepResponse(
@@ -443,10 +535,9 @@ def _auto_step_locked(disable_analytics: bool, disable_maml: bool) -> "OODAStepR
                 model_status=perf_tracker.status(),
                 reasoning_chain=chain,
             )
-        link = root_cause
-        cost = 100
-        action_idx = LINKS.index(link) * len(OSPF_COSTS) + OSPF_COSTS.index(100)
-        adapt_note = "Analytics-only (MAML disabled)"
+        link, cost = planned
+        action_idx = LINKS.index(link) * len(OSPF_COSTS) + OSPF_COSTS.index(cost)
+        adapt_note = "Analytics-only (MAML disabled)" + (f" — {plan_note}" if plan_note else "")
         applied, act_err = _apply_ospf(link, cost)
         _prev_action = action_idx if applied else None
         chain = (
@@ -615,7 +706,7 @@ def security_detect(metric: SecurityMetricPayload):
     """
     # 판정 → 학습 순서. 이전에는 update() 후 detect()라 판정 대상 샘플이 이미 학습셋에
     # 포함된 채 판정됐다 (cowork/AUDIT_2026-09-09.md P4). 레이블 없이 모든 샘플로 학습하므로
-    # 공격이 지속되면 공격이 '정상'으로 학습되는 문제는 남아 있다 — README 한계 참고.
+    # 공격이 지속되면 공격이 '정상'으로 학습되는 문제는 남아 있다 — cowork/SECURITY.md §5 참고.
     result = security_detector.detect(
         metric.bandwidth, metric.latency, metric.packetLoss,
         metric.syn_ratio, metric.unique_src_count, metric.pkt_rate,
@@ -646,9 +737,11 @@ def security_status():
 
 @app.post("/reset-buffer")
 def reset_buffer():
-    global _support_buffer, _prev_obs, _prev_action, _buffer_skipped
+    global _support_buffer, _prev_obs, _prev_action, _buffer_skipped, _planner
     with _loop_lock:
         _support_buffer, _prev_obs, _prev_action, _buffer_skipped = [], None, None, 0
+        _fault_memory.clear()
+        _planner = None
     return {"result": "buffer reset"}
 
 @app.get("/live-results")

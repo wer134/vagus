@@ -3,6 +3,8 @@
 > 대상 경로: `C:\autonomous-network-mgmt\autonomous-network-mgmt\`
 > 작성일: 2026-09-06 · 소스 코드를 직접 읽고 정리한 기술 문서
 > 2026-09-09 갱신: 코드 감사(`AUDIT_2026-09-09.md`) 결과 반영 — 시뮬레이터 시계, RCA, 지지 버퍼, 실패 처리
+> 2026-11-20 갱신: §1 요약을 현재 연구 기준으로 바꾸고(이전 요약은 원문 보존), §3.2에 in-process 경로 추가,
+> §6·§10에 레거시 표시
 
 리포지토리 루트의 `README.md`가 "무엇을 주장하는 프로젝트인가"(연구 포지셔닝)를 다룬다면,
 이 문서는 **"실제 코드가 어떻게 구성되고 무엇이 어디까지 동작하는가"**를 정리한다.
@@ -12,19 +14,37 @@
 
 ## 1. 한 줄 요약
 
-4개 라우터로 구성된 가상 네트워크에서 **혼잡·라우팅 위조(OSPF LSA)·트래픽 공격(DDoS/포트스캔)** 을
-AI로 탐지하고, ETSI ZSM/ENI 폐쇄 루프(OODA)로 **사람 개입 없이 OSPF cost를 자동 조정해 복구**하는
-연구용 프로토타입.
-
-핵심 아이디어는 두 계층의 결합이다.
+(2026-11-20 갱신) ETSI ZSM 폐쇄 루프(관측 → 분석 → 결정 → 실행)를 단일 관리 도메인에 구현하고,
+링크 혼잡 복구에서 **규칙 · 모델 기반 계획기 · 학습 정책**이 각각 어떤 실패를 푸는지 비교하는 연구용
+프로토타입. 4노드(HTTP 폐쇄 루프)와 Abilene 11노드(in-process 하네스) 두 규모에서 측정한다.
 
 | 계층 | 담당 | 구현 |
 | --- | --- | --- |
-| **Analytics** (Orient) | SLA 위반 감지 + 근본 원인 링크 추정 | `anomaly_detector.diagnose()` + `api_server._root_cause_analysis()` |
-| **Intelligence** (Decide) | 어떤 링크에 어떤 cost를 줄지 결정 | MAML few-shot 에이전트 `FewShotAgent` |
+| **Analytics** (Orient) | SLA 위반 판정 + 근본 원인 링크 | v1 `root_cause_analysis()` (노드 지표), v2 `root_cause_analysis_v2()` (링크 관측) |
+| **Intelligence** (Decide) | 어떤 링크에 어떤 cost를 줄지 | 규칙(고장 링크 cost 100), 계획기 v3/v4 (`routing_model.py`, `scale_control.Planner`), 학습 정책(MAML `FewShotAgent`, Abilene PPO) |
+| **Orchestration** (Act) | cost 적용 | `api_server._apply_ospf()` / `NetSim.set_cost()` |
 
-Analytics가 고신뢰로 근본 원인을 짚으면 MAML의 결정을 **override** 한다. 실험적으로 이 override가
-성능의 대부분을 만들어낸다(§6 참고).
+결과: 진단 실패는 링크 단위 관측이, 조치 실패는 라우팅 모델 탐색이, 모델 불일치는 수요 재추정이
+풀었고, 학습 정책은 두 규모 모두에서 규칙 수준이었다 (`cowork/RESULTS.md`). 보안 탐지 모듈(§4.6의
+`SecurityAnomalyDetector`, §4.7)은 연구 범위 밖 부속 구현이다 (`cowork/SECURITY.md`).
+
+**2026-09-06판 요약 (원문 보존 — 당시에는 MAML이 결정 계층이었다):**
+
+> 4개 라우터로 구성된 가상 네트워크에서 **혼잡·라우팅 위조(OSPF LSA)·트래픽 공격(DDoS/포트스캔)** 을
+> AI로 탐지하고, ETSI ZSM/ENI 폐쇄 루프(OODA)로 **사람 개입 없이 OSPF cost를 자동 조정해 복구**하는
+> 연구용 프로토타입.
+>
+> 핵심 아이디어는 두 계층의 결합이다.
+>
+> | 계층 | 담당 | 구현 |
+> | --- | --- | --- |
+> | **Analytics** (Orient) | SLA 위반 감지 + 근본 원인 링크 추정 | `anomaly_detector.diagnose()` + `api_server._root_cause_analysis()` |
+> | **Intelligence** (Decide) | 어떤 링크에 어떤 cost를 줄지 결정 | MAML few-shot 에이전트 `FewShotAgent` |
+>
+> Analytics가 고신뢰로 근본 원인을 짚으면 MAML의 결정을 **override** 한다. 실험적으로 이 override가
+> 성능의 대부분을 만들어낸다(§6 참고).
+>
+> ---
 
 ---
 
@@ -35,6 +55,7 @@ autonomous-network-mgmt/
 ├── simulation/                     # [Python] 가상 네트워크 + Mock SNMP
 │   ├── metric_generator.py         #   링크 스트레스 모델 · 메트릭/공격 시뮬레이션 (228 L)
 │   ├── mock_snmp_agent.py          #   Flask REST API (:5001) + AI Engine 프록시 (162 L)
+│   ├── netsim.py                   #   토폴로지 일반화 시뮬레이터 (K4·Abilene, 같은 물리)
 │   ├── topology.py                 #   Mininet 4-라우터 토폴로지 (현 파이프라인 미사용, 84 L)
 │   ├── Dockerfile                  #   ubuntu22.04 + mininet + OVS
 │   └── requirements.txt            #   flask
@@ -43,6 +64,9 @@ autonomous-network-mgmt/
 │   ├── api_server.py               #   FastAPI (:8000) — OODA 루프 본체 (614 L)
 │   ├── anomaly_detector.py         #   IsolationForest 이상탐지 + 링크 진단 + 보안 탐지 (183 L)
 │   ├── ospf_security.py            #   OSPF LSA 위조/인증 검증 엔진 (284 L)
+│   ├── routing_model.py            #   라우팅 모델 계획기 — Analytics v3 (상한 기준선)
+│   ├── scale_control.py            #   규모 확장용 제어기: 규칙 v2, 국소 탐색 계획기, 탐색 오라클
+│   ├── environment/scale_env.py    #   규모 확장 시나리오·분할·학습 환경 (관측 64, 행동 71)
 │   ├── reward.py                   #   보상 함수 (45 L)
 │   ├── environment/network_env.py  #   gymnasium 환경 (223 L)
 │   ├── agents/
@@ -60,6 +84,11 @@ autonomous-network-mgmt/
 │   ├── stress_test.py              #   OODA 루프 TTR 스트레스 테스트
 │   ├── ablation_study.py           #   Analytics / MAML / Combined 절제 실험
 │   ├── persistent_buffer_test.py   #   지지 버퍼 장기 유지 실험
+│   ├── capacity_probe.py           #   링크 용량 147 시나리오: 오라클(풀이 존재) vs 규칙 단독
+│   ├── demand_shift_probe.py       #   수요 변화 150 시나리오: 규칙 v2 / 계획기 v3 / 적응형 v4
+│   ├── scale_benchmark.py          #   Abilene 400 에피소드: 규칙·계획기·PPO (in-process 하네스, K4 재생 검증)
+│   ├── train_scale_ppo.py          #   Abilene PPO 학습 (사전 등록 설정 + 사후 진단 변형)
+│   ├── abilene_solvable_table.py   #   TRAIN 시나리오 전체의 풀이 존재 표 (사후 커리큘럼용)
 │   ├── cicddos_loader.py           #   CICDDoS2019 CSV → 6피처 윈도우 변환
 │   ├── validate_security_detector.py  # 실데이터 DDoS 탐지 검증
 │   ├── CICDDOS2019_SETUP.md        #   데이터셋 준비 가이드
@@ -90,7 +119,8 @@ Python 코드는 총 약 3,400 라인, Java는 2개 서비스 각 4~6 클래스 
 
 ### 3.2 두 갈래의 제어 경로
 
-이 프로젝트에는 **동일 목적의 제어 루프가 두 벌** 존재한다. 실험·논문 결과는 전부 (B)에서 나온다.
+이 프로젝트에는 **동일 목적의 제어 루프가 두 벌** 존재한다. 4노드 실험 결과는 전부 (B)에서 나온다.
+Abilene 규모 확장 실험은 세 번째 경로 (C)를 쓴다 (2026-11-18, 아래).
 
 **(A) Java 마이크로서비스 경로** — 표준적인 스트리밍 파이프라인 데모
 
@@ -112,8 +142,20 @@ POST /auto-step  (ai-engine 내부에서 한 사이클 전체를 수행)
   Evaluate : ModelPerformanceTracker
 ```
 
-`experiments/stress_test.py`, `ablation_study.py`, `persistent_buffer_test.py`는 모두 (B)의
-`/auto-step`을 호출하고, `run_experiment.py`는 HTTP 없이 `NetworkEnv`를 직접 돌린다(local_mode).
+`experiments/stress_test.py`, `ablation_study.py`, `persistent_buffer_test.py`, `capacity_probe.py`,
+`demand_shift_probe.py`는 모두 (B)의 `/auto-step`을 호출하고, `run_experiment.py`는 HTTP 없이
+`NetworkEnv`를 직접 돌린다(local_mode).
+
+**(C) in-process 규모 확장 경로** (2026-11-18) — HTTP 없이 한 프로세스에서
+
+```
+experiments/scale_benchmark.py · ai-engine/environment/scale_env.py
+  simulation/netsim.NetSim (임의 토폴로지, metric_generator finite 모드와 같은 물리)
+  사이클: tick → 노드 관측 → 링크 관측 → 결정(scale_control 제어기 또는 PPO) → 실행 → 판정
+```
+
+(B)와 같은 것을 재는지 확인했다: `scale_benchmark.py --validate-k4`가 `capacity_probe_v2.json`의
+4노드 255 에피소드를 재생해 전부 일치한다. 학습(PPO)과 평가가 같은 시나리오 정의(`scale_env.py`)를 쓴다.
 
 ---
 
@@ -133,6 +175,10 @@ POST /auto-step  (ai-engine 내부에서 한 사이클 전체를 수행)
 - 갱신식: `s_next = clip(s × 0.90 + load_s + cong_s + N(0, 0.015))`
   - `load_s` : OSPF cost 역수 기반 트래픽 비율 × 0.01 × 링크수 → **cost를 올리면 트래픽이 빠진다**
   - `cong_s` : 혼잡 주입 상태이고 `cost < 100`이면 0.50, `cost >= 100`이면 **0** (우회 성공 → 격리)
+- **링크 용량 (2026-11-14, ROADMAP B-2, 선택)**: `set_capacity_mode("finite")`를 켜면 이용률
+  (부하/용량, 기본 용량 2.0)이 스트레스를 정하고, 이용률 > 1이면 과부하 스트레스가 붙으며, 혼잡
+  링크는 cost 임계값이 아니라 **실린 부하가 0일 때** 격리된다. `predict_steady_state(costs)`는
+  cost 배치의 정상상태를 노이즈 없이 계산한다(오라클용). 기본값 `unlimited`는 아래 갱신식 그대로다.
 - 노드 메트릭 = 인접 링크 스트레스 평균 → 대역폭 950→10 Mbps, 지연 3→180 ms, 손실 0→4%
 - `inject_congestion(link)`은 스트레스를 즉시 0.95로 올려 확실한 SLA 위반을 유발한다
 
@@ -158,16 +204,22 @@ POST /auto-step  (ai-engine 내부에서 한 사이클 전체를 수행)
 | POST/DELETE | `/debug/congestion/{link}` | 혼잡 주입·해제 |
 | POST/DELETE | `/debug/attack/{type}`, `/debug/attack` | 공격 주입·해제 (`ddos` / `portscan`) |
 | POST | `/debug/reset` | 에피소드 리셋 (body `{"seed": N}` 지원) |
+| GET | `/metrics/links` | 링크(인터페이스) 단위 이용률·손실·용량 — Analytics v2/v3, 관측 v2용 |
+| PUT | `/debug/demand/{pair}` | 노드 쌍 수요 변경 (body `{"demand": 2.0}`, reset이 균일 복원) |
+| PUT | `/debug/capacity/{link}` | 링크 용량 변경 (body `{"capacity": 1.2}`, reset이 기본값 복원) |
 | POST | `/debug/tick` | 시뮬레이션 시간 진행 (body `{"n": 1}`) — lockstep 모드에서 유일한 시간 진행 수단 |
 | GET | `/debug/stress`, `/debug/state`, `/debug/attack-state` | 디버그 상태 (틱, 링크 스트레스, 혼잡 링크 등) |
 | ANY | `/ai/<path>` | AI Engine(:8000) 프록시 (브라우저 CORS 우회용) |
+
+`SIM_CAPACITY` 환경변수: `unlimited`(기본, sim_version 3 그대로) / `finite`(링크 용량 모델 — `capacity_probe.py` 전용, 기존 실험 스크립트는 이 모드를 결과 파일에 기록하지 않는다).
 
 `SIM_CLOCK` 환경변수: `lockstep`(기본, `/debug/tick`으로만 진행) / `realtime:<ms>`(백그라운드 스레드가
 주기적으로 tick — Java collector·대시보드처럼 관측만 하는 클라이언트용).
 
 ### 4.3 `ai-engine/environment/network_env.py` — 강화학습 환경
 
-- **상태 (14차원, 0~1 정규화)**: `[대역폭×4, 지연×4, OSPF cost×6]`
+- **상태 (14차원, 0~1 정규화)**: `[대역폭×4, 지연×4, OSPF cost×6]`. `obs_version=2`는 여기에
+  `[링크 이용률×6, 링크 손실×6]`을 붙인 26차원 (2026-11-15, ROADMAP A-1)
 - **행동 (Discrete 30)**: `action = link_idx × 5 + cost_idx`, 링크 6개 × cost {10, 20, 50, 100, 200}
 - `local_mode=True`(기본): HTTP 없이 `metric_generator` 모듈을 직접 호출 → 학습이 매우 빠름
 - `local_mode=False`: `:5001` REST 호출 (평가/실서비스용). 관측 실패 시 예외 (가짜 정상값 없음)
@@ -276,6 +328,10 @@ python ai-engine/ospf_security.py     # replay / downgrade / key-compromise / we
 
 응답에는 각 단계 결과와 함께 사람이 읽는 `reasoning_chain` 문자열이 포함된다.
 `?disable_analytics=true`, `?disable_maml=true` 쿼리로 절제 실험 모드를 켤 수 있다.
+`?analytics_version=2`는 근본 원인 분석에 링크 단위 관측을 쓰고(`root_cause_analysis_v2`),
+`?analytics_version=3`은 거기에 라우팅 모델 계획기(`routing_model.py`)로 조치를 고른다
+(`disable_maml=true`에서만). `?analytics_version=4`는 관측 부하가 모델과 어긋나면 수요를 다시
+추정하는 적응형 계획기다 (2026-11-16). 기본값 1은 링크 관측을 읽지 않는 기존 동작이다 (2026-11-15).
 
 **주요 엔드포인트**
 
@@ -385,6 +441,10 @@ cd orchestrator-service && ./mvnw spring-boot:run    # :8082
 ---
 
 ## 6. 실험 결과 요약
+
+> **레거시 (2026-11-20).** 이 절은 2026-09 측정(4노드 기본 시뮬레이터, 규칙 v1 + MAML/PPO)이다.
+> 11월의 연구 질문과 결과(용량·이중 혼잡, 수요 변화, Abilene)는 `cowork/RESULTS.md`에 있다.
+> §6.4의 CICDDoS2019 검증은 `cowork/SECURITY.md` §4와 같은 내용이다.
 
 > **2026-09-09 갱신**: 아래 §6.1~6.3의 수치는 **사이클당 시뮬레이터 2틱**으로 측정된 개정 전 값이다
 > (측정 스크립트의 검증 조회가 시간을 한 번 더 진행시켰다 — `AUDIT_2026-09-09.md` P1). 1틱 기준
@@ -555,13 +615,21 @@ always-attack(56.2%)보다 낮아, **탐지기의 실데이터 유용성은 아�
 
 ## 8. 표준 매핑 (ETSI ZSM / ENI)
 
-| 표준 조항 | 구현 |
-| --- | --- |
-| ZSM 002 Clause 3.1.1 — Closed-loop automation | `api_server.auto_step()` |
-| ZSM 002 Clause 3.1.1.2 — Analytics Service | `diagnose()` + `_root_cause_analysis()` |
-| ZSM 002 Clause 3.1.1.3 — Intelligence Service | `FewShotAgent.adapt_and_predict()` |
-| ZSM 002 Clause 3.1.1.4 — AI Model Evaluation | `ModelPerformanceTracker` |
-| ENI 007 — Experiential Networked Intelligence | 지지 버퍼 누적을 통한 inner-loop few-shot 적응 |
+절 번호는 ETSI 문서의 조항이 아니라 **대상 논문**(양우석·이재오, "ZSM/ENI 기반의 자율 네트워크 및
+서비스 관리", KNOM Review 27(2), 2024)의 절 번호다. 2026-11-14 이전 문서는 이를
+"ZSM 002 Clause 3.1.1.x"로 잘못 적었고 번호도 어긋나 있었다(폐쇄 루프는 §3.1.2, §3.1.1.3은
+오케스트레이션, 지능은 §3.1.1.4). ETSI GS ZSM 002 원문의 조항 번호는 아직 대조하지 않았다.
+
+| 논문 절 (근거 표준) | 구현 | 범위 |
+| --- | --- | --- |
+| §3.1.2 폐쇄 루프 기반 관리 자율화 (ZSM 009-1) | `api_server.auto_step()` | 단일 관리 도메인, OODA |
+| §3.1.1.1 데이터 수집 (ZSM 002) | `_fetch_snmp()`, collector-service | 성능 메트릭만 |
+| §3.1.1.2 분석 — 이상 탐지·근본 원인 분석 (ZSM 002) | `diagnose()` + `root_cause_analysis()` | 영향 분석·성능 분석 서비스는 없음 |
+| §3.1.1.3 서비스 오케스트레이션 (ZSM 002) | `_apply_ospf()` | OSPF cost 변경뿐 — 카탈로그·타당성 확인 없음 |
+| §3.1.1.4 서비스 지능 — 의사 결정 (ZSM 002) | `FewShotAgent.adapt_and_predict()` | 기여 미확인 (§6) |
+| §3.1.1.4 서비스 지능 — 배포된 AI 모델 평가 (ZSM 002) | `ModelPerformanceTracker` | |
+| §3.2 ENI 시스템 (ENI 005) | 해당 구현 없음 | API 브로커·정규화/역정규화·지식/문맥/정책 FB 미구현. "지지 버퍼 = 경험 기반 적응"은 명목상 대응일 뿐이다 |
+| §2.3 도메인 간 연합·전이 학습, §4 의도 주도 관리 | 해당 구현 없음 | 연구 범위 밖 |
 | RFC 2328 Appendix D / RFC 5709 | `ospf_security.verify_auth()` (MD5 / HMAC-SHA256) |
 
 ---
@@ -582,6 +650,10 @@ always-attack(56.2%)보다 낮아, **탐지기의 실데이터 유용성은 아�
 ---
 
 ## 10. 다음에 손댈 만한 것
+
+> **레거시 (2026-11-20).** 아래 목록은 2026-09-09 시점이다. 1·2번(보안 탐지)은 연구 범위 밖으로
+> 정리했고(`cowork/SECURITY.md`), 3·4번(NO-OP, 다중 동시 위협)은 Abilene 실험에서 다뤘다(무행동 포함
+> 행동 공간, 이중 혼잡). 현재 남은 선택지는 `cowork/RESULTS.md` §8과 `cowork/ROADMAP.md` §6 끝에 있다.
 
 (2026-09-09 정리 — 이전 목록의 2~4번은 §7에서 이미 해결된 항목이라 제거했다)
 
