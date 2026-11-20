@@ -55,6 +55,9 @@ run "result_meta"       "$ROOT/experiments" "$PY" _resultmeta.py
 run "figures/palette"   "$ROOT/experiments/figures" "$PY" palette.py
 run "figures/figspec"   "$ROOT/experiments/figures" "$PY" figspec.py
 
+# ── 1b) 문서 표 대조 — cowork/RESULTS.md·README.md의 결과 표가 results/*.json과 같은가 ──────
+run "results_tables"    "$ROOT"             "$PY" experiments/make_results_tables.py --check
+
 # ── 2) 문법 검사 (자가 테스트가 없는 모듈까지 최소한 import 가능한지) ──────────
 run "py_compile(all)"   "$ROOT"             "$PY" -m compileall -q \
     simulation ai-engine experiments
