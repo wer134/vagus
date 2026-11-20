@@ -1,5 +1,8 @@
 # Autonomous Network Management: ZSM/ENI OODA Loop Experiment Report
 
+> **보관 문서 (2026-11-20).** 2026-05 ~ 09의 실험 보고서다. 당시 연구 질문은 "MAML few-shot 에이전트가 DRL 기준선 대비 TTR을 얼마나 줄이는가"였고, 이후 절제 실험과 감사로 MAML의 기여가 확인되지 않아 질문 자체가 바뀌었다(RESULTS.md §1). 이 문서의 연구 질문·수치는 그 시점 기준이며, 본문은 고치지
+> 않고 그대로 둔다. 현재 연구 질문과 결과는 `cowork/RESULTS.md`, 진행 이력은 `cowork/CHANGELOG.md`에 있다.
+
 ## 1. 실험 개요
 
 ETSI ZSM (Zero-touch network and Service Management) 및 ENI (Experiential Networked Intelligence) 표준을 기반으로 한 폐쇄 루프 자율 네트워크 관리 시스템을 구현하고 검증한다.

@@ -706,7 +706,7 @@ def security_detect(metric: SecurityMetricPayload):
     """
     # 판정 → 학습 순서. 이전에는 update() 후 detect()라 판정 대상 샘플이 이미 학습셋에
     # 포함된 채 판정됐다 (cowork/AUDIT_2026-09-09.md P4). 레이블 없이 모든 샘플로 학습하므로
-    # 공격이 지속되면 공격이 '정상'으로 학습되는 문제는 남아 있다 — README 한계 참고.
+    # 공격이 지속되면 공격이 '정상'으로 학습되는 문제는 남아 있다 — cowork/SECURITY.md §5 참고.
     result = security_detector.detect(
         metric.bandwidth, metric.latency, metric.packetLoss,
         metric.syn_ratio, metric.unique_src_count, metric.pkt_rate,

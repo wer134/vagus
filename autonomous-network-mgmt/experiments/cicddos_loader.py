@@ -60,7 +60,7 @@ _OPTIONAL_KEYS = ["flow_duration", "flow_packets_s"]
 # ── Flow Duration == 0 플로우 처리 (cowork/ROADMAP.md C-1) ────────────────────
 # 실측: `Syn.csv` 430만 플로우 중 283,076개(6.6%)가 Flow Duration == 0이라 전송률을 계산할
 # 수 없다. SYN flood의 단발 패킷이 여기 해당해, 이들을 버리면 공격 신호가 그대로 샌다
-# (2026-09-06 검증의 남은 최대 누수 — README "성능 검증" 절 참고).
+# (2026-09-06 검증의 남은 최대 누수 — cowork/SECURITY.md §4 참고).
 #
 #   window_rate (기본) : 패킷 수 / window_sec 를 윈도우 pkt_rate에 더한다. 순간 전송률은
 #                        알 수 없지만 윈도우 평균 기여분은 정의된다.
@@ -250,7 +250,7 @@ class CICDDoSWindowIterator:
                     print(
                         "  [경고] 'Flow Packets/s' 컬럼 없음 — pkt_rate를 기존 방식"
                         "(플로우 시작 윈도우 총패킷/초)으로 폴백합니다. 이 방식은 recall을"
-                        " 크게 저하시키는 것으로 확인됨 (README 성능 검증 절 참고).",
+                        " 크게 저하시키는 것으로 확인됨 (cowork/SECURITY.md §4 참고).",
                         flush=True,
                     )
             chunk["_epoch"] = _to_epoch_seconds(chunk["timestamp"])

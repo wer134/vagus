@@ -1,5 +1,8 @@
 # 수정 작업 지시서 (autonomous-network-mgmt)
 
+> **보관 문서 (2026-11-20).** 2026-09-06 수정 작업 지시서다(T1–T8 완료). 이 문서의 연구 질문·수치는 그 시점 기준이며, 본문은 고치지
+> 않고 그대로 둔다. 현재 연구 질문과 결과는 `cowork/RESULTS.md`, 진행 이력은 `cowork/CHANGELOG.md`에 있다.
+
 > **수행자**: Fable 5.1
 > **작성일**: 2026-09-06
 > **작업 대상**: `C:\autonomous-network-mgmt\autonomous-network-mgmt\`

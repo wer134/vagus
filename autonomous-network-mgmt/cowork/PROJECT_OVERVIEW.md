@@ -3,6 +3,8 @@
 > 대상 경로: `C:\autonomous-network-mgmt\autonomous-network-mgmt\`
 > 작성일: 2026-09-06 · 소스 코드를 직접 읽고 정리한 기술 문서
 > 2026-09-09 갱신: 코드 감사(`AUDIT_2026-09-09.md`) 결과 반영 — 시뮬레이터 시계, RCA, 지지 버퍼, 실패 처리
+> 2026-11-20 갱신: §1 요약을 현재 연구 기준으로 바꾸고(이전 요약은 원문 보존), §3.2에 in-process 경로 추가,
+> §6·§10에 레거시 표시
 
 리포지토리 루트의 `README.md`가 "무엇을 주장하는 프로젝트인가"(연구 포지셔닝)를 다룬다면,
 이 문서는 **"실제 코드가 어떻게 구성되고 무엇이 어디까지 동작하는가"**를 정리한다.
@@ -12,19 +14,37 @@
 
 ## 1. 한 줄 요약
 
-4개 라우터로 구성된 가상 네트워크에서 **혼잡·라우팅 위조(OSPF LSA)·트래픽 공격(DDoS/포트스캔)** 을
-AI로 탐지하고, ETSI ZSM/ENI 폐쇄 루프(OODA)로 **사람 개입 없이 OSPF cost를 자동 조정해 복구**하는
-연구용 프로토타입.
-
-핵심 아이디어는 두 계층의 결합이다.
+(2026-11-20 갱신) ETSI ZSM 폐쇄 루프(관측 → 분석 → 결정 → 실행)를 단일 관리 도메인에 구현하고,
+링크 혼잡 복구에서 **규칙 · 모델 기반 계획기 · 학습 정책**이 각각 어떤 실패를 푸는지 비교하는 연구용
+프로토타입. 4노드(HTTP 폐쇄 루프)와 Abilene 11노드(in-process 하네스) 두 규모에서 측정한다.
 
 | 계층 | 담당 | 구현 |
 | --- | --- | --- |
-| **Analytics** (Orient) | SLA 위반 감지 + 근본 원인 링크 추정 | `anomaly_detector.diagnose()` + `api_server._root_cause_analysis()` |
-| **Intelligence** (Decide) | 어떤 링크에 어떤 cost를 줄지 결정 | MAML few-shot 에이전트 `FewShotAgent` |
+| **Analytics** (Orient) | SLA 위반 판정 + 근본 원인 링크 | v1 `root_cause_analysis()` (노드 지표), v2 `root_cause_analysis_v2()` (링크 관측) |
+| **Intelligence** (Decide) | 어떤 링크에 어떤 cost를 줄지 | 규칙(고장 링크 cost 100), 계획기 v3/v4 (`routing_model.py`, `scale_control.Planner`), 학습 정책(MAML `FewShotAgent`, Abilene PPO) |
+| **Orchestration** (Act) | cost 적용 | `api_server._apply_ospf()` / `NetSim.set_cost()` |
 
-Analytics가 고신뢰로 근본 원인을 짚으면 MAML의 결정을 **override** 한다. 실험적으로 이 override가
-성능의 대부분을 만들어낸다(§6 참고).
+결과: 진단 실패는 링크 단위 관측이, 조치 실패는 라우팅 모델 탐색이, 모델 불일치는 수요 재추정이
+풀었고, 학습 정책은 두 규모 모두에서 규칙 수준이었다 (`cowork/RESULTS.md`). 보안 탐지 모듈(§4.6의
+`SecurityAnomalyDetector`, §4.7)은 연구 범위 밖 부속 구현이다 (`cowork/SECURITY.md`).
+
+**2026-09-06판 요약 (원문 보존 — 당시에는 MAML이 결정 계층이었다):**
+
+> 4개 라우터로 구성된 가상 네트워크에서 **혼잡·라우팅 위조(OSPF LSA)·트래픽 공격(DDoS/포트스캔)** 을
+> AI로 탐지하고, ETSI ZSM/ENI 폐쇄 루프(OODA)로 **사람 개입 없이 OSPF cost를 자동 조정해 복구**하는
+> 연구용 프로토타입.
+>
+> 핵심 아이디어는 두 계층의 결합이다.
+>
+> | 계층 | 담당 | 구현 |
+> | --- | --- | --- |
+> | **Analytics** (Orient) | SLA 위반 감지 + 근본 원인 링크 추정 | `anomaly_detector.diagnose()` + `api_server._root_cause_analysis()` |
+> | **Intelligence** (Decide) | 어떤 링크에 어떤 cost를 줄지 결정 | MAML few-shot 에이전트 `FewShotAgent` |
+>
+> Analytics가 고신뢰로 근본 원인을 짚으면 MAML의 결정을 **override** 한다. 실험적으로 이 override가
+> 성능의 대부분을 만들어낸다(§6 참고).
+>
+> ---
 
 ---
 
@@ -99,7 +119,8 @@ Python 코드는 총 약 3,400 라인, Java는 2개 서비스 각 4~6 클래스 
 
 ### 3.2 두 갈래의 제어 경로
 
-이 프로젝트에는 **동일 목적의 제어 루프가 두 벌** 존재한다. 실험·논문 결과는 전부 (B)에서 나온다.
+이 프로젝트에는 **동일 목적의 제어 루프가 두 벌** 존재한다. 4노드 실험 결과는 전부 (B)에서 나온다.
+Abilene 규모 확장 실험은 세 번째 경로 (C)를 쓴다 (2026-11-18, 아래).
 
 **(A) Java 마이크로서비스 경로** — 표준적인 스트리밍 파이프라인 데모
 
@@ -121,8 +142,20 @@ POST /auto-step  (ai-engine 내부에서 한 사이클 전체를 수행)
   Evaluate : ModelPerformanceTracker
 ```
 
-`experiments/stress_test.py`, `ablation_study.py`, `persistent_buffer_test.py`는 모두 (B)의
-`/auto-step`을 호출하고, `run_experiment.py`는 HTTP 없이 `NetworkEnv`를 직접 돌린다(local_mode).
+`experiments/stress_test.py`, `ablation_study.py`, `persistent_buffer_test.py`, `capacity_probe.py`,
+`demand_shift_probe.py`는 모두 (B)의 `/auto-step`을 호출하고, `run_experiment.py`는 HTTP 없이
+`NetworkEnv`를 직접 돌린다(local_mode).
+
+**(C) in-process 규모 확장 경로** (2026-11-18) — HTTP 없이 한 프로세스에서
+
+```
+experiments/scale_benchmark.py · ai-engine/environment/scale_env.py
+  simulation/netsim.NetSim (임의 토폴로지, metric_generator finite 모드와 같은 물리)
+  사이클: tick → 노드 관측 → 링크 관측 → 결정(scale_control 제어기 또는 PPO) → 실행 → 판정
+```
+
+(B)와 같은 것을 재는지 확인했다: `scale_benchmark.py --validate-k4`가 `capacity_probe_v2.json`의
+4노드 255 에피소드를 재생해 전부 일치한다. 학습(PPO)과 평가가 같은 시나리오 정의(`scale_env.py`)를 쓴다.
 
 ---
 
@@ -409,6 +442,10 @@ cd orchestrator-service && ./mvnw spring-boot:run    # :8082
 
 ## 6. 실험 결과 요약
 
+> **레거시 (2026-11-20).** 이 절은 2026-09 측정(4노드 기본 시뮬레이터, 규칙 v1 + MAML/PPO)이다.
+> 11월의 연구 질문과 결과(용량·이중 혼잡, 수요 변화, Abilene)는 `cowork/RESULTS.md`에 있다.
+> §6.4의 CICDDoS2019 검증은 `cowork/SECURITY.md` §4와 같은 내용이다.
+
 > **2026-09-09 갱신**: 아래 §6.1~6.3의 수치는 **사이클당 시뮬레이터 2틱**으로 측정된 개정 전 값이다
 > (측정 스크립트의 검증 조회가 시간을 한 번 더 진행시켰다 — `AUDIT_2026-09-09.md` P1). 1틱 기준
 > 재측정치는 다음과 같고 상세는 AUDIT §3에 있다.
@@ -613,6 +650,10 @@ always-attack(56.2%)보다 낮아, **탐지기의 실데이터 유용성은 아�
 ---
 
 ## 10. 다음에 손댈 만한 것
+
+> **레거시 (2026-11-20).** 아래 목록은 2026-09-09 시점이다. 1·2번(보안 탐지)은 연구 범위 밖으로
+> 정리했고(`cowork/SECURITY.md`), 3·4번(NO-OP, 다중 동시 위협)은 Abilene 실험에서 다뤘다(무행동 포함
+> 행동 공간, 이중 혼잡). 현재 남은 선택지는 `cowork/RESULTS.md` §8과 `cowork/ROADMAP.md` §6 끝에 있다.
 
 (2026-09-09 정리 — 이전 목록의 2~4번은 §7에서 이미 해결된 항목이라 제거했다)
 
